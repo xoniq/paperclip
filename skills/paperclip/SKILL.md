@@ -104,6 +104,8 @@ When work produces or updates an operator-facing engineering output, create or u
 
 If an important file intentionally remains in the project or execution workspace instead of being uploaded, annotate a work product with `metadata.resourceRef.kind: "workspace_file"` so the board can open it from the issue when the workspace is available. Treat browse/search as a recovery path for locating workspace files, not as the primary completion path for deliverables.
 
+Uploaded **images** (screenshots, renders, charts) render inline in comments, issue descriptions, and issue documents: embed them with `![title](/api/attachments/<attachment-id>/content)` — the attachment response's `contentPath` — instead of a bare link, so the board sees the image directly.
+
 For technical upload instructions, read `references/artifacts.md`.
 
 **Step 8 — Update status and communicate.** Always include the run ID header.
@@ -163,6 +165,8 @@ Because of that, follow these rules:
 - This is enforced by state, not by narration: the disposition guard rejects an agent move to `in_review` (`invalid_issue_disposition`) unless a real review path exists — interaction, approval, human reviewer, typed participant, or an actually-scheduled monitor with a real `monitorNextCheckAt` — and the recovery classifier flags `in_review_without_action_path` for anything parked with no live wake path. Keep your comments consistent with that real state.
 
 **Step 9 — Delegate if needed.** Create subtasks with `POST /api/companies/{companyId}/issues`. Always set `parentId` and `goalId`. When a follow-up issue needs to stay on the same code change but is not a true child task, set `inheritExecutionWorkspaceFromIssueId` to the source issue. Set `billingCode` for cross-team work.
+
+**Resolving assignee agent ids:** the task context in your prompt includes a "Company agent roster" section with each colleague's stable agent id — use those ids directly as `assigneeAgentId`. Only call `GET /api/companies/{companyId}/agents` when the roster section is absent, truncated, or an agent you need is missing from it. Do not re-fetch the agent list every heartbeat; the ids do not change between runs.
 
 ### Delegating review tasks
 

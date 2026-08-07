@@ -133,6 +133,55 @@ describe("buildPaperclipTaskMarkdown", () => {
     expect(compact).toContain("Please also update the changelog.");
   });
 
+  it("renders the company agent roster in the full variant only", () => {
+    const input = {
+      issue: {
+        id: "issue-1",
+        identifier: "PAP-3404",
+        title: "Delegate the work",
+        workMode: "standard",
+        description: "Brief.",
+      },
+      roster: [
+        { id: "agent-ceo", name: "CEO - Jay", role: "ceo", title: null, status: "idle", isSelf: true },
+        { id: "agent-writer", name: "Journalist", role: "general", title: "Senior Game Journalist", status: "idle" },
+        { id: "agent-paused", name: "Translator", role: "general", title: null, status: "paused" },
+      ],
+    };
+
+    const full = buildPaperclipTaskMarkdown(input);
+    expect(full).toContain("Company agent roster");
+    expect(full).toContain("- CEO - Jay (ceo) — id: agent-ceo — this is you");
+    expect(full).toContain("- Journalist (general, Senior Game Journalist) — id: agent-writer");
+    expect(full).toContain("- Translator (general) — id: agent-paused [paused]");
+
+    const compact = buildPaperclipTaskMarkdown({ ...input, includeDescription: false });
+    expect(compact).not.toContain("Company agent roster");
+  });
+
+  it("truncates the roster after 25 agents with a fetch hint", () => {
+    const roster = Array.from({ length: 30 }, (_, index) => ({
+      id: `agent-${index}`,
+      name: `Agent ${index}`,
+      role: "general",
+      status: "idle",
+    }));
+    const markdown = buildPaperclipTaskMarkdown({
+      issue: {
+        id: "issue-1",
+        identifier: "PAP-1",
+        title: "Big org",
+        workMode: "standard",
+        description: null,
+      },
+      roster,
+    });
+
+    expect(markdown).toContain("- Agent 24 (general) — id: agent-24");
+    expect(markdown).not.toContain("- Agent 25 (general)");
+    expect(markdown).toContain("[roster truncated after 25 agents — GET /api/companies/{companyId}/agents lists the rest]");
+  });
+
   it("prefers ordinary comment planning guidance over stale accepted confirmation state", () => {
     const commentWake = buildPaperclipTaskMarkdown({
       issue: {

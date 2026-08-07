@@ -12,6 +12,29 @@ scripts/paperclip-upload-artifact.sh path/to/output.webm \
 
 The helper uses `PAPERCLIP_API_URL`, `PAPERCLIP_API_KEY`, `PAPERCLIP_COMPANY_ID`, `PAPERCLIP_TASK_ID`, and `PAPERCLIP_RUN_ID`. It uploads the file as an issue attachment, creates an attachment-backed artifact work product by default, and prints issue-safe markdown links for your final comment.
 
+## Embedding Images Inline
+
+Uploaded image attachments can be rendered **inline** in issue comments, issue
+descriptions, and issue documents — not just linked. Every attachment response
+includes a `contentPath` (`/api/attachments/<attachment-id>/content`). Use
+markdown image syntax with that path:
+
+```markdown
+![Screenshot of the fixed hero image](/api/attachments/3f9a1c2e-.../content)
+```
+
+Rules:
+
+- For screenshots, renders, charts, and any visual evidence, prefer the inline
+  `![...](contentPath)` embed over a bare link — the board sees the image
+  directly in the thread or document.
+- The `contentPath` is relative; never prepend a host. The UI resolves it.
+- Upload first, then reference the returned `contentPath`; do not guess ids.
+- Plain links (`[title](contentPath)`) remain correct for non-image files
+  (videos, PDFs, archives).
+- The upload helper prints an `Inline image:` line with the ready-to-paste
+  `![...]` snippet whenever the uploaded file is an image.
+
 ## Workspace-Only File References
 
 Use a workspace-only reference only when the file should stay in the project or

@@ -128,8 +128,8 @@ describeEmbeddedPostgres("heartbeat runtime MCP servers", () => {
     });
 
     const before = Date.now();
-    const first = await buildPaperclipRuntimeMcpServers({ db, agent: agent!, runId: randomUUID() });
-    const second = await buildPaperclipRuntimeMcpServers({ db, agent: agent!, runId: randomUUID() });
+    const { servers: first } = await buildPaperclipRuntimeMcpServers({ db, agent: agent!, runId: randomUUID() });
+    const { servers: second } = await buildPaperclipRuntimeMcpServers({ db, agent: agent!, runId: randomUUID() });
 
     expect(first).toHaveLength(1);
     expect(first[0]).toMatchObject({
@@ -213,9 +213,10 @@ describeEmbeddedPostgres("heartbeat runtime MCP servers", () => {
       contextSnapshot: {},
     });
 
-    const servers = await buildPaperclipRuntimeMcpServers({ db, agent: agent!, runId });
+    const { servers, permittedNotInstalledConnections } = await buildPaperclipRuntimeMcpServers({ db, agent: agent!, runId });
 
     expect(servers).toEqual([]);
+    expect(permittedNotInstalledConnections).toEqual([{ id: connection!.id, name: "Zapier" }]);
     const [activity] = await db
       .select()
       .from(activityLog)

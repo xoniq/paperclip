@@ -1418,6 +1418,40 @@ export function selectPaperclipTaskMarkdown(
   return compact || full;
 }
 
+// Renders a short prompt note describing runtime MCP availability for this run.
+// Delivered servers are listed on fresh sessions only (resumed sessions already
+// know their tool set); permitted-but-undelivered connections are always
+// surfaced because silently missing tools cause agents to guess, build ad-hoc
+// HTTP fallbacks, or block on the wrong owner.
+export function renderPaperclipRuntimeMcpNote(
+  context: Record<string, unknown> | null | undefined,
+  options: { resumedSession?: boolean } = {},
+): string {
+  const runtimeMcp = parseObject(context?.paperclipRuntimeMcp);
+  const readEntries = (value: unknown): Array<{ name: string }> =>
+    Array.isArray(value)
+      ? value
+          .map((entry) => ({ name: asString(parseObject(entry).name, "").trim() }))
+          .filter((entry) => entry.name.length > 0)
+      : [];
+  const servers = readEntries(runtimeMcp.servers);
+  const notInstalled = readEntries(runtimeMcp.permittedNotInstalledConnections);
+  const lines: string[] = [];
+  if (servers.length > 0 && options.resumedSession !== true) {
+    lines.push(
+      `Runtime MCP servers loaded for this session: ${servers.map((server) => server.name).join(", ")}. ` +
+        "Their tools are available natively (tools/list); use them directly instead of writing ad-hoc HTTP calls or one-off scripts against the same service.",
+    );
+  }
+  if (notInstalled.length > 0) {
+    lines.push(
+      `MCP connections permitted for you but NOT delivered to this run: ${notInstalled.map((connection) => connection.name).join(", ")}. ` +
+        "Their tools are unavailable in this session. If the task needs them, report the missing connection install (name it explicitly) instead of guessing tool names or building workarounds.",
+    );
+  }
+  return lines.join("\n");
+}
+
 export function renderPaperclipWakePrompt(
   value: unknown,
   options: {

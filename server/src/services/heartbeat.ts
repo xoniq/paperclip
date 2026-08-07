@@ -3195,7 +3195,13 @@ export async function buildPaperclipRuntimeMcpServers(input: {
   db: Db;
   agent: Pick<typeof agents.$inferSelect, "id" | "companyId" | "name">;
   runId: string;
-}): Promise<AdapterRuntimeMcpServer[]> {
+}): Promise<{
+  servers: AdapterRuntimeMcpServer[];
+  // Permitted mcp_remote connections that could not be delivered this run.
+  // Surfaced in the run prompt so the agent learns the tools are missing
+  // instead of discovering it by failed tool calls.
+  permittedNotInstalledConnections: Array<{ id: string; name: string }>;
+}> {
   const effective = await toolAccessService(input.db).getEffectiveProfilesForAgent(
     input.agent.companyId,
     input.agent.id,
@@ -3238,7 +3244,7 @@ export async function buildPaperclipRuntimeMcpServers(input: {
       runId: input.runId,
       permittedNotInstalledConnections,
     });
-    return [];
+    return { servers: [], permittedNotInstalledConnections };
   }
   const servers: AdapterRuntimeMcpServer[] = [];
   for (const connection of uniqueConnections) {
@@ -3319,7 +3325,7 @@ export async function buildPaperclipRuntimeMcpServers(input: {
       permittedNotInstalledConnections,
     });
   }
-  return servers;
+  return { servers, permittedNotInstalledConnections };
 }
 
 function createAdapterRuntimeMcpAccess(
@@ -6102,6 +6108,14 @@ export function buildPaperclipTaskMarkdown(input: {
     status?: string | null;
   } | null;
   acceptedPlanContinuation?: boolean;
+  roster?: Array<{
+    id: string;
+    name: string;
+    role?: string | null;
+    title?: string | null;
+    status?: string | null;
+    isSelf?: boolean;
+  }> | null;
   // false builds the compact variant used for resume deltas, where the session
   // already received the description with the assignment.
   includeDescription?: boolean;
@@ -6187,6 +6201,26 @@ export function buildPaperclipTaskMarkdown(input: {
     }
     if ((input.ancestors ?? []).length > ancestors.length) {
       lines.push(`- [ancestor context truncated after ${ancestors.length} entries]`);
+    }
+  }
+  // The roster is stable background info: render it in the full variant only, so
+  // resume deltas do not repeat it on every wake.
+  const roster = input.includeDescription === false ? [] : (input.roster ?? []).slice(0, 25);
+  if (roster.length > 0) {
+    lines.push(
+      "",
+      "Company agent roster (ids are stable — use them directly as assigneeAgentId when delegating; do not re-fetch the agent list every run):",
+    );
+    for (const member of roster) {
+      const role = member.role?.trim() || null;
+      const title = member.title?.trim() || null;
+      const descriptor = role && title && title !== role ? `${role}, ${title}` : (role ?? title);
+      const status = member.status && member.status !== "idle" && member.status !== "active" ? ` [${member.status}]` : "";
+      const self = member.isSelf ? " — this is you" : "";
+      lines.push(`- ${member.name}${descriptor ? ` (${descriptor})` : ""} — id: ${member.id}${status}${self}`);
+    }
+    if ((input.roster ?? []).length > roster.length) {
+      lines.push(`- [roster truncated after ${roster.length} agents — GET /api/companies/{companyId}/agents lists the rest]`);
     }
   }
   if (wakeComment?.body.trim()) {
@@ -13893,6 +13927,28 @@ export function heartbeatService(db: Db, options: HeartbeatServiceOptions = {}) 
     } else {
       delete context[PAPERCLIP_WAKE_PAYLOAD_KEY];
     }
+    // Company roster for the prompt: agent ids are stable, but nothing else in the
+    // run context exposes them, which forces delegating agents (CEO/managers) to
+    // re-fetch GET /api/companies/{companyId}/agents on every heartbeat.
+    const rosterRows = await db
+      .select({
+        id: agents.id,
+        name: agents.name,
+        role: agents.role,
+        title: agents.title,
+        status: agents.status,
+      })
+      .from(agents)
+      .where(and(eq(agents.companyId, agent.companyId), ne(agents.status, "terminated")))
+      .orderBy(asc(agents.createdAt));
+    const agentRoster = rosterRows.map((row) => ({
+      id: row.id,
+      name: row.name,
+      role: row.role,
+      title: row.title,
+      status: row.status,
+      isSelf: row.id === agent.id,
+    }));
     const taskMarkdownInput = {
       issue: issueRef
         ? {
@@ -13904,6 +13960,7 @@ export function heartbeatService(db: Db, options: HeartbeatServiceOptions = {}) 
           }
         : null,
       ancestors: issueAncestors,
+      roster: agentRoster,
       wakeComment: safeWakeCommentContext,
       interaction: {
         kind: readNonEmptyString(context.interactionKind),
@@ -13925,6 +13982,11 @@ export function heartbeatService(db: Db, options: HeartbeatServiceOptions = {}) 
       };
     } else {
       delete context.paperclipIssue;
+    }
+    if (agentRoster.length > 0) {
+      context.paperclipAgentRoster = agentRoster;
+    } else {
+      delete context.paperclipAgentRoster;
     }
     if (wakeCommentContext) {
       context.paperclipWakeComment = safeWakeCommentContext;
@@ -15562,12 +15624,22 @@ export function heartbeatService(db: Db, options: HeartbeatServiceOptions = {}) 
       let adapterResult: Awaited<ReturnType<typeof adapter.execute>>;
       try {
         const adapterContext = { ...context };
-        const runtimeMcpServers = await buildPaperclipRuntimeMcpServers({
-          db,
-          agent,
-          runId: run.id,
-        });
+        const { servers: runtimeMcpServers, permittedNotInstalledConnections } =
+          await buildPaperclipRuntimeMcpServers({
+            db,
+            agent,
+            runId: run.id,
+          });
         const runtimeMcp = createAdapterRuntimeMcpAccess(runtimeMcpServers);
+        // Tell the run which MCP servers were (not) delivered, so agents don't
+        // have to discover tool availability by trial and error. Adapters render
+        // this into the prompt via renderPaperclipRuntimeMcpNote.
+        if (runtimeMcpServers.length > 0 || permittedNotInstalledConnections.length > 0) {
+          adapterContext.paperclipRuntimeMcp = {
+            servers: runtimeMcpServers.map(({ name, connectionId }) => ({ name, connectionId })),
+            permittedNotInstalledConnections,
+          };
+        }
         const managedMcpConfig = await createManagedMcpRunConfig({
           db,
           agent,

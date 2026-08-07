@@ -358,6 +358,7 @@ fi
 content_path="$(jq -r '.contentPath // empty' <<<"$attachment")"
 download_path="$(jq -r '.downloadPath // (if .contentPath then (.contentPath + "?download=1") else "" end)' <<<"$attachment")"
 attachment_id="$(jq -r '.id // empty' <<<"$attachment")"
+attachment_content_type="$(jq -r '.contentType // empty' <<<"$attachment")"
 work_product_id="$(jq -r '.id // empty' <<<"$work_product")"
 
 printf 'Uploaded artifact\n\n'
@@ -368,4 +369,9 @@ if [[ -n "$work_product_id" ]]; then
   printf -- '- Work product ID: `%s`\n' "$work_product_id"
 fi
 printf '\nFinal comment snippet:\n\n'
+if [[ "$attachment_content_type" == image/* ]]; then
+  # Images render inline in comments, descriptions, and issue documents.
+  # Prefer the embed so the board sees the image without clicking through.
+  printf -- 'Inline image: ![%s](%s)\n' "$title" "$content_path"
+fi
 printf -- '- Artifact: [%s](%s)\n' "$title" "$content_path"

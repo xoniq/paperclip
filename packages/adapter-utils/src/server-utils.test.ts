@@ -14,6 +14,7 @@ import {
   materializePaperclipSkillCopy,
   refreshPaperclipWorkspaceEnvForExecution,
   renderPaperclipWakePrompt,
+  renderPaperclipRuntimeMcpNote,
   selectPaperclipTaskMarkdown,
   runningProcesses,
   runChildProcess,
@@ -1982,6 +1983,40 @@ describe("selectPaperclipTaskMarkdown", () => {
         { resumedSession: true },
       ),
     ).toBe(fullMarkdown);
+  });
+});
+
+describe("renderPaperclipRuntimeMcpNote", () => {
+  it("lists delivered servers on fresh sessions and suppresses them on resume", () => {
+    const context = {
+      paperclipRuntimeMcp: {
+        servers: [{ name: "Red CMS", connectionId: "conn-1" }],
+        permittedNotInstalledConnections: [],
+      },
+    };
+    const fresh = renderPaperclipRuntimeMcpNote(context);
+    expect(fresh).toContain("Runtime MCP servers loaded for this session: Red CMS.");
+    expect(fresh).toContain("use them directly instead of writing ad-hoc HTTP calls");
+    expect(renderPaperclipRuntimeMcpNote(context, { resumedSession: true })).toBe("");
+  });
+
+  it("always surfaces permitted-but-undelivered connections", () => {
+    const context = {
+      paperclipRuntimeMcp: {
+        servers: [],
+        permittedNotInstalledConnections: [{ id: "conn-2", name: "Zapier" }],
+      },
+    };
+    for (const resumedSession of [false, true]) {
+      const note = renderPaperclipRuntimeMcpNote(context, { resumedSession });
+      expect(note).toContain("NOT delivered to this run: Zapier");
+      expect(note).toContain("report the missing connection install");
+    }
+  });
+
+  it("returns an empty string when no runtime MCP context exists", () => {
+    expect(renderPaperclipRuntimeMcpNote({})).toBe("");
+    expect(renderPaperclipRuntimeMcpNote(null)).toBe("");
   });
 });
 

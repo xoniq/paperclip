@@ -172,6 +172,16 @@ export async function writePaperclipClaudeMcpConfig(input: {
   }
   await fs.mkdir(configDir, { recursive: true });
   await fs.writeFile(configPath, JSON.stringify({ mcpServers }), { mode: 0o600 });
+  // Keep per-run runtime state out of any git repo an operator or agent
+  // maintains at the instance root: without this, every run adds untracked
+  // `claude-runtime/runs/<runId>/` noise to `git status` output that agents
+  // then re-read on each heartbeat.
+  const gitignorePath = path.join(input.stateDir, ".gitignore");
+  try {
+    await fs.access(gitignorePath);
+  } catch {
+    await fs.writeFile(gitignorePath, "*\n").catch(() => {});
+  }
   return configPath;
 }
 

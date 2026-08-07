@@ -43,6 +43,7 @@ import {
   resolvePaperclipDesiredSkillNames,
   renderTemplate,
   renderPaperclipWakePrompt,
+  renderPaperclipRuntimeMcpNote,
   isPaperclipRecoveryWakePayload,
   stringifyPaperclipWakePayload,
   DEFAULT_PAPERCLIP_AGENT_PROMPT_TEMPLATE,
@@ -1148,12 +1149,14 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
       ? ""
       : renderTemplate(promptTemplate, templateData);
     const sessionHandoffNote = asString(context.paperclipSessionHandoffMarkdown, "").trim();
+    const runtimeMcpNote = renderPaperclipRuntimeMcpNote(context, { resumedSession: Boolean(sessionId) });
     const prompt = joinPromptSections([
       promptInstructionsPrefix,
       renderedBootstrapPrompt,
       wakePrompt,
       codexFallbackHandoffNote,
       sessionHandoffNote,
+      runtimeMcpNote,
       renderedPrompt,
     ]);
     const promptMetrics = {

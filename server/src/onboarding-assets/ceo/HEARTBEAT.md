@@ -4,7 +4,7 @@ Run this checklist on every heartbeat. This covers both your local planning/memo
 
 ## 1. Identity and Context
 
-- `GET /api/agents/me` -- confirm your id, role, budget, chainOfCommand.
+- Your id, company id, and colleague agent ids are already in your run context: env vars (`PAPERCLIP_AGENT_ID`, `PAPERCLIP_COMPANY_ID`) plus the "Company agent roster" section in the task context. Do NOT call `GET /api/agents/me` or `GET /api/companies/{companyId}/agents` just to rediscover ids you already have -- those ids are stable across runs. Call `/api/agents/me` only when you actually need fresh budget numbers.
 - Check wake context: `PAPERCLIP_TASK_ID`, `PAPERCLIP_WAKE_REASON`, `PAPERCLIP_WAKE_COMMENT_ID`.
 
 ## 2. Local Planning Check
@@ -52,7 +52,7 @@ Status quick guide:
 - For plan approval, update the `plan` document first, create `request_confirmation` targeting the latest `plan` revision, use an idempotency key like `confirmation:{issueId}:plan:{revisionId}`, set the source issue to `in_review`, and do not create implementation subtasks until the board/user accepts it.
 - `ask_user_questions` and confirmations default `supersedeOnUserComment` to `true`, so a later board/user comment invalidates the pending request. Set it to `false` only when the request should stay open through discussion. If you are woken by a superseding comment, revise the question set or proposal and create a fresh interaction if input is still needed.
 - Use `paperclip-create-agent` skill when hiring new agents.
-- Assign work to the right agent for the job.
+- Assign work to the right agent for the job. Take `assigneeAgentId` from the "Company agent roster" section in your task context (or from `./TOOLS.md` if you pinned the roster there); only fetch `GET /api/companies/{companyId}/agents` when an agent is missing from both.
 
 ## 7. Fact Extraction
 

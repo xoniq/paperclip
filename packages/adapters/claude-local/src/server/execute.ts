@@ -41,6 +41,7 @@ import {
   refreshPaperclipWorkspaceEnvForExecution,
   renderTemplate,
   renderPaperclipWakePrompt,
+  renderPaperclipRuntimeMcpNote,
   isPaperclipRecoveryWakePayload,
   selectPaperclipTaskMarkdown,
   rewriteWorkspaceCwdEnvVarsForExecution,
@@ -815,11 +816,13 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
     ? ""
     : renderTemplate(promptTemplate, templateData);
   const sessionHandoffNote = asString(context.paperclipSessionHandoffMarkdown, "").trim();
+  const runtimeMcpNote = renderPaperclipRuntimeMcpNote(context, { resumedSession: Boolean(sessionId) });
   const prompt = joinPromptSections([
     renderedBootstrapPrompt,
     wakePrompt,
     sessionHandoffNote,
     taskContextNote,
+    runtimeMcpNote,
     renderedPrompt,
   ]);
   const promptMetrics = {
