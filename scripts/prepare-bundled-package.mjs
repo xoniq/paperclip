@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { execFileSync } from "node:child_process";
-import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readFileSync, realpathSync, rmSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -137,7 +137,21 @@ export function prepareBundledPackage(sourceDir, destinationDir) {
   }
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+// Compare realpaths: Node resolves symlinks when forming the main module's
+// import.meta.url, so a bare `process.argv[1] === fileURLToPath(...)` check
+// silently no-ops (exit 0) when the checkout lives behind a symlinked path
+// (e.g. a bind-mounted home directory). The git-ref installer then fails one
+// step later with a confusing missing-package.json error from `npm pack`.
+const invokedAsScript = (() => {
+  if (!process.argv[1]) return false;
+  try {
+    return realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url));
+  } catch {
+    return false;
+  }
+})();
+
+if (invokedAsScript) {
   const [sourceDir, destinationDir] = process.argv.slice(2);
   if (!sourceDir || !destinationDir) {
     console.error("Usage: prepare-bundled-package.mjs <source-dir> <destination-dir>");
