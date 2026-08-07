@@ -110,7 +110,7 @@ import type {
 import { CLASS3_STATIC_LEASE_ALLOWLIST, credentialConfigPath, getAvailableConnectionMethod, getConnectableAppDefinition, isToolConnectionAttentionHealth, recommendedDefaultsForApp } from "@paperclipai/shared";
 import { badRequest, conflict, forbidden, HttpError, notFound, unprocessable } from "../errors.js";
 import { logActivity } from "./activity-log.js";
-import { mcpHttpRequestHeaders, parseMcpHttpResponseBody } from "./mcp-http.js";
+import { mcpHttpRequestHeaders, parseMcpHttpResponseBody, withMcpHttpSessionRetry } from "./mcp-http.js";
 import { assertPublicRemoteHttpEndpoint, parseRemoteHttpEndpoint } from "./remote-http-endpoint-guard.js";
 import { secretService } from "./secrets.js";
 import { toolAccessPolicyService } from "./tool-access-policy.js";
@@ -2865,16 +2865,24 @@ export function toolAccessService(db: Db, options: ToolAccessServiceOptions = {}
   async function remoteTools(connection: typeof toolConnections.$inferSelect): Promise<McpToolDescriptor[]> {
     const headers = await resolveCredentialHeaders(connection);
     const endpoint = await assertRemoteEndpointAllowed(connection.config);
-    const response = await fetch(endpoint, {
-      method: "POST",
-      // MCP Streamable HTTP requires advertising that we accept both a JSON body
-      // and an SSE stream; spec-compliant servers 406 without it (see mcp-http.ts).
-      headers: mcpHttpRequestHeaders(headers),
-      body: JSON.stringify({
-        jsonrpc: "2.0",
-        id: "paperclip-catalog-refresh",
-        method: "tools/list",
-        params: {},
+    // Sessionless fast path first; stateful Streamable HTTP servers reject it
+    // with "Server not initialized", after which the helper performs the
+    // initialize handshake and retries with the Mcp-Session-Id header.
+    const response = await withMcpHttpSessionRetry({
+      cacheKey: connection.id,
+      endpoint,
+      headers,
+      send: (sessionHeaders) => fetch(endpoint, {
+        method: "POST",
+        // MCP Streamable HTTP requires advertising that we accept both a JSON body
+        // and an SSE stream; spec-compliant servers 406 without it (see mcp-http.ts).
+        headers: mcpHttpRequestHeaders({ ...headers, ...sessionHeaders }),
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: "paperclip-catalog-refresh",
+          method: "tools/list",
+          params: {},
+        }),
       }),
     });
     if (!response.ok) {

@@ -53,7 +53,7 @@ import type {
 import type { AgentToolDescriptor, PluginToolDispatcher } from "./plugin-tool-dispatcher.js";
 import { logActivity, type LogActivityInput } from "./activity-log.js";
 import { secretService } from "./secrets.js";
-import { mcpHttpRequestHeaders, parseMcpHttpResponseBody } from "./mcp-http.js";
+import { mcpHttpRequestHeaders, parseMcpHttpResponseBody, withMcpHttpSessionRetry } from "./mcp-http.js";
 import { assertPublicRemoteHttpEndpoint, parseRemoteHttpEndpoint } from "./remote-http-endpoint-guard.js";
 import { toolAccessPolicyService } from "./tool-access-policy.js";
 import { issueThreadInteractionService } from "./issue-thread-interactions.js";
@@ -3035,21 +3035,30 @@ export function createToolGatewayService(
     const timer = setTimeout(() => controller.abort(), ms);
     timer.unref?.();
     try {
-      const response = await fetch(endpoint, {
-        method: "POST",
-        redirect: "manual",
-        // MCP Streamable HTTP requires the Accept header advertising both a JSON
-        // body and an SSE stream; spec-compliant servers 406 without it.
-        headers: mcpHttpRequestHeaders(headers),
+      // Sessionless fast path first; stateful Streamable HTTP servers reject it
+      // with "Server not initialized", after which the helper performs the
+      // initialize handshake and retries with the Mcp-Session-Id header.
+      const response = await withMcpHttpSessionRetry({
+        cacheKey: connection.id,
+        endpoint,
+        headers,
         signal: controller.signal,
-        body: JSON.stringify({
-          jsonrpc: "2.0",
-          id: requestId,
-          method: "tools/call",
-          params: {
-            name: entry.toolName,
-            arguments: parameters ?? {},
-          },
+        send: (sessionHeaders) => fetch(endpoint, {
+          method: "POST",
+          redirect: "manual",
+          // MCP Streamable HTTP requires the Accept header advertising both a JSON
+          // body and an SSE stream; spec-compliant servers 406 without it.
+          headers: mcpHttpRequestHeaders({ ...headers, ...sessionHeaders }),
+          signal: controller.signal,
+          body: JSON.stringify({
+            jsonrpc: "2.0",
+            id: requestId,
+            method: "tools/call",
+            params: {
+              name: entry.toolName,
+              arguments: parameters ?? {},
+            },
+          }),
         }),
       });
       const body = await readBoundedRemoteResponse(response);
