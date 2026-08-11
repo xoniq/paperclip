@@ -737,4 +737,71 @@ describeEmbeddedPostgres("productivity review service", () => {
     const [review] = await listProductivityReviews(seeded.companyId);
     expect(review?.requestDepth).toBe(MAX_ISSUE_REQUEST_DEPTH);
   });
+
+  it("creates no reviews when PAPERCLIP_PRODUCTIVITY_REVIEW_ENABLED is off", async () => {
+    const now = new Date("2026-04-28T12:00:00.000Z");
+    const seeded = await seedAssignedIssue();
+    await insertRuns({
+      companyId: seeded.companyId,
+      agentId: seeded.coderId,
+      issueId: seeded.issueId,
+      count: DEFAULT_PRODUCTIVITY_REVIEW_NO_COMMENT_STREAK_RUNS,
+      now,
+    });
+
+    const previous = process.env.PAPERCLIP_PRODUCTIVITY_REVIEW_ENABLED;
+    process.env.PAPERCLIP_PRODUCTIVITY_REVIEW_ENABLED = "false";
+    try {
+      const result = await productivityReviewService(db).reconcileProductivityReviews({
+        now,
+        companyId: seeded.companyId,
+      });
+      expect(result.disabled).toBe(true);
+      expect(result.created).toBe(0);
+      expect(await listProductivityReviews(seeded.companyId)).toHaveLength(0);
+    } finally {
+      if (previous === undefined) delete process.env.PAPERCLIP_PRODUCTIVITY_REVIEW_ENABLED;
+      else process.env.PAPERCLIP_PRODUCTIVITY_REVIEW_ENABLED = previous;
+    }
+  });
+
+  it("raises the review thresholds from the environment", async () => {
+    const now = new Date("2026-04-28T12:00:00.000Z");
+    const seeded = await seedAssignedIssue();
+    await insertRuns({
+      companyId: seeded.companyId,
+      agentId: seeded.coderId,
+      issueId: seeded.issueId,
+      count: DEFAULT_PRODUCTIVITY_REVIEW_NO_COMMENT_STREAK_RUNS,
+      now,
+    });
+
+    // A burst of runs trips both the no-comment streak and the churn triggers,
+    // which is exactly the delegation-heavy shape these overrides exist for.
+    const overrides = {
+      PAPERCLIP_PRODUCTIVITY_REVIEW_NO_COMMENT_STREAK_RUNS: String(
+        DEFAULT_PRODUCTIVITY_REVIEW_NO_COMMENT_STREAK_RUNS * 5,
+      ),
+      PAPERCLIP_PRODUCTIVITY_REVIEW_HIGH_CHURN_HOURLY: "500",
+      PAPERCLIP_PRODUCTIVITY_REVIEW_HIGH_CHURN_SIX_HOURS: "1000",
+      PAPERCLIP_PRODUCTIVITY_REVIEW_LONG_ACTIVE_HOURS: "720",
+    };
+    const previous = Object.fromEntries(
+      Object.keys(overrides).map((key) => [key, process.env[key]]),
+    );
+    Object.assign(process.env, overrides);
+    try {
+      const result = await productivityReviewService(db).reconcileProductivityReviews({
+        now,
+        companyId: seeded.companyId,
+      });
+      expect(result.created).toBe(0);
+      expect(await listProductivityReviews(seeded.companyId)).toHaveLength(0);
+    } finally {
+      for (const [key, value] of Object.entries(previous)) {
+        if (value === undefined) delete process.env[key];
+        else process.env[key] = value;
+      }
+    }
+  });
 });

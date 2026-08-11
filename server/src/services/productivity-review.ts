@@ -34,6 +34,26 @@ export const DEFAULT_PRODUCTIVITY_REVIEW_CREATION_WINDOW_MS = 24 * 60 * 60 * 100
 export const DEFAULT_PRODUCTIVITY_REVIEW_MAX_CREATIONS_PER_WINDOW = 1;
 export const DEFAULT_PRODUCTIVITY_REVIEW_MAX_CONSECUTIVE_NO_ACTION_REVIEWS = 3;
 
+/**
+ * Deployment overrides. A delegation-heavy company trips the churn triggers by
+ * design — a parent issue that fans out to four specialists produces a burst of
+ * runs per hour that is healthy, not pathological — and every review it spawns
+ * costs a full agent run. These let an operator retune or switch off the
+ * reviews without a schema change; unset or unparseable values keep the
+ * defaults above.
+ */
+function envPositiveInteger(name: string, fallback: number) {
+  const raw = process.env[name]?.trim();
+  if (!raw) return fallback;
+  const parsed = Number(raw);
+  return Number.isFinite(parsed) && parsed > 0 ? Math.floor(parsed) : fallback;
+}
+
+export function productivityReviewsEnabled() {
+  const raw = process.env.PAPERCLIP_PRODUCTIVITY_REVIEW_ENABLED?.trim().toLowerCase();
+  return raw !== "false" && raw !== "0" && raw !== "off";
+}
+
 const TERMINAL_RUN_STATUSES = ["succeeded", "interrupted", "failed", "cancelled", "timed_out"] as const;
 const ACTIVE_RUN_STATUSES = ["queued", "running", "scheduled_retry"] as const;
 const MAX_CANDIDATE_ISSUES = 250;
@@ -151,19 +171,35 @@ function coerceDate(value: Date | string | null | undefined) {
 function buildThresholds(overrides?: Partial<ProductivityReviewThresholds>): ProductivityReviewThresholds {
   return {
     noCommentStreakRuns: readPositiveInteger(
-      overrides?.noCommentStreakRuns ?? DEFAULT_PRODUCTIVITY_REVIEW_NO_COMMENT_STREAK_RUNS,
+      overrides?.noCommentStreakRuns
+        ?? envPositiveInteger(
+          "PAPERCLIP_PRODUCTIVITY_REVIEW_NO_COMMENT_STREAK_RUNS",
+          DEFAULT_PRODUCTIVITY_REVIEW_NO_COMMENT_STREAK_RUNS,
+        ),
       DEFAULT_PRODUCTIVITY_REVIEW_NO_COMMENT_STREAK_RUNS,
     ),
     longActiveMs: readPositiveInteger(
-      overrides?.longActiveMs ?? DEFAULT_PRODUCTIVITY_REVIEW_LONG_ACTIVE_HOURS * 60 * 60 * 1000,
+      overrides?.longActiveMs
+        ?? envPositiveInteger(
+          "PAPERCLIP_PRODUCTIVITY_REVIEW_LONG_ACTIVE_HOURS",
+          DEFAULT_PRODUCTIVITY_REVIEW_LONG_ACTIVE_HOURS,
+        ) * 60 * 60 * 1000,
       DEFAULT_PRODUCTIVITY_REVIEW_LONG_ACTIVE_HOURS * 60 * 60 * 1000,
     ),
     highChurnHourly: readPositiveInteger(
-      overrides?.highChurnHourly ?? DEFAULT_PRODUCTIVITY_REVIEW_HIGH_CHURN_HOURLY,
+      overrides?.highChurnHourly
+        ?? envPositiveInteger(
+          "PAPERCLIP_PRODUCTIVITY_REVIEW_HIGH_CHURN_HOURLY",
+          DEFAULT_PRODUCTIVITY_REVIEW_HIGH_CHURN_HOURLY,
+        ),
       DEFAULT_PRODUCTIVITY_REVIEW_HIGH_CHURN_HOURLY,
     ),
     highChurnSixHours: readPositiveInteger(
-      overrides?.highChurnSixHours ?? DEFAULT_PRODUCTIVITY_REVIEW_HIGH_CHURN_SIX_HOURS,
+      overrides?.highChurnSixHours
+        ?? envPositiveInteger(
+          "PAPERCLIP_PRODUCTIVITY_REVIEW_HIGH_CHURN_SIX_HOURS",
+          DEFAULT_PRODUCTIVITY_REVIEW_HIGH_CHURN_SIX_HOURS,
+        ),
       DEFAULT_PRODUCTIVITY_REVIEW_HIGH_CHURN_SIX_HOURS,
     ),
     resolvedSnoozeMs: readPositiveInteger(
@@ -846,6 +882,22 @@ export function productivityReviewService(db: Db, deps?: { enqueueWakeup?: Enque
   }) {
     const now = opts?.now ?? new Date();
     const thresholds = buildThresholds(opts?.thresholds);
+    if (!productivityReviewsEnabled()) {
+      return {
+        scanned: 0,
+        created: 0,
+        updated: 0,
+        existing: 0,
+        snoozed: 0,
+        creationCapped: 0,
+        noActionSuppressed: 0,
+        skipped: 0,
+        failed: 0,
+        disabled: true as boolean,
+        reviewIssueIds: [] as string[],
+        failedIssueIds: [] as string[],
+      };
+    }
     const candidates = await db
       .select()
       .from(issues)
@@ -873,6 +925,7 @@ export function productivityReviewService(db: Db, deps?: { enqueueWakeup?: Enque
       noActionSuppressed: 0,
       skipped: 0,
       failed: 0,
+      disabled: false as boolean,
       reviewIssueIds: [] as string[],
       failedIssueIds: [] as string[],
     };
@@ -941,6 +994,7 @@ export function productivityReviewService(db: Db, deps?: { enqueueWakeup?: Enque
   }) {
     const now = input.now ?? new Date();
     const thresholds = buildThresholds(input.thresholds);
+    if (!productivityReviewsEnabled()) return { held: false as const };
     const [sourceIssue, sourceAgent, openReview] = await Promise.all([
       db
         .select()
