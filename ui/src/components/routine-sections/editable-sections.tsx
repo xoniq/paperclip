@@ -490,6 +490,9 @@ export function TriggersSection() {
               <Label className="text-xs">Schedule</Label>
               <ScheduleEditor
                 value={newTrigger.cronExpression}
+                // A new trigger is created with the browser's timezone
+                // (RoutineDetail passes getLocalTimezone()), so preview it that way.
+                timeZone={Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC"}
                 onChange={(cronExpression) =>
                   setNewTrigger((current) => ({ ...current, cronExpression }))
                 }

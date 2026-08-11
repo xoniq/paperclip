@@ -115,6 +115,7 @@ export function RoutineTriggerCard({
             <Label className="text-xs">Schedule</Label>
             <ScheduleEditor
               value={draft.cronExpression}
+              timeZone={trigger.timezone ?? "UTC"}
               onChange={(cronExpression) =>
                 setDraft((current) => ({ ...current, cronExpression }))
               }

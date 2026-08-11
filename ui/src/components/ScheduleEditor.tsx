@@ -152,7 +152,13 @@ function ordinalSuffix(n: number): string {
 
 export { describeSchedule };
 
-export function getScheduleCronValidation(cron: string): {
+export function getScheduleCronValidation(
+  cron: string,
+  // The server schedules with the trigger's own timezone, so the preview has
+  // to use it too. Defaulting to UTC used to show a Europe/Amsterdam trigger
+  // firing two hours late.
+  timeZone = "UTC",
+): {
   valid: boolean;
   message: string;
   nextFires: Date[];
@@ -183,7 +189,7 @@ export function getScheduleCronValidation(cron: string): {
     };
   }
 
-  const nextFires = nextCronFires(trimmed, 3, { timeZone: "UTC" });
+  const nextFires = nextCronFires(trimmed, 3, { timeZone });
   return {
     valid: true,
     message: nextFires.length > 0 ? "Valid cron." : "Valid cron, but no upcoming fires were found.",
@@ -195,10 +201,12 @@ export function ScheduleEditor({
   value,
   onChange,
   onValidityChange,
+  timeZone = "UTC",
 }: {
   value: string;
   onChange: (cron: string) => void;
   onValidityChange?: (valid: boolean) => void;
+  timeZone?: string;
 }) {
   const parsed = useMemo(() => parseCronToPreset(value), [value]);
   const [preset, setPreset] = useState<SchedulePreset>(parsed.preset);
@@ -207,7 +215,10 @@ export function ScheduleEditor({
   const [dayOfWeek, setDayOfWeek] = useState(parsed.dayOfWeek);
   const [dayOfMonth, setDayOfMonth] = useState(parsed.dayOfMonth);
   const [customCron, setCustomCron] = useState(preset === "custom" ? value : "");
-  const customValidation = useMemo(() => getScheduleCronValidation(customCron), [customCron]);
+  const customValidation = useMemo(
+    () => getScheduleCronValidation(customCron, timeZone),
+    [customCron, timeZone],
+  );
 
   useEffect(() => {
     onValidityChange?.(preset !== "custom" || customValidation.valid);
@@ -270,7 +281,7 @@ export function ScheduleEditor({
               // their submit affordance in the same render. Relying solely on the
               // effect below leaves a one-tick window where an invalid draft still
               // reads as valid to the parent.
-              const nextValidation = getScheduleCronValidation(nextCron);
+              const nextValidation = getScheduleCronValidation(nextCron, timeZone);
               onValidityChange?.(nextValidation.valid);
               if (nextValidation.valid) {
                 emitChange("custom", hour, minute, dayOfWeek, dayOfMonth, nextCron);
