@@ -8,7 +8,7 @@ import { detectServiceManager, type ServiceManager, type ServiceStatus } from ".
 import { buildLocalHealthUrl } from "../utils/health-url.js";
 
 type CommonOptions = { instance?: string; json?: boolean };
-type HealthResult = { ok: boolean; serverVersion: string | null; error?: string };
+type HealthResult = { ok: boolean; serverVersion: string | null; versionVerified?: boolean; error?: string };
 
 function output(value: unknown, json: boolean | undefined): void {
   if (json) console.log(JSON.stringify(value, null, 2));
@@ -44,7 +44,16 @@ async function waitForHealth(instanceId: string, expectedVersion: string | null,
   let last: HealthResult = { ok: false, serverVersion: null };
   while (Date.now() < deadline) {
     last = await probeHealth(instanceId);
-    if (last.ok && (!expectedVersion || last.serverVersion === expectedVersion)) return last;
+    if (last.ok) {
+      if (!expectedVersion) return { ...last, versionVerified: false };
+      if (last.serverVersion === expectedVersion) return { ...last, versionVerified: true };
+      // `/api/health` withholds the version from unauthenticated callers when
+      // deploymentMode is "authenticated", and this probe is unauthenticated.
+      // A healthy server that does not disclose its version is not a failed
+      // restart: asserting on it would roll a good payload back. Only a version
+      // that is disclosed *and* differs counts as a mismatch.
+      if (last.serverVersion === null) return { ...last, versionVerified: false };
+    }
     await new Promise((resolve) => setTimeout(resolve, 500));
   }
   throw new Error(`Paperclip service did not become healthy${expectedVersion ? ` at version ${expectedVersion}` : ""}: ${last.error ?? `reported ${last.serverVersion ?? "no version"}`}`);
