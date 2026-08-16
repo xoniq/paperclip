@@ -70,7 +70,7 @@ async function dispatch(ctx: PluginContext, state: RuntimeState, update: Telegra
   } catch (error) {
     ctx.logger.error("Failed to handle Telegram update", {
       updateId: update.update_id,
-      error: error instanceof Error ? error.message : String(error),
+      reason: error instanceof Error ? error.message : String(error),
     });
   }
 }
@@ -107,7 +107,7 @@ async function pollLoop(ctx: PluginContext, state: RuntimeState): Promise<void> 
       const retryAfter = error instanceof TelegramApiError ? error.retryAfterSeconds : null;
       const waitMs = retryAfter ? retryAfter * 1_000 : backoffMs;
       ctx.logger.warn("Telegram poll failed; backing off", {
-        error: error instanceof Error ? error.message : String(error),
+        reason: error instanceof Error ? error.message : String(error),
         waitMs,
       });
       await sleep(waitMs, state.abort.signal);
@@ -145,7 +145,7 @@ async function start(ctx: PluginContext, companyId: string, rawConfig: Record<st
   if (config.transport === "polling") {
     state.stopped = pollLoop(ctx, state).catch((error) => {
       ctx.logger.error("Telegram poll loop exited unexpectedly", {
-        error: error instanceof Error ? error.message : String(error),
+        reason: error instanceof Error ? error.message : String(error),
       });
     });
   }

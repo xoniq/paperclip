@@ -182,7 +182,7 @@ export function createBridge(deps: BridgeDeps): Bridge {
         // A malformed entity should cost the formatting, not the message.
         if (error instanceof TelegramApiError && error.errorCode === 400) {
           ctx.logger.warn("Telegram rejected HTML payload, retrying as plain text", {
-            description: error.message,
+            reason: error.message,
           });
           await api.sendMessage({
             chatId: target.chatId,
@@ -314,7 +314,7 @@ export function createBridge(deps: BridgeDeps): Bridge {
             taskTarget = { chatId: target.chatId, threadId: topic.message_thread_id };
           } catch (error) {
             ctx.logger.warn("Could not create a forum topic; using the current thread", {
-              error: error instanceof Error ? error.message : String(error),
+              reason: error instanceof Error ? error.message : String(error),
             });
           }
         }
@@ -424,7 +424,7 @@ export function createBridge(deps: BridgeDeps): Bridge {
         await api.answerCallbackQuery({ callbackQueryId: query.id, text });
       } catch (error) {
         ctx.logger.warn("Could not acknowledge callback query", {
-          error: error instanceof Error ? error.message : String(error),
+          reason: error instanceof Error ? error.message : String(error),
         });
       }
     };
@@ -487,7 +487,7 @@ export function createBridge(deps: BridgeDeps): Bridge {
       ctx.logger.error("Failed to apply a decision from Telegram", {
         kind: decision.kind,
         targetId: decision.targetId,
-        error: error instanceof Error ? error.message : String(error),
+        reason: error instanceof Error ? error.message : String(error),
       });
       await answer("Could not apply that — check the board.");
       return;
@@ -524,7 +524,7 @@ export function createBridge(deps: BridgeDeps): Bridge {
     } catch (error) {
       ctx.logger.warn("Could not read thread interactions", {
         issueId,
-        error: error instanceof Error ? error.message : String(error),
+        reason: error instanceof Error ? error.message : String(error),
       });
       return;
     }
