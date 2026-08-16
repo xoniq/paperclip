@@ -29,10 +29,11 @@
   ],
   "scripts": {
     "prebuild": "node ../../../scripts/ensure-plugin-build-deps.mjs",
-    "build": "tsc",
+    "build": "node ./esbuild.config.mjs",
     "clean": "rm -rf dist",
     "test": "vitest run",
-    "typecheck": "node ../../../scripts/ensure-plugin-build-deps.mjs && tsc --noEmit && tsc --noEmit -p tsconfig.test.json"
+    "typecheck": "node ../../../scripts/ensure-plugin-build-deps.mjs && tsc --noEmit && tsc --noEmit -p tsconfig.test.json",
+    "dev": "node ./esbuild.config.mjs --watch"
   },
   "dependencies": {
     "@paperclipai/plugin-sdk": "workspace:*"
@@ -40,6 +41,7 @@
   "devDependencies": {
     "@types/node": "^22.20.1",
     "typescript": "^5.7.3",
-    "vitest": "^4.1.10"
+    "vitest": "^4.1.10",
+    "esbuild": "^0.28.1"
   }
 }
