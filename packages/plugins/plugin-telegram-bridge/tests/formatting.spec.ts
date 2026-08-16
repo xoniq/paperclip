@@ -6,6 +6,7 @@ import {
   TELEGRAM_MAX_MESSAGE_CHARS,
 } from "../src/telegram.js";
 import { parseConfig, validateConfig } from "../src/config.js";
+import manifest from "../src/manifest.js";
 
 describe("toTelegramHtml", () => {
   it("escapes HTML that agents emit as prose", () => {
@@ -134,5 +135,30 @@ describe("validateConfig", () => {
     const result = validateConfig({ ...valid, botToken: "123:literal" });
     expect(result.ok).toBe(true);
     expect(result.warnings.join(" ")).toContain("secret reference");
+  });
+});
+
+describe("manifest config schema", () => {
+  const properties = manifest.instanceConfigSchema!.properties as Record<string, {
+    type?: unknown;
+    format?: string;
+  }>;
+
+  // The settings UI renders a secret picker for `format: "secret-ref"`, and that
+  // picker stores a bound secret as an object while a pasted value stays a
+  // string. A schema that declares only "string" makes the host reject every
+  // picked secret with "Configuration does not match the plugin's
+  // instanceConfigSchema" — which is exactly what happened once.
+  it.each(["botToken", "webhookSecretToken"])("%s accepts both secret shapes", (field) => {
+    expect(properties[field]!.format).toBe("secret-ref");
+    expect(properties[field]!.type).toEqual(["string", "object"]);
+  });
+
+  it("requires the fields that make the bridge safe to run", () => {
+    expect(manifest.instanceConfigSchema!.required).toEqual([
+      "botToken",
+      "operatorUserId",
+      "allowedTelegramUserIds",
+    ]);
   });
 });

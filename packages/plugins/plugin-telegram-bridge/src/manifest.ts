@@ -77,12 +77,14 @@ const manifest: PaperclipPluginManifestV1 = {
     properties: {
       botToken: {
         // "secret-ref" makes the settings UI render a company-secret picker
-        // instead of a plain text box, so the token is stored as a secret
-        // rather than inline in the plugin config row.
+        // instead of a plain text box. That picker stores a bound secret as an
+        // object ({ type: "secret_ref", secretId }) and a pasted value as a
+        // plain string, so the schema has to accept both — declaring only
+        // "string" makes the host reject every picked secret.
         title: "Bot token",
         description:
           "Telegram bot token from @BotFather. Pick an existing secret, or paste the token once and it is stored as a secret on save.",
-        type: "string",
+        type: ["string", "object"],
         format: "secret-ref",
       },
       transport: {
@@ -97,7 +99,7 @@ const manifest: PaperclipPluginManifestV1 = {
         title: "Webhook secret token",
         description:
           "Only used when transport is 'webhook'. Must match the secret_token passed to Telegram's setWebhook.",
-        type: "string",
+        type: ["string", "object"],
         format: "secret-ref",
       },
       agentId: {
