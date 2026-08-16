@@ -28,11 +28,11 @@
     "telegram"
   ],
   "scripts": {
-    "prebuild": "pnpm --filter @paperclipai/plugin-sdk ensure-build-deps",
+    "prebuild": "node ../../../scripts/ensure-plugin-build-deps.mjs",
     "build": "tsc",
     "clean": "rm -rf dist",
     "test": "vitest run",
-    "typecheck": "pnpm --filter @paperclipai/plugin-sdk ensure-build-deps && tsc --noEmit && tsc --noEmit -p tsconfig.test.json"
+    "typecheck": "node ../../../scripts/ensure-plugin-build-deps.mjs && tsc --noEmit && tsc --noEmit -p tsconfig.test.json"
   },
   "dependencies": {
     "@paperclipai/plugin-sdk": "workspace:*"
