@@ -198,6 +198,19 @@ const plugin = definePlugin({
       await runtime.bridge.handleIssueUpdated(event);
     });
 
+    // Run lifecycle drives the live typing indicator.
+    ctx.events.on("agent.run.started", async (event) => {
+      if (!runtime || event.companyId !== runtime.companyId) return;
+      await runtime.bridge.handleRunStarted(event);
+    });
+
+    for (const ended of ["agent.run.finished", "agent.run.failed", "agent.run.cancelled"] as const) {
+      ctx.events.on(ended, async (event) => {
+        if (!runtime || event.companyId !== runtime.companyId) return;
+        await runtime.bridge.handleRunEnded(event);
+      });
+    }
+
     ctx.events.on("approval.created", async (event) => {
       if (!runtime || event.companyId !== runtime.companyId) return;
       if (!runtime.config.relayApprovals) return;

@@ -26,15 +26,21 @@ interface TelegramSpy {
   sent: SentMessage[];
   createdTopics: string[];
   answered: Array<{ callbackQueryId: string; text?: string }>;
+  typingCalls: Array<number | null>;
   clearedKeyboards: number[];
 }
 
 function installTelegramSpy(ctx: PluginContext): TelegramSpy {
-  const spy: TelegramSpy = { sent: [], createdTopics: [], answered: [], clearedKeyboards: [] };
+  const spy: TelegramSpy = { sent: [], createdTopics: [], answered: [], clearedKeyboards: [], typingCalls: [] };
 
   ctx.http.fetch = (async (url: string, init?: RequestInit) => {
     const method = url.split("/").pop() ?? "";
     const body = JSON.parse(String(init?.body ?? "{}")) as Record<string, unknown>;
+
+    if (method === "sendChatAction") {
+      spy.typingCalls.push((body.message_thread_id as number | undefined) ?? null);
+      return jsonResponse({ ok: true, result: true });
+    }
 
     if (method === "answerCallbackQuery") {
       spy.answered.push({
@@ -734,5 +740,95 @@ describe("Telegram bridge — thread interactions", () => {
     const [interaction] = await harness.ctx.issues.listInteractions(issue.id, COMPANY_ID);
     expect(interaction!.status).toBe("accepted");
     expect(telegram.answered.at(-1)!.text).toContain("Approved");
+  });
+});
+
+describe("Telegram bridge — typing indicator and lane reuse", () => {
+  let harness: TestHarness;
+  let bridge: Bridge;
+  let telegram: TelegramSpy;
+
+  beforeEach(() => {
+    harness = createTestHarness({ manifest });
+    harness.seed({
+      agents: [makeAgent()],
+      accessMembers: [
+        {
+          id: randomUUID(),
+          companyId: COMPANY_ID,
+          principalType: "user",
+          principalId: OPERATOR_USER_ID,
+          status: "active",
+          membershipRole: "admin",
+          grants: [],
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ],
+    });
+
+    telegram = installTelegramSpy(harness.ctx);
+    bridge = createBridge({
+      ctx: harness.ctx,
+      companyId: COMPANY_ID,
+      config: parseConfig({
+        botToken: "test-token",
+        operatorUserId: OPERATOR_USER_ID,
+        allowedTelegramUserIds: [ALLOWED_SENDER],
+      }),
+    });
+  });
+
+  function runEvent(type: "agent.run.started" | "agent.run.finished", issueId: string, runId: string) {
+    return {
+      eventId: randomUUID(),
+      eventType: type,
+      occurredAt: new Date().toISOString(),
+      actorType: "agent" as const,
+      actorId: AGENT_ID,
+      entityId: runId,
+      entityType: "heartbeat_run",
+      companyId: COMPANY_ID,
+      payload: { runId, agentId: AGENT_ID, issueId },
+    };
+  }
+
+  it("types in the thread while a run on a mapped issue is open", async () => {
+    const issue = makeIssue();
+    harness.seed({ issues: [issue] });
+    await bindChatToIssue(harness.ctx, { chatId: CHAT_ID, threadId: 77 }, issue.id);
+
+    await bridge.handleRunStarted(runEvent("agent.run.started", issue.id, "run-1"));
+    // The first tick fires immediately so the indicator is not delayed.
+    expect(telegram.typingCalls).toEqual([77]);
+
+    await bridge.handleRunEnded(runEvent("agent.run.finished", issue.id, "run-1"));
+    const afterStop = telegram.typingCalls.length;
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(telegram.typingCalls.length).toBe(afterStop);
+  });
+
+  it("does not type for runs on issues that are not mapped to a chat", async () => {
+    const issue = makeIssue();
+    harness.seed({ issues: [issue] });
+
+    await bridge.handleRunStarted(runEvent("agent.run.started", issue.id, "run-2"));
+    expect(telegram.typingCalls).toEqual([]);
+  });
+
+  it("reopens a closed standing lane instead of creating a second one", async () => {
+    await bridge.handleUpdate(textUpdate("first question"));
+    const [lane] = await harness.ctx.issues.list({ companyId: COMPANY_ID });
+
+    // The agent closes the lane, which is what the host's disposition rules
+    // push it towards. The next message must land back in the same thread.
+    await harness.ctx.issues.update(lane!.id, { status: "done" }, COMPANY_ID);
+    await bridge.handleUpdate(textUpdate("second question"));
+
+    const issues = await harness.ctx.issues.list({ companyId: COMPANY_ID });
+    expect(issues).toHaveLength(1);
+    expect(issues[0]!.id).toBe(lane!.id);
+    expect(issues[0]!.status).toBe("todo");
+    expect(await harness.ctx.issues.listComments(lane!.id, COMPANY_ID)).toHaveLength(2);
   });
 });

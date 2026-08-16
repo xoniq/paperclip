@@ -63,6 +63,8 @@ export interface BridgeDeps {
 
 export interface Bridge {
   handleUpdate(update: TelegramUpdate): Promise<void>;
+  handleRunStarted(event: PluginEvent): Promise<void>;
+  handleRunEnded(event: PluginEvent): Promise<void>;
   handleCommentCreated(event: PluginEvent): Promise<void>;
   handleIssueUpdated(event: PluginEvent): Promise<void>;
   handleApprovalCreated(event: PluginEvent): Promise<void>;
@@ -205,6 +207,60 @@ export function createBridge(deps: BridgeDeps): Bridge {
     }
   }
 
+  /**
+   * Live "typing…" indicator, driven by the agent's actual run lifecycle.
+   *
+   * Telegram clears a chat action after about five seconds, so a one-shot call
+   * only covers the moment the message is relayed — not the minutes the agent
+   * spends working. Refreshing on a timer for as long as a run is open turns
+   * the indicator into an honest signal: it is visible exactly while the agent
+   * is running, and stops the moment the run ends.
+   */
+  const TYPING_REFRESH_MS = 4_000;
+  /** Hard stop, so a run that never reports a terminal status cannot type forever. */
+  const TYPING_MAX_MS = 10 * 60 * 1_000;
+
+  const typingByRun = new Map<string, { timer: ReturnType<typeof setInterval>; deadline: ReturnType<typeof setTimeout> }>();
+
+  function stopTyping(runId: string): void {
+    const active = typingByRun.get(runId);
+    if (!active) return;
+    clearInterval(active.timer);
+    clearTimeout(active.deadline);
+    typingByRun.delete(runId);
+  }
+
+  async function sendTyping(target: ChatTarget): Promise<void> {
+    try {
+      await (await client()).sendChatAction({
+        chatId: target.chatId,
+        messageThreadId: target.threadId,
+      });
+    } catch {
+      // Purely cosmetic — never let it surface.
+    }
+  }
+
+  async function startTyping(runId: string, target: ChatTarget): Promise<void> {
+    stopTyping(runId);
+    // Awaited, not fire-and-forget: the first tick is what makes the indicator
+    // appear at the moment the run starts rather than four seconds later.
+    await sendTyping(target);
+    const timer = setInterval(() => void sendTyping(target), TYPING_REFRESH_MS);
+    const deadline = setTimeout(() => stopTyping(runId), TYPING_MAX_MS);
+    // Neither timer should hold the worker process open on shutdown.
+    timer.unref?.();
+    deadline.unref?.();
+    typingByRun.set(runId, { timer, deadline });
+  }
+
+  /** Resolve the chat a run belongs to, via the issue it is working on. */
+  async function targetForRun(payload: Record<string, unknown>): Promise<ChatTarget | null> {
+    const issueId = typeof payload.issueId === "string" ? payload.issueId : null;
+    if (!issueId) return null;
+    return await getChatForIssue(ctx, issueId);
+  }
+
   async function createIssueForChat(input: {
     target: ChatTarget;
     title: string;
@@ -226,15 +282,21 @@ export function createBridge(deps: BridgeDeps): Bridge {
   }
 
   /**
-   * The always-on lane for a thread. Recreated automatically if the previous
-   * standing issue was closed, so a `/done` in a chat lane does not leave the
-   * thread mute.
+   * The always-on lane for a thread.
+   *
+   * A closed lane is reused, not replaced. Paperclip expects an assigned issue
+   * to reach a disposition: when a run finishes and the issue still has no
+   * clear next step, the host queues a corrective handoff wake, which starts
+   * another run, which again ends with nothing to decide. A lane pinned open
+   * forever therefore loops on every heartbeat. Letting the agent close the
+   * lane and reopening it on your next message is the shape the host is built
+   * around — `relayToIssue` reopens it, so a closed lane costs nothing.
    */
   async function resolveStandingIssue(target: ChatTarget): Promise<Issue> {
     const existingId = await getStandingIssue(ctx, target);
     if (existingId) {
       const existing = await ctx.issues.get(existingId, companyId);
-      if (existing && !TERMINAL_STATUSES.has(existing.status)) return existing;
+      if (existing) return existing;
     }
 
     const issue = await createIssueForChat({
@@ -606,16 +668,10 @@ export function createBridge(deps: BridgeDeps): Bridge {
       const issue = await resolveIssueForTarget(target);
       await relayToIssue(issue, body);
 
-      // The run starts asynchronously; the indicator keeps a slow first token
-      // from reading as a dropped message.
-      try {
-        await (await client()).sendChatAction({
-          chatId: target.chatId,
-          messageThreadId: target.threadId,
-        });
-      } catch {
-        // Purely cosmetic — never let it fail the relay.
-      }
+      // A first tick right away, so the gap between sending and the agent run
+      // actually starting does not read as silence. handleRunStarted takes
+      // over from here and keeps it alive for as long as the agent works.
+      await sendTyping(target);
     },
 
     async handleCommentCreated(event) {
@@ -640,6 +696,24 @@ export function createBridge(deps: BridgeDeps): Bridge {
       const header = comment.authorType === "agent" ? undefined : "From the board:";
       await send(target, comment.body, header);
       await surfacePendingInteractions(issueId, target);
+    },
+
+    async handleRunStarted(event) {
+      const runId = typeof (event.payload as { runId?: unknown })?.runId === "string"
+        ? (event.payload as { runId: string }).runId
+        : null;
+      if (!runId) return;
+
+      const target = await targetForRun((event.payload ?? {}) as Record<string, unknown>);
+      if (!target) return;
+      await startTyping(runId, target);
+    },
+
+    async handleRunEnded(event) {
+      const runId = typeof (event.payload as { runId?: unknown })?.runId === "string"
+        ? (event.payload as { runId: string }).runId
+        : null;
+      if (runId) stopTyping(runId);
     },
 
     async handleApprovalCreated(event) {
