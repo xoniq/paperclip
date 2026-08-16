@@ -36,15 +36,22 @@ interface RuntimeState {
   companyId: string;
   config: BridgeConfig;
   bridge: Bridge;
-  abort: AbortController;
-  /** Resolves once the poll loop has exited, so shutdown can await it. */
-  stopped: Promise<void>;
 }
 
 // One worker process serves one plugin, so module scope is the plugin's scope.
 // `context` is captured in setup because every later hook needs it.
 let context: PluginContext | null = null;
 let runtime: RuntimeState | null = null;
+
+/**
+ * Shutdown signal for the poll loop.
+ *
+ * Created at module scope — deliberately not inside a lifecycle hook. See
+ * `pollForever` for why the loop must live outside every host invocation.
+ */
+const shutdown = new AbortController();
+/** Resolves once the poll loop has exited, so shutdown can await it. */
+let pollLoopExited: Promise<void> = Promise.resolve();
 
 function requireContext(): PluginContext {
   if (!context) throw new Error("Plugin context is not available yet");
@@ -75,11 +82,36 @@ async function dispatch(ctx: PluginContext, state: RuntimeState, update: Telegra
   }
 }
 
-async function pollLoop(ctx: PluginContext, state: RuntimeState): Promise<void> {
+/**
+ * The polling loop.
+ *
+ * Started from `setup()` and nowhere else, and that placement is load-bearing.
+ *
+ * The worker tags every host call with the invocation it is currently inside,
+ * read from an AsyncLocalStorage store — and an async loop inherits that store
+ * from whatever started it. Started from `onConfigChanged`, which the host runs
+ * inside a company-scoped invocation, every later poll would quote that
+ * long-finished invocation id and the host would refuse the call with "the
+ * worker referenced a missing, expired, or unknown invocation scope".
+ *
+ * `initialize` carries no companyId, so the host mints no invocation for it, so
+ * a loop started from `setup()` sends no invocation id at all. That is exactly
+ * the case the host treats as a proactive worker call and admits against the
+ * plugin's configured companies.
+ */
+async function pollForever(ctx: PluginContext): Promise<void> {
   let backoffMs = MIN_BACKOFF_MS;
   let offset = await getUpdateOffset(ctx);
 
-  while (!state.abort.signal.aborted) {
+  while (!shutdown.signal.aborted) {
+    const state = runtime;
+    // Idle until a company configuration arrives, and stay idle when the
+    // operator chose webhook delivery instead.
+    if (!state || state.config.transport !== "polling") {
+      await sleep(1_000, shutdown.signal);
+      continue;
+    }
+
     try {
       const token = await resolveBotToken(ctx, state.config, state.companyId);
       const api = createTelegramClient({ token, fetch: (url, init) => ctx.http.fetch(url, init) });
@@ -87,12 +119,12 @@ async function pollLoop(ctx: PluginContext, state: RuntimeState): Promise<void> 
       const updates = await api.getUpdates({
         offset,
         timeoutSeconds: LONG_POLL_TIMEOUT_SECONDS,
-        signal: state.abort.signal,
+        signal: shutdown.signal,
       });
       backoffMs = MIN_BACKOFF_MS;
 
       for (const update of updates) {
-        if (state.abort.signal.aborted) break;
+        if (shutdown.signal.aborted) break;
         // Advance and persist the offset *before* handling. A handler that
         // throws must not make the same update replay forever — that would
         // wedge the loop on one bad message and block every later one.
@@ -101,7 +133,7 @@ async function pollLoop(ctx: PluginContext, state: RuntimeState): Promise<void> 
         await dispatch(ctx, state, update);
       }
     } catch (error) {
-      if (state.abort.signal.aborted) break;
+      if (shutdown.signal.aborted) break;
 
       // Telegram asks for a specific cool-down when it rate limits us.
       const retryAfter = error instanceof TelegramApiError ? error.retryAfterSeconds : null;
@@ -110,48 +142,32 @@ async function pollLoop(ctx: PluginContext, state: RuntimeState): Promise<void> 
         reason: error instanceof Error ? error.message : String(error),
         waitMs,
       });
-      await sleep(waitMs, state.abort.signal);
+      await sleep(waitMs, shutdown.signal);
       backoffMs = Math.min(backoffMs * 2, MAX_BACKOFF_MS);
     }
   }
 }
 
-async function stop(): Promise<void> {
-  const previous = runtime;
-  if (!previous) return;
-  runtime = null;
-  previous.abort.abort();
-  await previous.stopped;
-}
-
-async function start(ctx: PluginContext, companyId: string, rawConfig: Record<string, unknown>): Promise<void> {
-  await stop();
-
+/**
+ * Apply a company configuration.
+ *
+ * This only swaps the runtime state; it never starts the poll loop. The loop
+ * reads `runtime` at the top of every cycle, so a config change takes effect on
+ * the next pass without restarting anything — and, critically, without the loop
+ * ever being created inside this invocation's scope.
+ */
+function applyConfig(ctx: PluginContext, companyId: string, rawConfig: Record<string, unknown>): void {
   const validation = validateConfig(rawConfig);
   if (!validation.ok) {
+    runtime = null;
     ctx.logger.warn("Telegram bridge is not configured; staying idle", { errors: validation.errors });
     return;
   }
 
   const config = parseConfig(rawConfig);
-  const state: RuntimeState = {
-    companyId,
-    config,
-    bridge: createBridge({ ctx, config, companyId }),
-    abort: new AbortController(),
-    stopped: Promise.resolve(),
-  };
+  runtime = { companyId, config, bridge: createBridge({ ctx, config, companyId }) };
 
-  if (config.transport === "polling") {
-    state.stopped = pollLoop(ctx, state).catch((error) => {
-      ctx.logger.error("Telegram poll loop exited unexpectedly", {
-        reason: error instanceof Error ? error.message : String(error),
-      });
-    });
-  }
-
-  runtime = state;
-  ctx.logger.info("Telegram bridge started", {
+  ctx.logger.info("Telegram bridge configured", {
     companyId,
     transport: config.transport,
     allowedSenders: config.allowedTelegramUserIds.length,
@@ -200,6 +216,14 @@ const plugin = definePlugin({
       await runtime.bridge.handleBudgetIncident(event);
     });
 
+    // Start the poll loop here, outside every host invocation, so its calls
+    // reach the host as proactive worker calls. See pollForever.
+    pollLoopExited = pollForever(ctx).catch((error) => {
+      ctx.logger.error("Telegram poll loop exited unexpectedly", {
+        reason: error instanceof Error ? error.message : String(error),
+      });
+    });
+
     ctx.logger.info("Telegram bridge worker ready; waiting for company configuration");
   },
 
@@ -220,7 +244,7 @@ const plugin = definePlugin({
       ctx.logger.warn("Ignoring instance-scoped config delivery; this bridge needs a company scope");
       return;
     }
-    await start(ctx, companyId, newConfig);
+    applyConfig(ctx, companyId, newConfig);
   },
 
   async onWebhook(input) {
@@ -278,7 +302,9 @@ const plugin = definePlugin({
   },
 
   async onShutdown() {
-    await stop();
+    shutdown.abort();
+    runtime = null;
+    await pollLoopExited;
   },
 });
 
