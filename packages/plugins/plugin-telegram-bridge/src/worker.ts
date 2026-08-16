@@ -17,8 +17,16 @@ import {
 import { WEBHOOK_ENDPOINT_KEY } from "./manifest.js";
 import { createTelegramClient, TelegramApiError, type TelegramUpdate } from "./telegram.js";
 
-/** Telegram long-poll hold time. Well under the host's RPC and socket timeouts. */
-const LONG_POLL_TIMEOUT_SECONDS = 25;
+/**
+ * Telegram long-poll hold time.
+ *
+ * The host caps an outbound plugin fetch at 30s and the worker RPC round trip at
+ * the same 30s, so a 25s hold left only five seconds for network latency and
+ * two JSON hops. Whenever that budget was exceeded the poll failed and the loop
+ * backed off, turning an idle chat into a stuttering one. 20s keeps a full ten
+ * seconds of headroom under both ceilings.
+ */
+const LONG_POLL_TIMEOUT_SECONDS = 20;
 
 /** Backoff bounds for a failing poll loop, so an outage does not hammer the API. */
 const MIN_BACKOFF_MS = 1_000;
