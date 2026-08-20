@@ -154,7 +154,7 @@ pnpm --filter @paperclipai/plugin-telegram-bridge typecheck
 Install into a running local instance:
 
 ```bash
-pnpm paperclipai plugin install packages/plugins/plugin-telegram-bridge
+npx paperclipai plugin install packages/plugins/plugin-telegram-bridge
 ```
 
 ## Known gaps
