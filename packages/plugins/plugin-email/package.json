@@ -1,0 +1,53 @@
+{
+  "name": "@paperclipai/plugin-email",
+  "version": "0.1.0",
+  "description": "Let Paperclip agents send email over your own SMTP server, with a recipient allowlist, a fixed sender, and per-company rate limits.",
+  "license": "MIT",
+  "homepage": "https://github.com/paperclipai/paperclip",
+  "bugs": {
+    "url": "https://github.com/paperclipai/paperclip/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/paperclipai/paperclip",
+    "directory": "packages/plugins/plugin-email"
+  },
+  "type": "module",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "paperclipPlugin": {
+    "manifest": "./dist/manifest.js",
+    "worker": "./dist/worker.js",
+    "ui": "./dist/ui/"
+  },
+  "keywords": [
+    "paperclip",
+    "plugin",
+    "connector",
+    "email",
+    "smtp"
+  ],
+  "scripts": {
+    "prebuild": "node ../../../scripts/ensure-plugin-build-deps.mjs",
+    "build": "node ./esbuild.config.mjs",
+    "clean": "rm -rf dist",
+    "test": "vitest run",
+    "typecheck": "node ../../../scripts/ensure-plugin-build-deps.mjs && tsc --noEmit && tsc --noEmit -p tsconfig.test.json",
+    "dev": "node ./esbuild.config.mjs --watch"
+  },
+  "dependencies": {
+    "@paperclipai/plugin-sdk": "workspace:*",
+    "nodemailer": "^7.0.9"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.1",
+    "@types/nodemailer": "^7.0.4",
+    "@types/react": "^19.0.0",
+    "esbuild": "^0.28.1",
+    "react": "^19.0.0",
+    "typescript": "^5.7.3",
+    "vitest": "^4.1.10"
+  }
+}
