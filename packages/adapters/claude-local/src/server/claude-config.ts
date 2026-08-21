@@ -154,6 +154,16 @@ export function resolveManagedClaudeRuntimeStateDir(
   return path.join(instanceRoot, "companies", companyId, "agents", agentId, "claude-runtime");
 }
 
+function cleanMcpServerSlug(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/\s*\([^)]*\)/g, "")
+    .trim()
+    .replace(/[^a-z0-9_-]/g, "_")
+    .replace(/_+/g, "_")
+    .replace(/^_+|_+$/g, "");
+}
+
 export async function writePaperclipClaudeMcpConfig(input: {
   stateDir: string;
   runId: string;
@@ -172,11 +182,18 @@ export async function writePaperclipClaudeMcpConfig(input: {
       suffix += 1;
     }
     usedNames.add(name);
-    mcpServers[name] = {
+    const serverConfig = {
       type: "http",
       url: server.url,
       headers: { Authorization: `Bearer ${server.token}` },
     };
+    mcpServers[name] = serverConfig;
+
+    const cleanSlug = cleanMcpServerSlug(server.name);
+    if (cleanSlug && cleanSlug !== name && !usedNames.has(cleanSlug)) {
+      usedNames.add(cleanSlug);
+      mcpServers[cleanSlug] = serverConfig;
+    }
   }
   await fs.mkdir(configDir, { recursive: true });
   await fs.writeFile(configPath, JSON.stringify({ mcpServers }), { mode: 0o600 });

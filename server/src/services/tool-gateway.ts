@@ -1871,9 +1871,18 @@ export function createToolGatewayService(
     const connectedTools = await connectedMcpToolsForCompany(session.companyId);
     const hasOnDemandTargets = connectedTools.some(isOnDemandRemoteTool);
     const virtualTools = hasOnDemandTargets ? VIRTUAL_TOOLS : [];
-    const tool = [...allTools(), ...connectedTools, ...virtualTools]
-      .filter((candidate) => session.agentId || (candidate.providerType !== "paperclip_self" && candidate.providerType !== "paperclip_plugin"))
-      .find((candidate) => candidate.name === toolName);
+    const all = [...allTools(), ...connectedTools, ...virtualTools]
+      .filter((candidate) => session.agentId || (candidate.providerType !== "paperclip_self" && candidate.providerType !== "paperclip_plugin"));
+
+    const normalizedTarget = toolName.toLowerCase().replace(/[^a-z0-9]/g, "");
+    const tool = all.find((candidate) => {
+      if (candidate.name === toolName) return true;
+      const upstream = candidate.providerMetadata?.upstreamToolName ? String(candidate.providerMetadata.upstreamToolName) : null;
+      if (upstream && upstream === toolName) return true;
+      if (candidate.name.toLowerCase().replace(/[^a-z0-9]/g, "") === normalizedTarget) return true;
+      if (upstream && upstream.toLowerCase().replace(/[^a-z0-9]/g, "") === normalizedTarget) return true;
+      return false;
+    });
     if (!tool) {
       throw new ToolGatewayHttpError(404, `Tool "${toolName}" not found`, "tool_not_found", { tool: toolName });
     }
