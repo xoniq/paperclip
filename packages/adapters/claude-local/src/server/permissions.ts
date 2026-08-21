@@ -15,7 +15,7 @@ const SANDBOX_ALLOWED_TOOLS =
   "Task AskUserQuestion Bash CronCreate CronDelete CronList Edit " +
   "EnterPlanMode EnterWorktree ExitPlanMode ExitWorktree Glob Grep Monitor " +
   "NotebookEdit PushNotification Read RemoteTrigger ScheduleWakeup Skill " +
-  "TaskOutput TaskStop TodoWrite ToolSearch WebFetch WebSearch Write";
+  "TaskOutput TaskStop TodoWrite ToolSearch WebFetch WebSearch Write mcp__*";
 
 function shouldUseAllowedTools(input: { targetIsRemote: boolean; localProcessUid?: number | null }): boolean {
   // Claude Code refuses `--dangerously-skip-permissions` when the process runs

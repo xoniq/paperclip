@@ -185,7 +185,7 @@ describe("claude remote execution", () => {
       | undefined;
     expect(call?.[2]).toContain("--allowedTools");
     expect(call?.[2]).toContain(
-      "Task AskUserQuestion Bash CronCreate CronDelete CronList Edit EnterPlanMode EnterWorktree ExitPlanMode ExitWorktree Glob Grep Monitor NotebookEdit PushNotification Read RemoteTrigger ScheduleWakeup Skill TaskOutput TaskStop TodoWrite ToolSearch WebFetch WebSearch Write",
+      "Task AskUserQuestion Bash CronCreate CronDelete CronList Edit EnterPlanMode EnterWorktree ExitPlanMode ExitWorktree Glob Grep Monitor NotebookEdit PushNotification Read RemoteTrigger ScheduleWakeup Skill TaskOutput TaskStop TodoWrite ToolSearch WebFetch WebSearch Write mcp__*",
     );
     expect(call?.[2]).not.toContain("--dangerously-skip-permissions");
     expect(call?.[2]).toContain("--append-system-prompt-file");

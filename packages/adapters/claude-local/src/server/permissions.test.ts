@@ -5,7 +5,7 @@ const SANDBOX_ALLOWED_TOOLS =
   "Task AskUserQuestion Bash CronCreate CronDelete CronList Edit " +
   "EnterPlanMode EnterWorktree ExitPlanMode ExitWorktree Glob Grep Monitor " +
   "NotebookEdit PushNotification Read RemoteTrigger ScheduleWakeup Skill " +
-  "TaskOutput TaskStop TodoWrite ToolSearch WebFetch WebSearch Write";
+  "TaskOutput TaskStop TodoWrite ToolSearch WebFetch WebSearch Write mcp__*";
 
 describe("claude-local remote permission args", () => {
   it("uses the canonical Bash tool grant for remote execution", () => {
