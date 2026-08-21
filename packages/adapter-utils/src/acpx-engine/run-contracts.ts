@@ -424,6 +424,7 @@ export interface PaperclipClaudeSettingsIdentity {
   readonly allow: readonly string[];
   readonly additionalDirectories: readonly string[];
   readonly defaultMode: string;
+  readonly mcpServers?: Record<string, unknown>;
 }
 
 /**

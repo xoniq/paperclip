@@ -1281,6 +1281,7 @@ interface PaperclipClaudeSettingsResult {
   additionalDirectories: string[];
   defaultMode: string;
   overrodeDontAsk: boolean;
+  mcpServers?: Record<string, unknown>;
 }
 
 function uniqueSorted(values: Array<string | null | undefined>): string[] {
@@ -1406,6 +1407,7 @@ async function writePaperclipClaudeSettings(input: {
     additionalDirectories: mergedAdditionalDirectories,
     defaultMode,
     overrodeDontAsk,
+    mcpServers: nextMcpServers,
   };
 }
 
@@ -1927,6 +1929,7 @@ async function buildRuntime(input: {
           allow: paperclipClaudeSettings.allow,
           additionalDirectories: paperclipClaudeSettings.additionalDirectories,
           defaultMode: paperclipClaudeSettings.defaultMode,
+          mcpServers: paperclipClaudeSettings.mcpServers,
         }
       : null,
     mcpServers: mcpIdentity,
