@@ -13,6 +13,7 @@ import {
   instanceUserRoles,
 } from "@paperclipai/db";
 import { verifyLocalAgentJwt } from "../agent-auth-jwt.js";
+import { isToolGatewayBearerToken } from "../tool-gateway-token.js";
 import { isUuidLike, normalizeAgentApiKeyScope, type DeploymentMode } from "@paperclipai/shared";
 import type { BetterAuthSessionResult } from "../auth/better-auth.js";
 import { logger } from "./logger.js";
@@ -56,6 +57,25 @@ function hashToken(token: string) {
 
 function normalizeOptionalString(value: string | null | undefined) {
   return value?.trim() || null;
+}
+
+/**
+ * Endpoints that verify the `Authorization` header themselves, against a
+ * credential store that is not `agentApiKeys` and not the agent JWT signer:
+ * the MCP gateway (its own gateway tokens) and public routine triggers (an
+ * operator-chosen webhook secret). On these routes an unrecognised bearer is
+ * not a failed agent login — it is a credential this middleware has no
+ * standing to judge — so the request passes through without an actor and the
+ * route answers with its own, accurate diagnosis.
+ */
+const SELF_AUTHENTICATING_ROUTES: RegExp[] = [
+  /^\/mcp\/gateways\/[^/]+\/?$/,
+  /^\/api\/tool-gateway\/gateways\/[^/]+\/mcp\/?$/,
+  /^\/api\/routine-triggers\/public\/[^/]+\/fire\/?$/,
+];
+
+export function isSelfAuthenticatingRoute(pathname: string): boolean {
+  return SELF_AUTHENTICATING_ROUTES.some((pattern) => pattern.test(pathname));
 }
 
 function invalidAgentTokenMessage(token: string) {
@@ -277,6 +297,19 @@ export function actorMiddleware(db: Db, opts: ActorMiddlewareOptions): RequestHa
     const token = authHeader!.slice("bearer".length).trim();
     if (!token) {
       next(unauthorized("Empty bearer token; provide valid agent credentials and retry"));
+      return;
+    }
+
+    // Tool-gateway credentials are not agent credentials and never resolve to
+    // an actor here — the gateway routes authenticate them themselves against
+    // their own token stores. Hand the request on with no identity so the
+    // gateway can answer, and so a gateway token can never inherit the
+    // implicit local-board actor that `local_trusted` seeds above. The same
+    // holds for any bearer aimed at a self-authenticating route.
+    if (isToolGatewayBearerToken(token) || isSelfAuthenticatingRoute(req.path)) {
+      req.actor = { type: "none", source: "none" };
+      if (runIdHeader) req.actor.runId = runIdHeader;
+      next();
       return;
     }
 

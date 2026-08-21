@@ -1,4 +1,4 @@
-import { createHash, createHmac, randomUUID } from "node:crypto";
+import { createHash, createHmac, randomBytes, randomUUID } from "node:crypto";
 import express from "express";
 import request from "supertest";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
@@ -9,7 +9,7 @@ import {
   boardApiKeys,
   heartbeatRuns,
 } from "@paperclipai/db";
-import { actorMiddleware } from "../middleware/auth.js";
+import { actorMiddleware, isSelfAuthenticatingRoute } from "../middleware/auth.js";
 import { errorHandler } from "../middleware/error-handler.js";
 import { createLocalAgentJwt } from "../agent-auth-jwt.js";
 import { assertCompanyAccess } from "../routes/authz.js";
@@ -201,6 +201,86 @@ describe("agent auth middleware", () => {
     expect(res.status).toBe(401);
     expect(res.body.error).toContain(error);
     expect(commentWrites).toBe(0);
+  });
+
+  // The tool gateway authenticates its own bearer tokens against its own
+  // stores. Rejecting them here as "not an agent token" takes every runtime
+  // MCP connection down before its route runs — the 2026-08 gateway outage.
+  it.each([
+    ["named gateway client token", `pcgw_${randomUUID()}.${randomBytes(32).toString("base64url")}`],
+    ["per-run session token", `pcgt_${randomUUID()}.${randomBytes(32).toString("base64url")}`],
+  ])("passes a %s through to its route instead of rejecting it", async (_label, token) => {
+    const { db } = createDbState({ agent: { id: randomUUID(), companyId: randomUUID() } });
+    let reached = 0;
+    const app = createApp(db, "authenticated");
+    app.post("/api/tool-gateway/gateways/:gatewayId/mcp", (_req, res) => {
+      reached += 1;
+      res.json({ ok: true });
+    });
+
+    const res = await request(app)
+      .post("/api/tool-gateway/gateways/gw-1/mcp")
+      .set("Authorization", `Bearer ${token}`)
+      .send({ jsonrpc: "2.0", id: 1, method: "initialize" });
+
+    expect(res.status).toBe(200);
+    expect(reached).toBe(1);
+  });
+
+  // Public routine triggers in `bearer` signing mode carry an operator-chosen
+  // webhook secret with no Paperclip-recognisable shape. Judging it as an
+  // agent token takes every bearer-mode webhook down.
+  it("passes a public routine trigger webhook secret through to its route", async () => {
+    const { db } = createDbState({ agent: { id: randomUUID(), companyId: randomUUID() } });
+    let reached = 0;
+    const app = createApp(db, "authenticated");
+    app.post("/api/routine-triggers/public/:publicId/fire", (_req, res) => {
+      reached += 1;
+      res.status(202).json({ ok: true });
+    });
+
+    const res = await request(app)
+      .post("/api/routine-triggers/public/trg-1/fire")
+      .set("Authorization", "Bearer operator-chosen-webhook-secret")
+      .send({ event: "push" });
+
+    expect(res.status).toBe(202);
+    expect(reached).toBe(1);
+  });
+
+  it("still rejects an unverifiable bearer on ordinary API routes", async () => {
+    const companyId = randomUUID();
+    const { db } = createDbState({ agent: { id: randomUUID(), companyId } });
+
+    const res = await request(createApp(db, "authenticated"))
+      .get(`/companies/${companyId}/protected`)
+      .set("Authorization", "Bearer operator-chosen-webhook-secret");
+
+    expect(res.status).toBe(401);
+    expect(res.body.error).toContain("Agent token did not verify");
+  });
+
+  it.each([
+    ["a gateway route with a trailing path segment", "/api/tool-gateway/gateways/gw-1/mcp/extra"],
+    ["the session-token catalogue route", "/api/tool-gateway/tools"],
+    ["a private routine trigger route", "/api/routine-triggers/trg-1/fire"],
+  ])("does not treat %s as self-authenticating", (_label, pathname) => {
+    expect(isSelfAuthenticatingRoute(pathname)).toBe(false);
+  });
+
+  // A gateway token is not an identity. It must not inherit the implicit
+  // local-board actor that `local_trusted` seeds for header-less requests.
+  it("gives a gateway token no actor, even in local_trusted", async () => {
+    const { db } = createDbState({ agent: { id: randomUUID(), companyId: randomUUID() } });
+    const token = `pcgw_${randomUUID()}.${randomBytes(32).toString("base64url")}`;
+
+    const res = await request(createApp(db, "local_trusted"))
+      .get("/actor")
+      .set("Authorization", `Bearer ${token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body).toMatchObject({ type: "none" });
+    expect(res.body.userId).toBeUndefined();
   });
 
   it.each([

@@ -30,6 +30,10 @@ import {
   toolStdioCommandTemplates,
 } from "@paperclipai/db";
 import type { ToolRunContext } from "@paperclipai/plugin-sdk";
+import {
+  TOOL_GATEWAY_NAMED_TOKEN_PREFIX,
+  TOOL_GATEWAY_SESSION_TOKEN_PREFIX,
+} from "../tool-gateway-token.js";
 import type {
   CreateToolMcpGateway,
   CreateToolMcpGatewayToken,
@@ -331,25 +335,30 @@ function executionAuditFromError(error: unknown): RemoteHttpExecutionAudit | und
 }
 
 function generateGatewayToken(sessionId: string) {
-  return `pcgt_${sessionId}.${randomBytes(32).toString("base64url")}`;
+  return `${TOOL_GATEWAY_SESSION_TOKEN_PREFIX}${sessionId}.${randomBytes(32).toString("base64url")}`;
 }
 
 function generateNamedGatewayToken(tokenId: string) {
-  return `pcgw_${tokenId}.${randomBytes(32).toString("base64url")}`;
+  return `${TOOL_GATEWAY_NAMED_TOKEN_PREFIX}${tokenId}.${randomBytes(32).toString("base64url")}`;
 }
 
 function hashGatewayToken(token: string) {
   return createHash("sha256").update(token).digest("hex");
 }
 
+const GATEWAY_SESSION_TOKEN_PATTERN = new RegExp(
+  `^${TOOL_GATEWAY_SESSION_TOKEN_PREFIX}([0-9a-fA-F-]{36})\\.[A-Za-z0-9_-]+$`,
+);
+const GATEWAY_NAMED_TOKEN_PATTERN = new RegExp(
+  `^${TOOL_GATEWAY_NAMED_TOKEN_PREFIX}([0-9a-fA-F-]{36})\\.[A-Za-z0-9_-]+$`,
+);
+
 function sessionIdFromGatewayToken(token: string) {
-  const match = token.match(/^pcgt_([0-9a-fA-F-]{36})\.[A-Za-z0-9_-]+$/);
-  return match?.[1] ?? null;
+  return token.match(GATEWAY_SESSION_TOKEN_PATTERN)?.[1] ?? null;
 }
 
 function namedGatewayTokenId(token: string) {
-  const match = token.match(/^pcgw_([0-9a-fA-F-]{36})\.[A-Za-z0-9_-]+$/);
-  return match?.[1] ?? null;
+  return token.match(GATEWAY_NAMED_TOKEN_PATTERN)?.[1] ?? null;
 }
 
 function positiveInt(value: string | undefined, fallback: number) {

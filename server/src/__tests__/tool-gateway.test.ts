@@ -37,7 +37,10 @@ import {
   toolRuntimeSlots,
   secretAccessEvents,
 } from "@paperclipai/db";
+import type { DeploymentMode } from "@paperclipai/shared";
 import type { PluginToolDispatcher } from "../services/plugin-tool-dispatcher.js";
+import { actorMiddleware } from "../middleware/auth.js";
+import { errorHandler } from "../middleware/error-handler.js";
 import { mcpGatewayProtocolRoutes, toolGatewayRoutes } from "../routes/tool-gateway.js";
 import { toolAccessService } from "../services/tool-access.js";
 import { createToolGatewayService, ToolGatewayHttpError } from "../services/tool-gateway.js";
@@ -397,13 +400,20 @@ function createTestToolGatewayService(db: Db, options: ToolGatewayServiceOptions
   });
 }
 
+// Mirrors the real server stack: `actorMiddleware` runs app-wide, ahead of
+// every router. Mounting it here is what makes these tests able to see a
+// gateway request that is rejected before its route runs — the shape of the
+// 2026-08 outage, which stayed green while the gateway was dead in production
+// because this helper used to mount the routers bare.
 function createGatewayRouteApp(
   db: Db,
   gateway = createTestToolGatewayService(db),
   actor?: Express.Request["actor"],
+  options: { deploymentMode?: DeploymentMode } = {},
 ) {
   const app = express();
   app.use(express.json());
+  app.use(actorMiddleware(db, { deploymentMode: options.deploymentMode ?? "authenticated" }));
   if (actor) {
     app.use((req, _res, next) => {
       req.actor = actor;
@@ -412,6 +422,7 @@ function createGatewayRouteApp(
   }
   app.use(mcpGatewayProtocolRoutes(gateway));
   app.use("/api", toolGatewayRoutes(db, gateway));
+  app.use(errorHandler);
   return app;
 }
 
