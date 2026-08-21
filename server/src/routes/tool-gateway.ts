@@ -80,7 +80,7 @@ async function handleMcpGatewayProtocol(
         jsonrpc: "2.0",
         id,
         result: {
-          protocolVersion: "2025-03-26",
+          protocolVersion: typeof body.params?.protocolVersion === "string" ? body.params.protocolVersion : "2024-11-05",
           capabilities: { tools: {} },
           serverInfo: { name: "Paperclip MCP Gateway", version: "1.0.0" },
         },
