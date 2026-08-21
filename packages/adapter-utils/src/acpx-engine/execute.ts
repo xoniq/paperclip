@@ -10,6 +10,7 @@ import type {
   AdapterBillingType,
   AdapterExecutionContext,
   AdapterExecutionResult,
+  AdapterRuntimeMcpServer,
   UsageSummary,
 } from "@paperclipai/adapter-utils";
 import {
@@ -1287,17 +1288,29 @@ function uniqueSorted(values: Array<string | null | undefined>): string[] {
 }
 
 // The Claude Code SDK that `claude-agent-acp` runs uses
+function cleanMcpServerSlug(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/\s*\([^)]*\)/g, "")
+    .trim()
+    .replace(/[^a-z0-9_-]/g, "_")
+    .replace(/_+/g, "_")
+    .replace(/^_+|_+$/g, "");
+}
+
+// The Claude Code SDK that `claude-agent-acp` runs uses
 // `settingSources: ["user", "project", "local"]`. By writing a per-worktree
 // `.claude/settings.local.json` we override the user's potentially-restrictive
 // `~/.claude/settings.json` (e.g. `defaultMode: "dontAsk"`, which silently
 // denies every non-allowlisted tool and never reaches `canUseTool`), and we
 // widen the SDK's Read sandbox to include the Paperclip state dirs the agent
-// needs to talk to its own control plane.
+// needs to talk to its own control plane, and inject runtime MCP server connections.
 async function writePaperclipClaudeSettings(input: {
   cwd: string;
   stateDir: string;
   agentHome: string;
   companyId: string;
+  mcpServers?: AdapterRuntimeMcpServer[];
 }): Promise<PaperclipClaudeSettingsResult> {
   const filePath = path.join(input.cwd, ".claude", "settings.local.json");
   const instanceRoot = defaultPaperclipInstanceDir();
@@ -1308,6 +1321,8 @@ async function writePaperclipClaudeSettings(input: {
     companyRoot,
   ]);
   const paperclipAllow = uniqueSorted([
+    "mcp__*",
+    "mcp:*",
     "Bash(curl:*)",
     "Bash(env:*)",
     "Bash(env)",
@@ -1352,7 +1367,34 @@ async function writePaperclipClaudeSettings(input: {
     additionalDirectories: mergedAdditionalDirectories,
     defaultMode,
   };
-  const next: Record<string, unknown> = { ...existing, permissions: nextPermissions };
+
+  const existingMcpServers =
+    existing.mcpServers && typeof existing.mcpServers === "object" && !Array.isArray(existing.mcpServers)
+      ? (existing.mcpServers as Record<string, unknown>)
+      : {};
+  const runtimeMcpServersMap: Record<string, unknown> = {};
+  for (const server of input.mcpServers ?? []) {
+    const config = {
+      type: "http",
+      url: server.url,
+      headers: { Authorization: `Bearer ${server.token}` },
+    };
+    runtimeMcpServersMap[server.name] = config;
+    const clean = cleanMcpServerSlug(server.name);
+    if (clean && clean !== server.name) {
+      runtimeMcpServersMap[clean] = config;
+    }
+  }
+  const nextMcpServers = {
+    ...existingMcpServers,
+    ...runtimeMcpServersMap,
+  };
+
+  const next: Record<string, unknown> = {
+    ...existing,
+    permissions: nextPermissions,
+    ...(Object.keys(nextMcpServers).length > 0 ? { mcpServers: nextMcpServers } : {}),
+  };
   await writeFileAtomically({
     target: filePath,
     contents: `${JSON.stringify(next, null, 2)}\n`,
@@ -1742,6 +1784,7 @@ async function buildRuntime(input: {
       stateDir,
       agentHome,
       companyId: agent.companyId,
+      mcpServers: runtimeMcpServers,
     });
     skillCommandNotes.push(
       `Wrote Paperclip-managed Claude settings to ${paperclipClaudeSettings.filePath} (defaultMode=${paperclipClaudeSettings.defaultMode}${
