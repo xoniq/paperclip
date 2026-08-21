@@ -62,6 +62,7 @@ import {
   routineRevisions,
   routineRuns,
   routines,
+  toolApplications,
   toolMcpGateways,
   toolMcpGatewayTokens,
   toolConnections,
@@ -3413,11 +3414,27 @@ export async function buildPaperclipRuntimeMcpServers(input: {
       },
       actor: { agentId: input.agent.id },
     });
+    const [app] = connection.applicationId
+      ? await input.db
+        .select({
+          name: toolApplications.name,
+          applicationKey: toolApplications.applicationKey,
+        })
+        .from(toolApplications)
+        .where(eq(toolApplications.id, connection.applicationId))
+        .limit(1)
+      : [undefined];
+    const aliases = [...new Set([
+      connection.name,
+      app?.name,
+      app?.applicationKey,
+    ].filter((s): s is string => typeof s === "string" && s.trim().length > 0))];
     servers.push({
       name: connection.name,
       url: `${paperclipApiBaseUrl()}/api/tool-gateway/gateways/${gateway.id}/mcp`,
       token: token.token,
       connectionId: connection.id,
+      aliases,
     });
   }
   if (servers.length === 0) {

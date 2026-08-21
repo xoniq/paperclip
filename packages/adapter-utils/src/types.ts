@@ -153,6 +153,7 @@ export interface AdapterRuntimeMcpServer {
   url: string;
   token: string;
   connectionId: string;
+  aliases?: string[];
 }
 
 export interface AdapterRuntimeMcpAccess {

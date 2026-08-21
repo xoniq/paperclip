@@ -2045,8 +2045,9 @@ describe("renderPaperclipRuntimeMcpNote", () => {
       },
     };
     const fresh = renderPaperclipRuntimeMcpNote(context);
-    expect(fresh).toContain("Runtime MCP servers loaded for this session: Red CMS.");
-    expect(fresh).toContain("use them directly instead of writing ad-hoc HTTP calls");
+    expect(fresh).toContain("Runtime MCP servers loaded for this session: Red CMS");
+    expect(fresh).toContain("tool prefix: mcp__red_cms__<tool_name>");
+    expect(fresh).toContain("writing ad-hoc HTTP calls");
     expect(renderPaperclipRuntimeMcpNote(context, { resumedSession: true })).toBe("");
   });
 

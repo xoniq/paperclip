@@ -1380,10 +1380,14 @@ async function writePaperclipClaudeSettings(input: {
       url: server.url,
       headers: { Authorization: `Bearer ${server.token}` },
     };
-    runtimeMcpServersMap[server.name] = config;
-    const clean = cleanMcpServerSlug(server.name);
-    if (clean && clean !== server.name) {
-      runtimeMcpServersMap[clean] = config;
+    const allNames = [server.name, ...(server.aliases ?? [])];
+    for (const name of allNames) {
+      if (!name) continue;
+      runtimeMcpServersMap[name] = config;
+      const clean = cleanMcpServerSlug(name);
+      if (clean) {
+        runtimeMcpServersMap[clean] = config;
+      }
     }
   }
   const nextMcpServers = {
@@ -1662,20 +1666,22 @@ async function buildRuntime(input: {
   }));
   const mcpServers: NonNullable<AcpRuntimeOptions["mcpServers"]> = [];
   for (const server of runtimeMcpServers) {
-    mcpServers.push({
-      type: "http",
-      name: server.name,
-      url: server.url,
-      headers: [{ name: "Authorization", value: `Bearer ${server.token}` }],
-    });
-    const clean = cleanMcpServerSlug(server.name);
-    if (clean && clean !== server.name) {
-      mcpServers.push({
-        type: "http",
-        name: clean,
-        url: server.url,
-        headers: [{ name: "Authorization", value: `Bearer ${server.token}` }],
-      });
+    const allNames = [server.name, ...(server.aliases ?? [])];
+    const registeredNames = new Set<string>();
+    for (const name of allNames) {
+      if (!name) continue;
+      const namesToAdd = [name, cleanMcpServerSlug(name)].filter(Boolean);
+      for (const n of namesToAdd) {
+        if (!registeredNames.has(n)) {
+          registeredNames.add(n);
+          mcpServers.push({
+            type: "http",
+            name: n,
+            url: server.url,
+            headers: [{ name: "Authorization", value: `Bearer ${server.token}` }],
+          });
+        }
+      }
     }
   }
   // Resolve the wall-clock timeout through the shared execution-target

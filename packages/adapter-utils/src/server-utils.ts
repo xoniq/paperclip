@@ -1485,9 +1485,22 @@ export function renderPaperclipRuntimeMcpNote(
   const notInstalled = readEntries(runtimeMcp.permittedNotInstalledConnections);
   const lines: string[] = [];
   if (servers.length > 0 && options.resumedSession !== true) {
+    const serverDetails = servers
+      .map((server) => {
+        const clean = server.name
+          .toLowerCase()
+          .replace(/\s*\([^)]*\)/g, "")
+          .trim()
+          .replace(/[^a-z0-9_-]/g, "_")
+          .replace(/_+/g, "_")
+          .replace(/^_+|_+$/g, "");
+        const prefix = clean || server.name.toLowerCase().replace(/[^a-z0-9_-]/g, "_");
+        return `${server.name} (tool prefix: mcp__${prefix}__<tool_name>)`;
+      })
+      .join(", ");
     lines.push(
-      `Runtime MCP servers loaded for this session: ${servers.map((server) => server.name).join(", ")}. ` +
-        "Their tools are available natively (tools/list); use them directly instead of writing ad-hoc HTTP calls or one-off scripts against the same service.",
+      `Runtime MCP servers loaded for this session: ${serverDetails}. ` +
+        "Their tools are available natively; in Claude Code / ACP invoke them using their mcp__<server>__<tool_name> prefix instead of bare names or writing ad-hoc HTTP calls or one-off scripts against the same service.",
     );
   }
   if (notInstalled.length > 0) {
