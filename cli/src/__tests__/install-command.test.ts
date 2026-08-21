@@ -214,6 +214,14 @@ describe("managed install commands", () => {
       .rejects.toThrow("unsupported workspace dependency");
   });
 
+  // pnpm prints a failing workspace build script's output on stdout. Without
+  // this the installer reports a bare "Command failed" and the operator cannot
+  // tell a type error from an out-of-memory kill.
+  it("includes child-process stdout in command failures", async () => {
+    await expect(runCommandWithDiagnostics(process.execPath, ["-e", "process.stdout.write('server build: error TS2345\\n'); process.exit(1)"]))
+      .rejects.toThrow("error TS2345");
+  });
+
   it("installs through the shim, reports provenance, and uninstalls without deleting user data", async () => {
     const version = "2026.720.0";
     const runCommand = vi.fn(async (file: string, args: string[], _options?: unknown) => {

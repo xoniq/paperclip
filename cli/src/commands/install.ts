@@ -36,6 +36,15 @@ export type CommandRunner = (
 
 type ReleasePackageEntry = { dir: string; name: string };
 
+const COMMAND_DIAGNOSTIC_TAIL_CHARS = 4000;
+
+function commandOutputTail(value: unknown): string {
+  if (typeof value !== "string") return "";
+  const trimmed = value.trim();
+  if (trimmed.length <= COMMAND_DIAGNOSTIC_TAIL_CHARS) return trimmed;
+  return `…(truncated)\n${trimmed.slice(-COMMAND_DIAGNOSTIC_TAIL_CHARS)}`;
+}
+
 export async function runCommandWithDiagnostics(
   file: string,
   args: string[],
@@ -44,11 +53,19 @@ export async function runCommandWithDiagnostics(
   try {
     return await execFileAsync(file, args, { ...options, encoding: "utf8" });
   } catch (error) {
-    const stderr = error && typeof error === "object" && "stderr" in error && typeof error.stderr === "string"
-      ? error.stderr.trim()
-      : "";
-    if (!stderr || (error instanceof Error && error.message.includes(stderr))) throw error;
-    throw new Error(`${error instanceof Error ? error.message : String(error)}\n${stderr}`, { cause: error });
+    const record = error && typeof error === "object" ? error as Record<string, unknown> : {};
+    const message = error instanceof Error ? error.message : String(error);
+    // pnpm reports a failing workspace build script — the tsc output that says
+    // what actually broke — on stdout, not stderr. Reporting stderr alone turns
+    // every build failure into a bare "Command failed", which is unactionable
+    // on the machine where the install runs.
+    const sections: string[] = [];
+    const stderr = commandOutputTail(record.stderr);
+    if (stderr && !message.includes(stderr)) sections.push(stderr);
+    const stdout = commandOutputTail(record.stdout);
+    if (stdout && !message.includes(stdout)) sections.push(`--- stdout ---\n${stdout}`);
+    if (sections.length === 0) throw error;
+    throw new Error([message, ...sections].join("\n"), { cause: error });
   }
 }
 
@@ -234,11 +251,16 @@ export async function installNpmPayload(
   }
 }
 
-function gitBuildEnv(extra: NodeJS.ProcessEnv = {}): NodeJS.ProcessEnv {
+function gitBuildEnv(commit: string, extra: NodeJS.ProcessEnv = {}): NodeJS.ProcessEnv {
   const env = { ...process.env, ...extra };
   // Source builds need devDependencies (esbuild, typescript); ambient NODE_ENV=production
   // makes pnpm/npm omit them, so the checkout build must not inherit it.
   delete env.NODE_ENV;
+  // A git install builds from an extracted tarball, which carries no `.git`, so
+  // `write-build-stamp` cannot resolve the commit on its own. Without this the
+  // server reports `commit: null` on /api/health and there is no way to confirm
+  // which revision is actually live — the exact question a deploy needs answered.
+  env.PAPERCLIP_BUILD_COMMIT = commit;
   return env;
 }
 
@@ -270,7 +292,7 @@ export async function installGitPayload(repo: string, sha: string, runCommand: C
   const pnpmShimDir = path.join(stagingRoot, "pnpm-bin");
   fs.mkdirSync(pnpmShimDir, { recursive: true, mode: 0o700 });
   const buildEnv = (extra: NodeJS.ProcessEnv = {}) =>
-    gitBuildEnv({ PATH: [pnpmShimDir, process.env.PATH].filter(Boolean).join(path.delimiter), ...extra });
+    gitBuildEnv(sha, { PATH: [pnpmShimDir, process.env.PATH].filter(Boolean).join(path.delimiter), ...extra });
   try {
     await runGitHubCurl(["--fail", "--silent", "--show-error", "--location", "--output", archivePath, `https://codeload.github.com/${repo}/tar.gz/${sha}`], runCommand, { maxBuffer: 4 * 1024 * 1024 });
     await runCommand("tar", ["-xzf", archivePath, "--strip-components=1", "-C", checkoutPath], { maxBuffer: 4 * 1024 * 1024 });
