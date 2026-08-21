@@ -1658,12 +1658,24 @@ async function buildRuntime(input: {
     url,
     connectionId,
   }));
-  const mcpServers: NonNullable<AcpRuntimeOptions["mcpServers"]> = runtimeMcpServers.map((server) => ({
-    type: "http",
-    name: server.name,
-    url: server.url,
-    headers: [{ name: "Authorization", value: `Bearer ${server.token}` }],
-  }));
+  const mcpServers: NonNullable<AcpRuntimeOptions["mcpServers"]> = [];
+  for (const server of runtimeMcpServers) {
+    mcpServers.push({
+      type: "http",
+      name: server.name,
+      url: server.url,
+      headers: [{ name: "Authorization", value: `Bearer ${server.token}` }],
+    });
+    const clean = cleanMcpServerSlug(server.name);
+    if (clean && clean !== server.name) {
+      mcpServers.push({
+        type: "http",
+        name: clean,
+        url: server.url,
+        headers: [{ name: "Authorization", value: `Bearer ${server.token}` }],
+      });
+    }
+  }
   // Resolve the wall-clock timeout through the shared execution-target
   // resolver so sandbox-backed runs pick up the 4h backstop default while
   // local/SSH runs keep the historical "0 = no adapter timeout" behavior.

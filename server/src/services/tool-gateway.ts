@@ -172,6 +172,7 @@ export interface ToolGatewaySession {
   gatewayName?: string | null;
   gatewayTokenId?: string | null;
   gatewayTokenAllowedActions?: ToolMcpGatewayTokenAction[];
+  isManagedRuntime?: boolean;
   actorType?: "agent" | "user" | "system" | "plugin";
   actorId?: string | null;
   createdAt: Date;
@@ -3728,6 +3729,11 @@ export function createToolGatewayService(
       .update(toolMcpGatewayTokens)
       .set({ lastUsedAt: now, updatedAt: now })
       .where(eq(toolMcpGatewayTokens.id, row.token.id));
+    const isManagedRuntime = Boolean(
+      (row.gateway.metadata as any)?.managedRuntimeConnectionId
+      || row.gateway.name?.startsWith("Runtime ")
+      || row.token.subjectType === "heartbeat_run"
+    );
     const session: ToolGatewaySession = {
       id: `gateway:${row.gateway.id}`,
       token: "",
@@ -3741,6 +3747,7 @@ export function createToolGatewayService(
       gatewayName: row.gateway.name,
       gatewayTokenId: row.token.id || tokenId,
       gatewayTokenAllowedActions: normalizeGatewayTokenActions(row.token.allowedActions),
+      isManagedRuntime,
       actorType: runId ? "agent" : "system",
       actorId: runId ? agentId : row.token.id,
       createdAt: row.token.createdAt,
@@ -4859,6 +4866,12 @@ export function createToolGatewayService(
           visibleTools: tools.map((tool) => tool.name),
         },
       });
+      if (session.isManagedRuntime) {
+        return tools.map((tool) => ({
+          ...tool,
+          name: tool.upstreamToolName ?? tool.name,
+        }));
+      }
       return tools;
     },
 
