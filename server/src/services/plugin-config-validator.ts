@@ -30,14 +30,14 @@ export function validateInstanceConfig(
 ): ConfigValidationResult {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const AjvCtor = (Ajv as any).default ?? Ajv;
-  const ajv = new AjvCtor({ allErrors: true });
+  const ajv = new AjvCtor({ allErrors: true, strict: false });
   // ajv-formats v3 default export is a FormatsPlugin object; call it as a plugin.
   const applyFormats = (addFormats as any).default ?? addFormats;
   applyFormats(ajv);
-  // Register the secret-ref format used by plugin manifests to mark fields that
-  // hold a Paperclip secret UUID rather than a raw value. The format is a UI
-  // hint only — UUID validation happens in the secrets handler at resolve time.
+  // Register format hints used by plugin manifests (e.g. secret-ref, textarea)
+  // that are UI hints rather than standard JSON schema formats.
   ajv.addFormat("secret-ref", { validate: () => true });
+  ajv.addFormat("textarea", { validate: () => true });
   const validate = ajv.compile(schema);
   const valid = validate(configJson);
 
