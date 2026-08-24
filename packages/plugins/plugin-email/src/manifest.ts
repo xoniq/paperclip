@@ -204,6 +204,8 @@ const manifest: PaperclipPluginManifestV1 = {
         description:
           "Optional custom HTML template containing {{body}} or [body] placeholder (and optional {{subject}} and {{footer}}). Leave empty for the default clean theme.",
         type: "string",
+        format: "textarea",
+        maxLength: 100000,
       },
       maxPerHour: {
         title: "Max emails per hour",
