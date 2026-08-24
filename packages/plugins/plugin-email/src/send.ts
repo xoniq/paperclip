@@ -233,7 +233,7 @@ export async function sendEmail(input: SendEmailInput): Promise<SendEmailOutcome
     replyTo: config.replyToAddress,
     subject,
     text: request.body,
-    html: wrapEmailHtml(markdownToHtml(request.body), footer),
+    html: wrapEmailHtml(markdownToHtml(request.body), footer, config.htmlTemplate, subject),
     attachments: attachmentResult.attachments,
   };
 

@@ -199,6 +199,12 @@ const manifest: PaperclipPluginManifestV1 = {
         description: "Optional tag prepended to every subject, e.g. [Paperclip], so recipients can filter.",
         type: "string",
       },
+      htmlTemplate: {
+        title: "Custom HTML template",
+        description:
+          "Optional custom HTML template containing {{body}} or [body] placeholder (and optional {{subject}} and {{footer}}). Leave empty for the default clean theme.",
+        type: "string",
+      },
       maxPerHour: {
         title: "Max emails per hour",
         description: "Per company. Catches an agent stuck in a loop before your provider throttles you.",

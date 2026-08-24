@@ -109,4 +109,26 @@ describe("wrapEmailHtml", () => {
   it("escapes the footer", () => {
     expect(wrapEmailHtml("<p>hi</p>", "<script>x</script>")).toContain("&lt;script&gt;");
   });
+
+  it("interpolates into custom HTML template with {{body}}, {{subject}}, and {{footer}}", () => {
+    const template = `
+      <div class="email-brand">
+        <h1>{{subject}}</h1>
+        <main>{{body}}</main>
+        <footer>{{footer}}</footer>
+      </div>
+    `;
+    const result = wrapEmailHtml("<p>Body content</p>", "Footer note", template, "Welcome & hello");
+    expect(result).toContain("<h1>Welcome &amp; hello</h1>");
+    expect(result).toContain("<main><p>Body content</p></main>");
+    expect(result).toContain("<footer>Footer note</footer>");
+  });
+
+  it("supports [body], [subject], and [footer] placeholder tags in custom templates", () => {
+    const template = `<div class="gamerbase"><h2>[subject]</h2><div>[body]</div><small>[footer]</small></div>`;
+    const result = wrapEmailHtml("<p>Gamer news</p>", "Automated footer", template, "Daily News");
+    expect(result).toContain("<h2>Daily News</h2>");
+    expect(result).toContain("<div><p>Gamer news</p></div>");
+    expect(result).toContain("<small>Automated footer</small>");
+  });
 });

@@ -92,6 +92,27 @@ describe("validateConfig", () => {
     expect(result.warnings.join(" ")).toContain("literal string");
   });
 
+  it("validates htmlTemplate contains a body placeholder", () => {
+    const validWithDoubleBraces = validateConfig({
+      ...VALID,
+      htmlTemplate: "<html><body>{{body}}</body></html>",
+    });
+    expect(validWithDoubleBraces.ok).toBe(true);
+
+    const validWithBrackets = validateConfig({
+      ...VALID,
+      htmlTemplate: "<html><body>[body]</body></html>",
+    });
+    expect(validWithBrackets.ok).toBe(true);
+
+    const invalid = validateConfig({
+      ...VALID,
+      htmlTemplate: "<html><body>No placeholder here</body></html>",
+    });
+    expect(invalid.ok).toBe(false);
+    expect(invalid.errors.join(" ")).toContain("htmlTemplate must contain {{body}} or [body]");
+  });
+
   it("warns about a port/TLS mismatch and about disabled certificate checks", () => {
     expect(validateConfig({ ...VALID, port: 465 }).warnings.join(" ")).toContain("implicit TLS");
     expect(validateConfig({ ...VALID, rejectUnauthorized: false }).warnings.join(" ")).toContain(

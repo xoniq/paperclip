@@ -21,6 +21,7 @@ interface ConfigSummary {
   replyToAddress: string;
   allowedRecipients: string[];
   subjectPrefix: string | null;
+  htmlTemplate?: string | null;
   maxPerHour: number;
   maxPerDay: number;
 }
@@ -174,6 +175,9 @@ export function EmailCompanySettingsPage({ context }: PluginCompanySettingsPageP
         </Row>
         <Row name="Reply-to">{config.replyToAddress}</Row>
         {config.subjectPrefix ? <Row name="Subject prefix">{config.subjectPrefix}</Row> : null}
+        <Row name="Template">
+          {config.htmlTemplate ? "Custom HTML template" : "Default clean theme"}
+        </Row>
       </div>
 
       <div style={card}>

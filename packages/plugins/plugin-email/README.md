@@ -31,13 +31,14 @@ paperclipai plugin install packages/plugins/plugin-email
 - **Username / password** — pick an existing secret in the picker, or paste the password once and it is stored as a secret on save. Leave both empty only for a relay that authenticates by IP.
 - **From address**, **From display name**, **Reply-to** — reply-to is required. A report nobody can answer is a dead end.
 - **Allowed recipients** — exact addresses (`jelle@example.com`) or whole domains (`@example.com`). An empty list blocks every send, and the config will not validate without at least one entry.
+- **Custom HTML template** — optional custom HTML template per company with `{{body}}` or `[body]` (and optional `{{subject}}` and `{{footer}}`). If empty, the default clean responsive theme is used.
 - **Max per hour / per day** — defaults are 20 and 100, per company.
 
 3. Hit **Send test email** on the settings page. It runs the same pipeline an agent does — same allowlist, same rate limit, same activity-log entry — so a passing test proves the thing agents will actually use.
 
 ## Using it from a routine
 
-The body is Markdown. Headings, bold, italic, code, lists, links, and pipe tables render to HTML; the raw Markdown goes out as the plain-text alternative, so both kinds of mail client get something readable.
+The body is Markdown. Headings, bold, italic, code, lists, links, and pipe tables render to HTML; the raw Markdown goes out as the plain-text alternative, so both kinds of mail client get something readable. If a company has a custom HTML template configured, the rendered HTML is injected into the template's `{{body}}` / `[body]` slot.
 
 A routine prompt that ends like this is enough:
 

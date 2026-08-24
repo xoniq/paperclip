@@ -19,6 +19,8 @@ export interface EmailConfig {
   /** Normalized allowlist: exact addresses and `@domain` entries, lowercased. */
   allowedRecipients: string[];
   subjectPrefix: string | null;
+  /** Optional custom HTML template containing `{{body}}` or `[body]` */
+  htmlTemplate: string | null;
   maxPerHour: number;
   maxPerDay: number;
 }
@@ -86,6 +88,7 @@ export function parseConfig(raw: Record<string, unknown>): EmailConfig {
     replyToAddress: parseAddress(raw.replyToAddress) ?? "",
     allowedRecipients,
     subjectPrefix: readString(raw.subjectPrefix),
+    htmlTemplate: readString(raw.htmlTemplate),
     maxPerHour: readPositiveInteger(raw.maxPerHour, DEFAULT_MAX_PER_HOUR),
     maxPerDay: readPositiveInteger(raw.maxPerDay, DEFAULT_MAX_PER_DAY),
   };
@@ -147,6 +150,16 @@ export function validateConfig(raw: Record<string, unknown>): ConfigValidation {
     errors.push(
       "allowedRecipients is empty — every send would be rejected. Add at least one address or @domain.",
     );
+  }
+
+  if (config.htmlTemplate) {
+    const hasBodyPlaceholder =
+      config.htmlTemplate.includes("{{body}}") || config.htmlTemplate.includes("[body]");
+    if (!hasBodyPlaceholder) {
+      errors.push(
+        "htmlTemplate must contain {{body}} or [body] where the email content will be inserted.",
+      );
+    }
   }
 
   if (!config.secure && config.port === 465) {

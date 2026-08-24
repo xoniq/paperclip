@@ -55,6 +55,7 @@ function describeConfig(config: EmailConfig) {
     replyToAddress: config.replyToAddress,
     allowedRecipients: config.allowedRecipients,
     subjectPrefix: config.subjectPrefix,
+    htmlTemplate: config.htmlTemplate,
     maxPerHour: config.maxPerHour,
     maxPerDay: config.maxPerDay,
   };

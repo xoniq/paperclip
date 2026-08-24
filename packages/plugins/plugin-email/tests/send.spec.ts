@@ -359,4 +359,36 @@ describe("sendEmail", () => {
       recipients: ["jelle@example.com"],
     });
   });
+
+  it("renders with custom HTML template when configured for the company", async () => {
+    const spy = createTransportSpy();
+    const customConfig = parseConfig({
+      ...RAW_CONFIG,
+      htmlTemplate: `<div style="background: #111; color: #fff;"><h1>{{subject}}</h1><article>{{body}}</article><footer>{{footer}}</footer></div>`,
+    });
+
+    const outcome = await sendEmail({
+      ctx: harness.ctx,
+      companyId: COMPANY_ID,
+      config: customConfig,
+      source: "agent",
+      runId: "run-42",
+      now: NOW,
+      transportFactory: spy.factory,
+      request: {
+        to: ["jelle@example.com"],
+        subject: "Gamerbase Newsletter",
+        body: "## Top News\n\n- Game update released!",
+      },
+    });
+
+    expect(outcome.ok).toBe(true);
+    expect(spy.sent).toHaveLength(1);
+    const sentMessage = spy.sent[0]!;
+    expect(sentMessage.html).toContain("<div style=\"background: #111; color: #fff;\">");
+    expect(sentMessage.html).toContain("<h1>[Paperclip] Gamerbase Newsletter</h1>");
+    expect(sentMessage.html).toContain("<article><h2");
+    expect(sentMessage.html).toContain("Game update released!");
+    expect(sentMessage.html).toContain("<footer>Sent automatically by a Paperclip agent (run run-42).</footer>");
+  });
 });

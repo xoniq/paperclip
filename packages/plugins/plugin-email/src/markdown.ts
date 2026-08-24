@@ -225,13 +225,33 @@ export function markdownToHtml(source: string): string {
 }
 
 /**
- * Wrap a rendered fragment in the minimal document a mail client expects.
+ * Wrap a rendered fragment in the minimal document a mail client expects,
+ * or interpolate into a company-configured custom HTML template if provided.
  *
- * Inline styles only, no external stylesheet and no remote asset: an email
- * client that blocks remote content must still render this correctly, and a
- * remote fetch would leak when and where the report was opened.
+ * Supported placeholders in custom templates:
+ * - `{{body}}` or `[body]` (the rendered HTML fragment)
+ * - `{{footer}}` or `[footer]` (the automated footer text, HTML-escaped)
+ * - `{{subject}}` or `[subject]` (the subject line, HTML-escaped)
  */
-export function wrapEmailHtml(fragment: string, footer: string | null): string {
+export function wrapEmailHtml(
+  fragment: string,
+  footer: string | null,
+  customTemplate?: string | null,
+  subject?: string | null,
+): string {
+  if (customTemplate && customTemplate.trim().length > 0) {
+    const escapedFooter = footer != null ? escapeHtml(footer) : "";
+    const escapedSubject = subject != null ? escapeHtml(subject) : "";
+
+    return customTemplate
+      .replaceAll("{{body}}", fragment)
+      .replaceAll("[body]", fragment)
+      .replaceAll("{{footer}}", escapedFooter)
+      .replaceAll("[footer]", escapedFooter)
+      .replaceAll("{{subject}}", escapedSubject)
+      .replaceAll("[subject]", escapedSubject);
+  }
+
   const footerHtml =
     footer == null
       ? ""
