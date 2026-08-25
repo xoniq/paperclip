@@ -1,0 +1,335 @@
+/*
+ * Name: Mission Control (187N)
+ * Description: Warm editorial aesthetic inspired by 187N Mission Control. Features warm ivory/sand canvas, coral-orange active states, generous rounded cards, pill tags, and warm obsidian dark mode.
+ * Author: Qinox AI
+ */
+
+/* ==========================================================================
+   1. GLOBAL ROOT & LIGHT MODE TOKENS (Warm Sand & Coral Orange)
+   ========================================================================== */
+:root {
+  /* --- Typography --- */
+  --font-sans: "InterVariable", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  --font-heading: var(--font-sans);
+
+  /* --- Geometry & Corner Radiuses (Soft, generous 187N curves) --- */
+  --radius: 0.875rem;
+
+  /* --- Core Semantic Palette (Warm Ivory, Sand, Espresso & Coral) --- */
+  --background: #faf8f5;
+  --foreground: #1c1917;
+
+  --card: #ffffff;
+  --card-foreground: #1c1917;
+
+  --popover: #ffffff;
+  --popover-foreground: #1c1917;
+
+  --primary: #f97316;
+  --primary-foreground: #ffffff;
+
+  --secondary: #f4efe9;
+  --secondary-foreground: #1c1917;
+
+  --muted: #f4efe9;
+  --muted-foreground: #78716c;
+
+  --accent: #fff0e6;
+  --accent-foreground: #ea580c;
+
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+
+  --border: #ece5dc;
+  --input: #ece5dc;
+  --ring: #f97316;
+
+  /* --- Sidebar & Navigation (Warm Off-white & Coral Pill Active) --- */
+  --sidebar: #f7f4ef;
+  --sidebar-foreground: #44403c;
+  --sidebar-primary: #f97316;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #fff0e6;
+  --sidebar-accent-foreground: #ea580c;
+  --sidebar-border: #eae2d7;
+  --sidebar-ring: #f97316;
+
+  /* --- Task & Agent Status Hues --- */
+  --status-agent-idle: #a8a29e;
+  --status-agent-running: #f97316;
+  --status-agent-paused: #f59e0b;
+  --status-agent-error: #ef4444;
+
+  --status-task-backlog: #a8a29e;
+  --status-task-todo: #f97316;
+  --status-task-in_progress: #f97316;
+  --status-task-in_review: #8b5cf6;
+  --status-task-done: #10b981;
+  --status-task-blocked: #ef4444;
+  --status-task-cancelled: #a8a29e;
+
+  /* --- High-contrast Status Icon Hues --- */
+  --status-task-icon-backlog: #78716c;
+  --status-task-icon-todo: #ea580c;
+  --status-task-icon-in_progress: #ea580c;
+  --status-task-icon-in_review: #7c3aed;
+  --status-task-icon-done: #059669;
+  --status-task-icon-blocked: #dc2626;
+  --status-task-icon-cancelled: #78716c;
+  --status-task-icon-in_queue: #ea580c;
+
+  /* --- Data Visualization / Chart Series (Coral, Sky, Emerald, Amber, Violet) --- */
+  --chart-1: #f97316;
+  --chart-2: #38bdf8;
+  --chart-3: #10b981;
+  --chart-4: #f59e0b;
+  --chart-5: #a855f7;
+
+  /* --- Project & Domain Colors --- */
+  --project-seed: #f97316;
+  --project-none: #78716c;
+  --liveness-blue: #f97316;
+
+  --folder-color-indigo: #6366f1;
+  --folder-color-violet: #8b5cf6;
+  --folder-color-emerald: #10b981;
+  --folder-color-cyan: #06b6d4;
+  --folder-color-amber: #f97316;
+  --folder-color-slate: #78716c;
+
+  /* --- Agent Capsule 2-Stop Gradients --- */
+  --agent-1a: #ffdcd2;  --agent-1b: #f97316;
+  --agent-2a: #fed7aa;  --agent-2b: #ea580c;
+  --agent-3a: #ddd6fe;  --agent-3b: #7c3aed;
+  --agent-4a: #fef08a;  --agent-4b: #eab308;
+  --agent-5a: #bae6fd;  --agent-5b: #0284c7;
+  --agent-6a: #fecdd3;  --agent-6b: #e11d48;
+  --agent-7a: #a7f3d0;  --agent-7b: #059669;
+  --agent-8a: #c7d2fe;  --agent-8b: #4f46e5;
+  --agent-9a: #fed7aa;  --agent-9b: #c2410c;
+  --agent-10a: #fbcfe8; --agent-10b: #db2777;
+
+  /* --- Chat & Task Composer --- */
+  --bubble-agent: #f7f4ef;
+  --bubble-agent-card-padding-inline: 1rem;
+  --tc-mode-agent: var(--status-task-backlog);
+  --tc-mode-plan: var(--status-task-todo);
+  --tc-mode-ask: #f97316;
+
+  /* --- Search & Match Chips --- */
+  --chip-match-title-bg: #fff0e6;
+  --chip-match-title-fg: #c2410c;
+  --chip-match-title-border: #ffd8cc;
+  --chip-match-comment-bg: #ecfdf5;
+  --chip-match-comment-fg: #047857;
+  --chip-match-comment-border: #a7f3d0;
+  --chip-match-document-bg: #f5f3ff;
+  --chip-match-document-fg: #6d28d9;
+  --chip-match-document-border: #ddd6fe;
+  --chip-match-identifier-bg: var(--muted);
+  --chip-match-identifier-fg: var(--muted-foreground);
+  --chip-match-identifier-border: var(--border);
+
+  /* --- Document Annotations --- */
+  --paperclip-doc-annotation-highlight-open: #fed7aa;
+  --paperclip-doc-annotation-highlight-focused: #fdba74;
+  --paperclip-doc-annotation-highlight-stale: #ffedd5;
+  --paperclip-doc-annotation-highlight-resolved: #fef3c7;
+}
+
+/* ==========================================================================
+   2. DARK MODE OVERRIDES (Warm Obsidian & Glowing Amber Coral)
+   ========================================================================== */
+.dark {
+  /* --- Core Semantic Palette (Warm Charcoal & Radiant Coral) --- */
+  --background: #121110;
+  --foreground: #f5f2ed;
+
+  --card: #1c1916;
+  --card-foreground: #f5f2ed;
+
+  --popover: #1c1916;
+  --popover-foreground: #f5f2ed;
+
+  --primary: #ff8442;
+  --primary-foreground: #121110;
+
+  --secondary: #26221d;
+  --secondary-foreground: #f5f2ed;
+
+  --muted: #26221d;
+  --muted-foreground: #a89f91;
+
+  --accent: #331f13;
+  --accent-foreground: #ff9d66;
+
+  --destructive: #f87171;
+  --destructive-foreground: #ffffff;
+
+  --border: #2e2821;
+  --input: #2e2821;
+  --ring: #ff8442;
+
+  /* --- Sidebar & Navigation (Dark Warm Espresso) --- */
+  --sidebar: #0f0e0c;
+  --sidebar-foreground: #d6cfc5;
+  --sidebar-primary: #ff8442;
+  --sidebar-primary-foreground: #121110;
+  --sidebar-accent: #261b12;
+  --sidebar-accent-foreground: #ff9d66;
+  --sidebar-border: #241e17;
+  --sidebar-ring: #ff8442;
+
+  /* --- Task & Agent Status Hues (Dark Mode) --- */
+  --status-agent-idle: #a89f91;
+  --status-agent-running: #ff8442;
+  --status-agent-paused: #f59e0b;
+  --status-agent-error: #f87171;
+
+  --status-task-backlog: #a89f91;
+  --status-task-todo: #ff8442;
+  --status-task-in_progress: #ff8442;
+  --status-task-in_review: #c084fc;
+  --status-task-done: #34d399;
+  --status-task-blocked: #f87171;
+  --status-task-cancelled: #a89f91;
+
+  /* --- High-contrast Status Icon Hues (Dark Mode) --- */
+  --status-task-icon-backlog: #a89f91;
+  --status-task-icon-todo: #ff9d66;
+  --status-task-icon-in_progress: #ff9d66;
+  --status-task-icon-in_review: #d8b4fe;
+  --status-task-icon-done: #34d399;
+  --status-task-icon-blocked: #f87171;
+  --status-task-icon-cancelled: #a89f91;
+  --status-task-icon-in_queue: #ff8442;
+
+  /* --- Data Visualization / Chart Series (Dark Mode) --- */
+  --chart-1: #ff8442;
+  --chart-2: #60a5fa;
+  --chart-3: #34d399;
+  --chart-4: #fbbf24;
+  --chart-5: #c084fc;
+
+  /* --- Chat & Task Composer (Dark Mode) --- */
+  --bubble-agent: #171512;
+  --tc-mode-ask: #ff8442;
+
+  /* --- Search & Match Chips (Dark Mode) --- */
+  --chip-match-title-bg: rgba(255, 132, 66, 0.14);
+  --chip-match-title-fg: #ffaa7a;
+  --chip-match-title-border: rgba(255, 132, 66, 0.3);
+  --chip-match-comment-bg: rgba(52, 211, 153, 0.14);
+  --chip-match-comment-fg: #6ee7b7;
+  --chip-match-comment-border: rgba(52, 211, 153, 0.3);
+  --chip-match-document-bg: rgba(192, 132, 252, 0.14);
+  --chip-match-document-fg: #e9d5ff;
+  --chip-match-document-border: rgba(192, 132, 252, 0.3);
+
+  /* --- Document Annotations (Dark Mode) --- */
+  --paperclip-doc-annotation-highlight-open: #7c2d12;
+  --paperclip-doc-annotation-highlight-focused: #9a3412;
+  --paperclip-doc-annotation-highlight-stale: #431407;
+  --paperclip-doc-annotation-highlight-resolved: #451a03;
+}
+
+/* ==========================================================================
+   3. 187N MISSION CONTROL COMPONENT REFINEMENTS & DETAILS
+   ========================================================================== */
+
+/* --- Card & Panel Elevations (Warm Soft Shadows) --- */
+[data-slot="card"], .rounded-lg.border.bg-card {
+  border-radius: var(--radius);
+  box-shadow: 0 4px 20px -2px rgba(80, 60, 40, 0.04), 0 1px 3px 0 rgba(80, 60, 40, 0.02);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.dark [data-slot="card"], .dark .rounded-lg.border.bg-card {
+  box-shadow: 0 4px 24px -2px rgba(0, 0, 0, 0.45);
+}
+
+[data-slot="card"]:hover, .rounded-lg.border.bg-card:hover {
+  border-color: rgba(249, 115, 22, 0.35);
+}
+
+/* --- Sidebar Styling --- */
+aside[data-slot="sidebar"], nav[aria-label="Sidebar"] {
+  border-right: 1px solid var(--sidebar-border);
+  background-color: var(--sidebar);
+}
+
+/* --- Sidebar Active Nav Item Indicator --- */
+aside[data-slot="sidebar"] a[data-active="true"],
+nav[aria-label="Sidebar"] a[data-active="true"],
+aside[data-slot="sidebar"] .bg-accent,
+nav[aria-label="Sidebar"] .bg-accent {
+  position: relative;
+  border-radius: calc(var(--radius) * 0.7);
+  background-color: var(--sidebar-accent) !important;
+  color: var(--sidebar-accent-foreground) !important;
+  font-weight: 600;
+}
+
+aside[data-slot="sidebar"] a[data-active="true"]::before,
+nav[aria-label="Sidebar"] a[data-active="true"]::before {
+  content: "";
+  position: absolute;
+  left: -0.5rem;
+  top: 20%;
+  bottom: 20%;
+  width: 3px;
+  border-radius: 9999px;
+  background-color: var(--primary);
+}
+
+/* --- Interactive Buttons --- */
+button[data-slot="button"] {
+  border-radius: calc(var(--radius) * 0.75);
+  font-weight: 500;
+  transition: all 0.15s ease;
+}
+
+button[data-slot="button"]:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* --- Form Inputs, Textareas & Selects --- */
+input[data-slot="input"], textarea[data-slot="textarea"], [data-slot="select-trigger"] {
+  border-radius: calc(var(--radius) * 0.7);
+  border-color: var(--input);
+  background-color: transparent;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+input[data-slot="input"]:focus, textarea[data-slot="textarea"]:focus, [data-slot="select-trigger"]:focus {
+  border-color: var(--ring);
+  box-shadow: 0 0 0 1px var(--ring);
+}
+
+/* --- Pill Badges & Chips --- */
+[data-slot="badge"] {
+  border-radius: 9999px;
+  letter-spacing: 0.02em;
+  font-weight: 500;
+}
+
+/* --- Smooth Warm Scrollbars --- */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--muted);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
+}

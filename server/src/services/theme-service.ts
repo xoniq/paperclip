@@ -367,6 +367,124 @@ const BUNDLED_THEMES: Record<string, string> = {
   --sidebar-border: #3b4252;
 }
 `,
+  "mission-control.css": `/*
+ * Name: Mission Control (187N)
+ * Description: Warm editorial aesthetic inspired by 187N Mission Control. Features warm ivory/sand canvas, coral-orange active states, generous rounded cards, pill tags, and warm obsidian dark mode.
+ * Author: Qinox AI
+ */
+
+:root {
+  --font-sans: "InterVariable", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  --font-heading: var(--font-sans);
+  --radius: 0.875rem;
+  --background: #faf8f5;
+  --foreground: #1c1917;
+  --card: #ffffff;
+  --card-foreground: #1c1917;
+  --popover: #ffffff;
+  --popover-foreground: #1c1917;
+  --primary: #f97316;
+  --primary-foreground: #ffffff;
+  --secondary: #f4efe9;
+  --secondary-foreground: #1c1917;
+  --muted: #f4efe9;
+  --muted-foreground: #78716c;
+  --accent: #fff0e6;
+  --accent-foreground: #ea580c;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #ece5dc;
+  --input: #ece5dc;
+  --ring: #f97316;
+  --sidebar: #f7f4ef;
+  --sidebar-foreground: #44403c;
+  --sidebar-primary: #f97316;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #fff0e6;
+  --sidebar-accent-foreground: #ea580c;
+  --sidebar-border: #eae2d7;
+  --sidebar-ring: #f97316;
+  --status-agent-idle: #a8a29e;
+  --status-agent-running: #f97316;
+  --status-agent-paused: #f59e0b;
+  --status-agent-error: #ef4444;
+  --status-task-backlog: #a8a29e;
+  --status-task-todo: #f97316;
+  --status-task-in_progress: #f97316;
+  --status-task-in_review: #8b5cf6;
+  --status-task-done: #10b981;
+  --status-task-blocked: #ef4444;
+  --status-task-cancelled: #a8a29e;
+  --status-task-icon-backlog: #78716c;
+  --status-task-icon-todo: #ea580c;
+  --status-task-icon-in_progress: #ea580c;
+  --status-task-icon-in_review: #7c3aed;
+  --status-task-icon-done: #059669;
+  --status-task-icon-blocked: #dc2626;
+  --status-task-icon-cancelled: #78716c;
+  --status-task-icon-in_queue: #ea580c;
+  --chart-1: #f97316;
+  --chart-2: #38bdf8;
+  --chart-3: #10b981;
+  --chart-4: #f59e0b;
+  --chart-5: #a855f7;
+}
+
+.dark {
+  --background: #121110;
+  --foreground: #f5f2ed;
+  --card: #1c1916;
+  --card-foreground: #f5f2ed;
+  --popover: #1c1916;
+  --popover-foreground: #f5f2ed;
+  --primary: #ff8442;
+  --primary-foreground: #121110;
+  --secondary: #26221d;
+  --secondary-foreground: #f5f2ed;
+  --muted: #26221d;
+  --muted-foreground: #a89f91;
+  --accent: #331f13;
+  --accent-foreground: #ff9d66;
+  --destructive: #f87171;
+  --destructive-foreground: #ffffff;
+  --border: #2e2821;
+  --input: #2e2821;
+  --ring: #ff8442;
+  --sidebar: #0f0e0c;
+  --sidebar-foreground: #d6cfc5;
+  --sidebar-primary: #ff8442;
+  --sidebar-primary-foreground: #121110;
+  --sidebar-accent: #261b12;
+  --sidebar-accent-foreground: #ff9d66;
+  --sidebar-border: #241e17;
+  --sidebar-ring: #ff8442;
+  --status-agent-idle: #a89f91;
+  --status-agent-running: #ff8442;
+  --status-agent-paused: #f59e0b;
+  --status-agent-error: #f87171;
+  --status-task-backlog: #a89f91;
+  --status-task-todo: #ff8442;
+  --status-task-in_progress: #ff8442;
+  --status-task-in_review: #c084fc;
+  --status-task-done: #34d399;
+  --status-task-blocked: #f87171;
+  --status-task-cancelled: #a89f91;
+  --status-task-icon-backlog: #a89f91;
+  --status-task-icon-todo: #ff9d66;
+  --status-task-icon-in_progress: #ff9d66;
+  --status-task-icon-in_review: #d8b4fe;
+  --status-task-icon-done: #34d399;
+  --status-task-icon-blocked: #f87171;
+  --status-task-icon-cancelled: #a89f91;
+  --status-task-icon-in_queue: #ff8442;
+  --chart-1: #ff8442;
+  --chart-2: #60a5fa;
+  --chart-3: #34d399;
+  --chart-4: #fbbf24;
+  --chart-5: #c084fc;
+}
+`,
 };
 
 function formatThemeName(id: string): string {
