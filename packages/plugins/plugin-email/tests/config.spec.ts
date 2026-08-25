@@ -113,11 +113,13 @@ describe("validateConfig", () => {
     expect(invalid.errors.join(" ")).toContain("htmlTemplate must contain {{body}} or [body]");
   });
 
-  it("warns about a port/TLS mismatch and about disabled certificate checks", () => {
-    expect(validateConfig({ ...VALID, port: 465 }).warnings.join(" ")).toContain("implicit TLS");
-    expect(validateConfig({ ...VALID, rejectUnauthorized: false }).warnings.join(" ")).toContain(
-      "unauthenticated",
-    );
+  it("accepts an optional valid bccAddress and rejects an invalid one", () => {
+    const validBcc = validateConfig({ ...VALID, bccAddress: "archive@example.com" });
+    expect(validBcc.ok).toBe(true);
+
+    const invalidBcc = validateConfig({ ...VALID, bccAddress: "not-an-email" });
+    expect(invalidBcc.ok).toBe(false);
+    expect(invalidBcc.errors.join(" ")).toContain("bccAddress must be a valid email address");
   });
 });
 

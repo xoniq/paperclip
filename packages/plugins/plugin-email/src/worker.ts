@@ -53,6 +53,7 @@ function describeConfig(config: EmailConfig) {
     fromAddress: config.fromAddress,
     fromName: config.fromName,
     replyToAddress: config.replyToAddress,
+    bccAddress: config.bccAddress,
     allowedRecipients: config.allowedRecipients,
     subjectPrefix: config.subjectPrefix,
     htmlTemplate: config.htmlTemplate,

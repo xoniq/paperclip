@@ -19,6 +19,7 @@ interface ConfigSummary {
   fromAddress: string;
   fromName: string;
   replyToAddress: string;
+  bccAddress?: string | null;
   allowedRecipients: string[];
   subjectPrefix: string | null;
   htmlTemplate?: string | null;
@@ -174,6 +175,7 @@ export function EmailCompanySettingsPage({ context }: PluginCompanySettingsPageP
           {config.fromName} &lt;{config.fromAddress}&gt;
         </Row>
         <Row name="Reply-to">{config.replyToAddress}</Row>
+        {config.bccAddress ? <Row name="BCC">{config.bccAddress}</Row> : null}
         {config.subjectPrefix ? <Row name="Subject prefix">{config.subjectPrefix}</Row> : null}
         <Row name="Template">
           {config.htmlTemplate ? "Custom HTML template" : "Default clean theme"}

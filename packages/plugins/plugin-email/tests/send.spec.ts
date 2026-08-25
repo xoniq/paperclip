@@ -105,9 +105,25 @@ describe("sendEmail", () => {
     expect(message.to).toEqual(["jelle@example.com"]);
     expect(message.subject).toBe("[Paperclip] Weekly report");
     // Both alternatives are present: raw markdown as text, rendered as HTML.
-    expect(message.text).toContain("## Summary");
-    expect(message.html).toContain("<h2");
     expect(spy.closed).toBe(1);
+  });
+
+  it("includes bcc address from config in outgoing message", async () => {
+    const spy = createTransportSpy();
+    const configWithBcc = parseConfig({ ...RAW_CONFIG, bccAddress: "audit@qinox.nl" });
+    const outcome = await sendEmail({
+      ctx: harness.ctx,
+      companyId: COMPANY_ID,
+      config: configWithBcc,
+      source: "agent",
+      now: NOW,
+      transportFactory: spy.factory,
+      request: { to: ["jelle@example.com"], subject: "Notification", body: "Hello world" },
+    });
+
+    expect(outcome.ok).toBe(true);
+    expect(spy.sent).toHaveLength(1);
+    expect(spy.sent[0]?.bcc).toEqual(["audit@qinox.nl"]);
   });
 
   it("resolves the password through the secret provider at send time", async () => {

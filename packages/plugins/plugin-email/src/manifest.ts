@@ -186,6 +186,12 @@ const manifest: PaperclipPluginManifestV1 = {
           "Where replies go. Required, because a report nobody can answer is a dead end — point this at a human or a shared inbox.",
         type: "string",
       },
+      bccAddress: {
+        title: "BCC address",
+        description:
+          "Optional BCC address. If configured, a copy of all outgoing emails sent via the plugin will be delivered here.",
+        type: "string",
+      },
       allowedRecipients: {
         title: "Allowed recipients",
         description:

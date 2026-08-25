@@ -16,6 +16,7 @@ export interface EmailConfig {
   fromAddress: string;
   fromName: string;
   replyToAddress: string;
+  bccAddress: string | null;
   /** Normalized allowlist: exact addresses and `@domain` entries, lowercased. */
   allowedRecipients: string[];
   subjectPrefix: string | null;
@@ -86,6 +87,7 @@ export function parseConfig(raw: Record<string, unknown>): EmailConfig {
     fromAddress: parseAddress(raw.fromAddress) ?? "",
     fromName: readString(raw.fromName) ?? DEFAULT_FROM_NAME,
     replyToAddress: parseAddress(raw.replyToAddress) ?? "",
+    bccAddress: parseAddress(raw.bccAddress),
     allowedRecipients,
     subjectPrefix: readString(raw.subjectPrefix),
     htmlTemplate: readString(raw.htmlTemplate),
@@ -118,6 +120,9 @@ export function validateConfig(raw: Record<string, unknown>): ConfigValidation {
   }
   if (!config.replyToAddress) {
     errors.push("replyToAddress is required and must be a plain email address.");
+  }
+  if (raw.bccAddress != null && typeof raw.bccAddress === "string" && raw.bccAddress.trim().length > 0 && !config.bccAddress) {
+    errors.push("bccAddress must be a valid email address.");
   }
 
   if (config.password == null) {

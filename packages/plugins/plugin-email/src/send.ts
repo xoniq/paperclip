@@ -226,10 +226,13 @@ export async function sendEmail(input: SendEmailInput): Promise<SendEmailOutcome
       ? `Sent automatically by a Paperclip agent (run ${input.runId}).`
       : "Sent automatically by a Paperclip agent.";
 
+  const bcc = config.bccAddress ? [config.bccAddress] : undefined;
+
   const message = {
     from: formatFrom(config.fromAddress, config.fromName),
     to: toResolution.allowed,
     cc: ccResolution.allowed,
+    bcc,
     replyTo: config.replyToAddress,
     subject,
     text: request.body,

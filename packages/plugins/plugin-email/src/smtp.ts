@@ -19,6 +19,7 @@ export interface SmtpMessage {
   from: string;
   to: string[];
   cc?: string[];
+  bcc?: string[];
   replyTo: string;
   subject: string;
   /** Plain-text alternative. */
@@ -87,6 +88,7 @@ export const createNodemailerTransport: SmtpTransportFactory = (options) => {
         from: message.from,
         to: message.to,
         cc: message.cc && message.cc.length > 0 ? message.cc : undefined,
+        bcc: message.bcc && message.bcc.length > 0 ? message.bcc : undefined,
         replyTo: message.replyTo,
         subject: message.subject,
         text: message.text,
