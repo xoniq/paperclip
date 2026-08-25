@@ -71,3 +71,4 @@ tests/storybook-visual/playwright-report/
 .claude/worktrees/
 .herenow
 backup/
+packages/plugins/*.zip
