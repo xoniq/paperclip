@@ -7,6 +7,7 @@ import {
   DEFAULT_BACKUP_RETENTION,
   DEFAULT_INSTANCE_BRANDING,
   DEFAULT_INSTANCE_THEMING,
+  DEFAULT_INSTANCE_NAVIGATION,
   DEFAULT_ISSUE_GRAPH_LIVENESS_AUTO_RECOVERY_LOOKBACK_HOURS,
   MAX_ISSUE_GRAPH_LIVENESS_AUTO_RECOVERY_LOOKBACK_HOURS,
   MIN_ISSUE_GRAPH_LIVENESS_AUTO_RECOVERY_LOOKBACK_HOURS,
@@ -51,6 +52,12 @@ export const instanceThemingSettingsSchema = z.object({
 
 export const patchInstanceThemingSettingsSchema = instanceThemingSettingsSchema.partial();
 
+export const instanceNavigationSettingsSchema = z.object({
+  hiddenSidebarItems: z.array(z.string().trim()).default(DEFAULT_INSTANCE_NAVIGATION.hiddenSidebarItems),
+});
+
+export const patchInstanceNavigationSettingsSchema = instanceNavigationSettingsSchema.partial();
+
 export const instanceGeneralSettingsSchema = z.object({
   censorUsernameInLogs: z.boolean().default(false),
   keyboardShortcuts: z.boolean().default(false),
@@ -63,6 +70,7 @@ export const instanceGeneralSettingsSchema = z.object({
   executionMode: z.enum(["kubernetes", "any"]).optional(),
   branding: instanceBrandingSettingsSchema.default(DEFAULT_INSTANCE_BRANDING),
   theming: instanceThemingSettingsSchema.default(DEFAULT_INSTANCE_THEMING),
+  navigation: instanceNavigationSettingsSchema.default(DEFAULT_INSTANCE_NAVIGATION),
 }).strict();
 
 export const patchInstanceGeneralSettingsSchema = instanceGeneralSettingsSchema.partial();
@@ -148,6 +156,8 @@ export type PatchInstanceBrandingSettings = z.infer<typeof patchInstanceBranding
 export type ThemeOption = z.infer<typeof themeOptionSchema>;
 export type InstanceThemingSettings = z.infer<typeof instanceThemingSettingsSchema>;
 export type PatchInstanceThemingSettings = z.infer<typeof patchInstanceThemingSettingsSchema>;
+export type InstanceNavigationSettings = z.infer<typeof instanceNavigationSettingsSchema>;
+export type PatchInstanceNavigationSettings = z.infer<typeof patchInstanceNavigationSettingsSchema>;
 export type InstanceGeneralSettings = z.infer<typeof instanceGeneralSettingsSchema>;
 export type PatchInstanceGeneralSettings = z.infer<typeof patchInstanceGeneralSettingsSchema>;
 export type InstanceExperimentalSettings = z.infer<typeof instanceExperimentalSettingsSchema>;

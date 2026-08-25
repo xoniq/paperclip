@@ -65,6 +65,14 @@ export const DEFAULT_INSTANCE_THEMING: InstanceThemingSettings = {
   customCss: null,
 };
 
+export interface InstanceNavigationSettings {
+  hiddenSidebarItems: string[];
+}
+
+export const DEFAULT_INSTANCE_NAVIGATION: InstanceNavigationSettings = {
+  hiddenSidebarItems: [],
+};
+
 export interface InstanceGeneralSettings {
   censorUsernameInLogs: boolean;
   keyboardShortcuts: boolean;
@@ -77,6 +85,7 @@ export interface InstanceGeneralSettings {
   executionMode?: InstanceExecutionMode;
   branding?: InstanceBrandingSettings;
   theming?: InstanceThemingSettings;
+  navigation?: InstanceNavigationSettings;
 }
 
 export interface InstanceExperimentalSettings {

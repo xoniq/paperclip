@@ -7,6 +7,7 @@ import {
   patchInstanceGeneralSettingsSchema,
   DEFAULT_INSTANCE_BRANDING,
   DEFAULT_INSTANCE_THEMING,
+  DEFAULT_INSTANCE_NAVIGATION,
 } from "@paperclipai/shared";
 import { forbidden } from "../errors.js";
 import { isCloudManagedInstance } from "../services/cloud-instance.js";
@@ -56,6 +57,11 @@ export function instanceSettingsRoutes(db: Db) {
   router.get("/instance/theming", async (_req, res) => {
     const general = await svc.getGeneral();
     res.json(general.theming ?? DEFAULT_INSTANCE_THEMING);
+  });
+
+  router.get("/instance/navigation", async (_req, res) => {
+    const general = await svc.getGeneral();
+    res.json(general.navigation ?? DEFAULT_INSTANCE_NAVIGATION);
   });
 
   router.get("/instance/settings", async (req, res) => {

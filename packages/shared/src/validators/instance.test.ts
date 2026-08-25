@@ -6,6 +6,7 @@ import {
   instanceBrandingSettingsSchema,
   instanceThemingSettingsSchema,
   themeOptionSchema,
+  instanceNavigationSettingsSchema,
   patchInstanceGeneralSettingsSchema,
 } from "./instance.js";
 
@@ -236,5 +237,29 @@ describe("instance theming settings validators", () => {
     expect(patch.theming?.activeTheme).toBe("midnight-blue");
   });
 });
+
+describe("instance navigation settings validators", () => {
+  it("defaults to empty hidden sidebar items", () => {
+    const general = instanceGeneralSettingsSchema.parse({});
+    expect(general.navigation).toEqual({
+      hiddenSidebarItems: [],
+    });
+  });
+
+  it("parses hidden sidebar items and validates patch", () => {
+    const nav = instanceNavigationSettingsSchema.parse({
+      hiddenSidebarItems: ["pipelines", "cases", "routines"],
+    });
+    expect(nav.hiddenSidebarItems).toEqual(["pipelines", "cases", "routines"]);
+
+    const patch = patchInstanceGeneralSettingsSchema.parse({
+      navigation: {
+        hiddenSidebarItems: ["costs", "activity"],
+      },
+    });
+    expect(patch.navigation?.hiddenSidebarItems).toEqual(["costs", "activity"]);
+  });
+});
+
 
 

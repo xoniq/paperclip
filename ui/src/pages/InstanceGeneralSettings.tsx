@@ -5,6 +5,7 @@ import type {
   BackupRetentionPolicy,
   InstanceBrandingSettings,
   InstanceThemingSettings,
+  InstanceNavigationSettings,
 } from "@paperclipai/shared";
 import {
   DAILY_RETENTION_PRESETS,
@@ -13,8 +14,9 @@ import {
   DEFAULT_BACKUP_RETENTION,
   DEFAULT_INSTANCE_BRANDING,
   DEFAULT_INSTANCE_THEMING,
+  DEFAULT_INSTANCE_NAVIGATION,
 } from "@paperclipai/shared";
-import { Check, LogOut, Palette, SlidersHorizontal, Sparkles } from "lucide-react";
+import { Check, LayoutList, LogOut, Palette, SlidersHorizontal, Sparkles } from "lucide-react";
 import { healthApi } from "@/api/health";
 import { instanceSettingsApi } from "@/api/instanceSettings";
 import { ModeBadge } from "@/components/access/ModeBadge";
@@ -65,6 +67,7 @@ export function InstanceGeneralSettings({ embedded = false }: { embedded?: boole
       await queryClient.invalidateQueries({ queryKey: queryKeys.instance.generalSettings });
       await queryClient.invalidateQueries({ queryKey: queryKeys.instance.branding });
       await queryClient.invalidateQueries({ queryKey: queryKeys.instance.theming });
+      await queryClient.invalidateQueries({ queryKey: queryKeys.instance.navigation });
     },
     onError: (error) => {
       setActionError(error instanceof Error ? error.message : "Failed to update general settings.");
@@ -158,6 +161,12 @@ export function InstanceGeneralSettings({ embedded = false }: { embedded?: boole
       <ThemingSection
         theming={generalQuery.data?.theming}
         onSave={(theming) => updateGeneralMutation.mutate({ theming })}
+        disabled={updateGeneralMutation.isPending || signOutMutation.isPending}
+      />
+
+      <NavigationSection
+        navigation={generalQuery.data?.navigation}
+        onSave={(navigation) => updateGeneralMutation.mutate({ navigation })}
         disabled={updateGeneralMutation.isPending || signOutMutation.isPending}
       />
 
@@ -644,6 +653,148 @@ function ThemingSection({
             Save theme settings
           </Button>
           {isSaved && <span className="text-xs text-emerald-500 font-medium">Theme settings saved!</span>}
+        </div>
+      </form>
+    </section>
+  );
+}
+
+const SIDEBAR_ITEMS_CATALOG = [
+  {
+    category: "Main Navigation",
+    items: [
+      { id: "new-task", label: "New Task button" },
+      { id: "search", label: "Search" },
+      { id: "dashboard", label: "Dashboard" },
+      { id: "inbox", label: "Inbox" },
+      { id: "decisions", label: "Decisions" },
+      { id: "status", label: "Status Cards" },
+      { id: "board-chat", label: "Conference Room" },
+    ],
+  },
+  {
+    category: "Work",
+    items: [
+      { id: "issues", label: "Tasks" },
+      { id: "cases", label: "Cases" },
+      { id: "routines", label: "Routines" },
+      { id: "pipelines", label: "Pipelines" },
+      { id: "goals", label: "Goals" },
+      { id: "artifacts", label: "Artifacts" },
+      { id: "skills", label: "Skills" },
+      { id: "workspaces", label: "Workspaces" },
+      { id: "projects", label: "Projects" },
+    ],
+  },
+  {
+    category: "Agents & Team",
+    items: [
+      { id: "agents", label: "Agents List & Org" },
+    ],
+  },
+  {
+    category: "Company",
+    items: [
+      { id: "org", label: "Org Chart" },
+      { id: "apps", label: "Apps" },
+      { id: "timeline", label: "Timeline" },
+      { id: "costs", label: "Costs" },
+      { id: "activity", label: "Activity Feed" },
+      { id: "company-settings", label: "Company Settings" },
+    ],
+  },
+];
+
+function NavigationSection({
+  navigation,
+  onSave,
+  disabled,
+}: {
+  navigation?: InstanceNavigationSettings;
+  onSave: (navigation: InstanceNavigationSettings) => void;
+  disabled: boolean;
+}) {
+  const [hiddenItems, setHiddenItems] = useState<string[]>(
+    navigation?.hiddenSidebarItems ?? DEFAULT_INSTANCE_NAVIGATION.hiddenSidebarItems,
+  );
+  const [isSaved, setIsSaved] = useState(false);
+
+  useEffect(() => {
+    if (navigation) {
+      setHiddenItems(navigation.hiddenSidebarItems ?? DEFAULT_INSTANCE_NAVIGATION.hiddenSidebarItems);
+    }
+  }, [navigation]);
+
+  const toggleItem = (id: string) => {
+    setHiddenItems((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    );
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSave({ hiddenSidebarItems: hiddenItems });
+    setIsSaved(true);
+    setTimeout(() => setIsSaved(false), 2500);
+  };
+
+  return (
+    <section className="space-y-4">
+      <div className="space-y-1.5">
+        <div className="flex items-center gap-2">
+          <LayoutList className="h-4 w-4 text-muted-foreground" />
+          <h2 className="text-sm font-semibold">Sidebar Navigation Customizer</h2>
+        </div>
+        <p className="max-w-2xl text-sm text-muted-foreground">
+          Choose which sidebar navigation items and sections are visible across the platform.
+        </p>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-6 rounded-lg border border-border bg-card p-4">
+        {SIDEBAR_ITEMS_CATALOG.map((group) => (
+          <div key={group.category} className="space-y-2">
+            <h3 className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              {group.category}
+            </h3>
+            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              {group.items.map((item) => {
+                const isVisible = !hiddenItems.includes(item.id);
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    disabled={disabled}
+                    onClick={() => toggleItem(item.id)}
+                    className={cn(
+                      "flex items-center justify-between rounded-md border p-2.5 text-left transition-colors",
+                      isVisible
+                        ? "border-primary/40 bg-primary/5 text-foreground"
+                        : "border-border/50 bg-background/50 text-muted-foreground/60 opacity-60",
+                    )}
+                  >
+                    <span className="text-xs font-medium">{item.label}</span>
+                    <span
+                      className={cn(
+                        "rounded px-1.5 py-0.5 text-xs font-semibold uppercase tracking-wider",
+                        isVisible
+                          ? "bg-primary/20 text-primary"
+                          : "bg-muted text-muted-foreground",
+                      )}
+                    >
+                      {isVisible ? "Visible" : "Hidden"}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+
+        <div className="flex items-center gap-3 pt-2">
+          <Button type="submit" size="sm" disabled={disabled}>
+            Save navigation settings
+          </Button>
+          {isSaved && <span className="text-xs text-emerald-500 font-medium">Navigation settings saved!</span>}
         </div>
       </form>
     </section>
