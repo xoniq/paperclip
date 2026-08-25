@@ -1,17 +1,19 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { PatchInstanceGeneralSettings, BackupRetentionPolicy } from "@paperclipai/shared";
+import type { PatchInstanceGeneralSettings, BackupRetentionPolicy, InstanceBrandingSettings } from "@paperclipai/shared";
 import {
   DAILY_RETENTION_PRESETS,
   WEEKLY_RETENTION_PRESETS,
   MONTHLY_RETENTION_PRESETS,
   DEFAULT_BACKUP_RETENTION,
+  DEFAULT_INSTANCE_BRANDING,
 } from "@paperclipai/shared";
-import { LogOut, SlidersHorizontal } from "lucide-react";
+import { LogOut, SlidersHorizontal, Sparkles } from "lucide-react";
 import { healthApi } from "@/api/health";
 import { instanceSettingsApi } from "@/api/instanceSettings";
 import { ModeBadge } from "@/components/access/ModeBadge";
 import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
 import { useBreadcrumbs } from "../context/BreadcrumbContext";
 import { queryKeys } from "../lib/queryKeys";
 import { ToggleSwitch } from "@/components/ui/toggle-switch";
@@ -55,6 +57,7 @@ export function InstanceGeneralSettings({ embedded = false }: { embedded?: boole
       setActionError(null);
       signOutMutation.reset();
       await queryClient.invalidateQueries({ queryKey: queryKeys.instance.generalSettings });
+      await queryClient.invalidateQueries({ queryKey: queryKeys.instance.branding });
     },
     onError: (error) => {
       setActionError(error instanceof Error ? error.message : "Failed to update general settings.");
@@ -138,6 +141,12 @@ export function InstanceGeneralSettings({ embedded = false }: { embedded?: boole
           </div>
         </div>
       </section>
+
+      <BrandingSection
+        branding={generalQuery.data?.branding}
+        onSave={(branding) => updateGeneralMutation.mutate({ branding })}
+        disabled={updateGeneralMutation.isPending || signOutMutation.isPending}
+      />
 
       <section>
         <div className="flex items-start justify-between gap-4">
@@ -386,5 +395,111 @@ function StatusBox({ label, value }: { label: string; value: string }) {
       <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</div>
       <div className="text-sm font-medium">{value}</div>
     </div>
+  );
+}
+
+function BrandingSection({
+  branding,
+  onSave,
+  disabled,
+}: {
+  branding?: InstanceBrandingSettings;
+  onSave: (branding: InstanceBrandingSettings) => void;
+  disabled: boolean;
+}) {
+  const [platformName, setPlatformName] = useState(branding?.platformName ?? DEFAULT_INSTANCE_BRANDING.platformName);
+  const [tagline, setTagline] = useState(branding?.tagline ?? "");
+  const [logoUrl, setLogoUrl] = useState(branding?.logoUrl ?? "");
+  const [faviconUrl, setFaviconUrl] = useState(branding?.faviconUrl ?? "");
+  const [isSaved, setIsSaved] = useState(false);
+
+  useEffect(() => {
+    if (branding) {
+      setPlatformName(branding.platformName ?? DEFAULT_INSTANCE_BRANDING.platformName);
+      setTagline(branding.tagline ?? "");
+      setLogoUrl(branding.logoUrl ?? "");
+      setFaviconUrl(branding.faviconUrl ?? "");
+    }
+  }, [branding]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSave({
+      platformName: platformName.trim() || DEFAULT_INSTANCE_BRANDING.platformName,
+      tagline: tagline.trim() || null,
+      logoUrl: logoUrl.trim() || null,
+      faviconUrl: faviconUrl.trim() || null,
+    });
+    setIsSaved(true);
+    setTimeout(() => setIsSaved(false), 2500);
+  };
+
+  return (
+    <section className="space-y-4">
+      <div className="space-y-1.5">
+        <div className="flex items-center gap-2">
+          <Sparkles className="h-4 w-4 text-muted-foreground" />
+          <h2 className="text-sm font-semibold">Branding & White-labeling</h2>
+        </div>
+        <p className="max-w-2xl text-sm text-muted-foreground">
+          Customize the platform name, tagline, and logo displayed across headers, browser titles, and emails.
+        </p>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-4 rounded-lg border border-border bg-card p-4">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-1.5">
+            <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Platform Name</label>
+            <Input
+              value={platformName}
+              onChange={(e) => setPlatformName(e.target.value)}
+              placeholder="Paperclip"
+              disabled={disabled}
+            />
+            <p className="text-xs text-muted-foreground">e.g. "Qinox AI" instead of "Paperclip".</p>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Tagline (optional)</label>
+            <Input
+              value={tagline}
+              onChange={(e) => setTagline(e.target.value)}
+              placeholder="Autonomous AI Operations"
+              disabled={disabled}
+            />
+            <p className="text-xs text-muted-foreground">Subtitle shown on onboarding and splash screens.</p>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Logo URL (optional)</label>
+            <Input
+              value={logoUrl}
+              onChange={(e) => setLogoUrl(e.target.value)}
+              placeholder="https://example.com/logo.png"
+              disabled={disabled}
+            />
+            <p className="text-xs text-muted-foreground">URL to a custom header logo image.</p>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Favicon URL (optional)</label>
+            <Input
+              value={faviconUrl}
+              onChange={(e) => setFaviconUrl(e.target.value)}
+              placeholder="https://example.com/favicon.ico"
+              disabled={disabled}
+            />
+            <p className="text-xs text-muted-foreground">URL to a custom browser tab icon.</p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3 pt-2">
+          <Button type="submit" size="sm" disabled={disabled}>
+            Save branding
+          </Button>
+          {isSaved && <span className="text-xs text-emerald-500 font-medium">Branding saved!</span>}
+        </div>
+      </form>
+    </section>
   );
 }

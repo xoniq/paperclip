@@ -43,6 +43,7 @@ import { cloudStackCreateUrl, cloudStackEnterUrl } from "@/lib/cloudLinks";
 import { queryKeys } from "@/lib/queryKeys";
 import { cn, SIDEBAR_RAIL_HIDDEN_LABEL } from "@/lib/utils";
 import { useSidebar } from "../context/SidebarContext";
+import { useBranding } from "../context/BrandingContext";
 import { CompanyPatternIcon } from "./CompanyPatternIcon";
 
 interface SidebarCompanyMenuProps {
@@ -54,11 +55,11 @@ const WORKSPACE_ICON_CLASS = "size-5 shrink-0 rounded-md text-(length:--text-mic
 const WORKSPACE_BADGE_CLASS =
   "shrink-0 rounded bg-muted px-1.5 py-0.5 font-mono text-(length:--text-nano) text-muted-foreground";
 
-function WorkspaceIcon({ company }: { company: Company }) {
+function WorkspaceIcon({ company, instanceLogoUrl }: { company: Company; instanceLogoUrl?: string | null }) {
   return (
     <CompanyPatternIcon
       companyName={company.name}
-      logoUrl={company.logoUrl}
+      logoUrl={company.logoUrl || instanceLogoUrl || null}
       brandColor={company.brandColor}
       className={WORKSPACE_ICON_CLASS}
     />
@@ -252,6 +253,7 @@ export function SidebarCompanyMenu({ open: controlledOpen, onOpenChange }: Sideb
     : null;
   const createStackUrl = isCloud ? cloudStackCreateUrl(cloudBaseUrl) : null;
   const switcherNoun = isCloud ? "organization" : "company";
+  const { logoUrl: instanceLogoUrl } = useBranding();
   // The one name the chrome shows for "where am I": the stack in cloud, the
   // company when self-hosted.
   const currentName = isCloud
@@ -356,7 +358,7 @@ export function SidebarCompanyMenu({ open: controlledOpen, onOpenChange }: Sideb
           <span className="flex min-w-0 flex-1 items-center gap-2">
             {isCloud
               ? currentName ? <CurrentStackIcon displayName={currentName} company={selectedCompany} /> : null
-              : selectedCompany ? <WorkspaceIcon company={selectedCompany} /> : null}
+              : selectedCompany ? <WorkspaceIcon company={selectedCompany} instanceLogoUrl={instanceLogoUrl} /> : null}
             {/* The header has room for ~110px of name beside the collapse
                 control (~142px on mobile, which hides it) — search moved to
                 the nav to buy that width. A name that still

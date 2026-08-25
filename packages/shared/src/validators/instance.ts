@@ -5,6 +5,7 @@ import {
   WEEKLY_RETENTION_PRESETS,
   MONTHLY_RETENTION_PRESETS,
   DEFAULT_BACKUP_RETENTION,
+  DEFAULT_INSTANCE_BRANDING,
   DEFAULT_ISSUE_GRAPH_LIVENESS_AUTO_RECOVERY_LOOKBACK_HOURS,
   MAX_ISSUE_GRAPH_LIVENESS_AUTO_RECOVERY_LOOKBACK_HOURS,
   MIN_ISSUE_GRAPH_LIVENESS_AUTO_RECOVERY_LOOKBACK_HOURS,
@@ -24,6 +25,15 @@ export const backupRetentionPolicySchema = z.object({
   monthlyMonths: presetSchema(MONTHLY_RETENTION_PRESETS, "monthlyMonths").default(DEFAULT_BACKUP_RETENTION.monthlyMonths),
 });
 
+export const instanceBrandingSettingsSchema = z.object({
+  platformName: z.string().trim().min(1).max(100).default(DEFAULT_INSTANCE_BRANDING.platformName),
+  logoUrl: z.string().trim().nullable().default(DEFAULT_INSTANCE_BRANDING.logoUrl),
+  faviconUrl: z.string().trim().nullable().default(DEFAULT_INSTANCE_BRANDING.faviconUrl),
+  tagline: z.string().trim().max(255).nullable().default(DEFAULT_INSTANCE_BRANDING.tagline),
+});
+
+export const patchInstanceBrandingSettingsSchema = instanceBrandingSettingsSchema.partial();
+
 export const instanceGeneralSettingsSchema = z.object({
   censorUsernameInLogs: z.boolean().default(false),
   keyboardShortcuts: z.boolean().default(false),
@@ -34,6 +44,7 @@ export const instanceGeneralSettingsSchema = z.object({
   // Execution policy. Absent/"any" = unrestricted; "kubernetes" forces the
   // Kubernetes sandbox provider and denies local/ssh execution (cloud_tenant).
   executionMode: z.enum(["kubernetes", "any"]).optional(),
+  branding: instanceBrandingSettingsSchema.default(DEFAULT_INSTANCE_BRANDING),
 }).strict();
 
 export const patchInstanceGeneralSettingsSchema = instanceGeneralSettingsSchema.partial();
@@ -114,6 +125,8 @@ export const issueGraphLivenessAutoRecoveryRequestSchema = z.object({
     .optional(),
 }).strict();
 
+export type InstanceBrandingSettings = z.infer<typeof instanceBrandingSettingsSchema>;
+export type PatchInstanceBrandingSettings = z.infer<typeof patchInstanceBrandingSettingsSchema>;
 export type InstanceGeneralSettings = z.infer<typeof instanceGeneralSettingsSchema>;
 export type PatchInstanceGeneralSettings = z.infer<typeof patchInstanceGeneralSettingsSchema>;
 export type InstanceExperimentalSettings = z.infer<typeof instanceExperimentalSettingsSchema>;

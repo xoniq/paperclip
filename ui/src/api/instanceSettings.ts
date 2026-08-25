@@ -1,4 +1,5 @@
 import type {
+  InstanceBrandingSettings,
   InstanceExperimentalSettingsWithManaged,
   InstanceGeneralSettings,
   InstanceSettings,
@@ -14,6 +15,8 @@ export const instanceSettingsApi = {
     api.get<InstanceSettings>("/instance/settings"),
   update: (patch: PatchInstanceSettings) =>
     api.patch<InstanceSettings>("/instance/settings", patch),
+  getBranding: () =>
+    api.get<InstanceBrandingSettings>("/instance/branding"),
   getGeneral: () =>
     api.get<InstanceGeneralSettings>("/instance/settings/general"),
   updateGeneral: (patch: PatchInstanceGeneralSettings) =>

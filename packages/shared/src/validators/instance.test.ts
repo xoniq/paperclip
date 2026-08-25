@@ -2,6 +2,9 @@ import { describe, expect, it } from "vitest";
 import {
   instanceExperimentalSettingsSchema,
   patchInstanceExperimentalSettingsSchema,
+  instanceGeneralSettingsSchema,
+  instanceBrandingSettingsSchema,
+  patchInstanceGeneralSettingsSchema,
 } from "./instance.js";
 
 describe("instance experimental settings validators", () => {
@@ -163,3 +166,36 @@ describe("instance experimental settings validators", () => {
     });
   });
 });
+
+describe("instance branding settings validators", () => {
+  it("defaults to Paperclip platform branding", () => {
+    const general = instanceGeneralSettingsSchema.parse({});
+    expect(general.branding).toEqual({
+      platformName: "Paperclip",
+      logoUrl: null,
+      faviconUrl: null,
+      tagline: null,
+    });
+  });
+
+  it("parses custom branding and validates patch", () => {
+    const branding = instanceBrandingSettingsSchema.parse({
+      platformName: "Qinox AI",
+      tagline: "Autonomous AI Operations",
+      logoUrl: "https://example.com/logo.png",
+      faviconUrl: "https://example.com/favicon.ico",
+    });
+    expect(branding.platformName).toBe("Qinox AI");
+    expect(branding.tagline).toBe("Autonomous AI Operations");
+    expect(branding.logoUrl).toBe("https://example.com/logo.png");
+    expect(branding.faviconUrl).toBe("https://example.com/favicon.ico");
+
+    const patch = patchInstanceGeneralSettingsSchema.parse({
+      branding: {
+        platformName: "Custom Platform",
+      },
+    });
+    expect(patch.branding?.platformName).toBe("Custom Platform");
+  });
+});
+

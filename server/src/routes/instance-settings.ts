@@ -5,6 +5,7 @@ import {
   patchInstanceSettingsSchema,
   patchInstanceExperimentalSettingsSchema,
   patchInstanceGeneralSettingsSchema,
+  DEFAULT_INSTANCE_BRANDING,
 } from "@paperclipai/shared";
 import { forbidden } from "../errors.js";
 import { isCloudManagedInstance } from "../services/cloud-instance.js";
@@ -29,6 +30,11 @@ export function instanceSettingsRoutes(db: Db) {
   const svc = instanceSettingsService(db);
   const environments = environmentService(db);
   const heartbeat = heartbeatService(db);
+
+  router.get("/instance/branding", async (_req, res) => {
+    const general = await svc.getGeneral();
+    res.json(general.branding ?? DEFAULT_INSTANCE_BRANDING);
+  });
 
   router.get("/instance/settings", async (req, res) => {
     assertBoardOrgAccess(req);

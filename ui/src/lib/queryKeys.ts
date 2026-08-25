@@ -385,6 +385,7 @@ export const queryKeys = {
   },
   instance: {
     settings: ["instance", "settings"] as const,
+    branding: ["instance", "branding"] as const,
     generalSettings: ["instance", "general-settings"] as const,
     schedulerHeartbeats: ["instance", "scheduler-heartbeats"] as const,
     experimentalSettings: ["instance", "experimental-settings"] as const,

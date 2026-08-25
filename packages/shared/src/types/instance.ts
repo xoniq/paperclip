@@ -32,6 +32,20 @@ export const DEFAULT_BACKUP_RETENTION: BackupRetentionPolicy = {
  */
 export type InstanceExecutionMode = "kubernetes" | "any";
 
+export interface InstanceBrandingSettings {
+  platformName: string;
+  logoUrl: string | null;
+  faviconUrl: string | null;
+  tagline: string | null;
+}
+
+export const DEFAULT_INSTANCE_BRANDING: InstanceBrandingSettings = {
+  platformName: "Paperclip",
+  logoUrl: null,
+  faviconUrl: null,
+  tagline: null,
+};
+
 export interface InstanceGeneralSettings {
   censorUsernameInLogs: boolean;
   keyboardShortcuts: boolean;
@@ -42,6 +56,7 @@ export interface InstanceGeneralSettings {
    * Kubernetes sandbox provider and denies local/ssh execution.
    */
   executionMode?: InstanceExecutionMode;
+  branding?: InstanceBrandingSettings;
 }
 
 export interface InstanceExperimentalSettings {
