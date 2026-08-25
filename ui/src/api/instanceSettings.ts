@@ -2,6 +2,7 @@ import type {
   InstanceBrandingSettings,
   InstanceThemingSettings,
   InstanceNavigationSettings,
+  InstanceCompanyPermissionsSettings,
   ThemeOption,
   InstanceExperimentalSettingsWithManaged,
   InstanceGeneralSettings,
@@ -26,6 +27,8 @@ export const instanceSettingsApi = {
     api.get<InstanceThemingSettings>("/instance/theming"),
   getNavigation: () =>
     api.get<InstanceNavigationSettings>("/instance/navigation"),
+  getCompanyPermissions: () =>
+    api.get<InstanceCompanyPermissionsSettings>("/instance/company-permissions"),
   getGeneral: () =>
     api.get<InstanceGeneralSettings>("/instance/settings/general"),
   updateGeneral: (patch: PatchInstanceGeneralSettings) =>

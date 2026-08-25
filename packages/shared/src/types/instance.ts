@@ -73,6 +73,22 @@ export const DEFAULT_INSTANCE_NAVIGATION: InstanceNavigationSettings = {
   hiddenSidebarItems: [],
 };
 
+export interface InstanceCompanyPermissionsSettings {
+  allowNonAdminsCreateCompanies: boolean;
+  allowNonAdminsCreateAgents: boolean;
+  allowNonAdminsInviteMembers: boolean;
+  allowNonAdminsManageCompanySettings: boolean;
+  allowNonAdminsDeleteResources: boolean;
+}
+
+export const DEFAULT_INSTANCE_COMPANY_PERMISSIONS: InstanceCompanyPermissionsSettings = {
+  allowNonAdminsCreateCompanies: true,
+  allowNonAdminsCreateAgents: true,
+  allowNonAdminsInviteMembers: true,
+  allowNonAdminsManageCompanySettings: true,
+  allowNonAdminsDeleteResources: true,
+};
+
 export interface InstanceGeneralSettings {
   censorUsernameInLogs: boolean;
   keyboardShortcuts: boolean;
@@ -86,6 +102,7 @@ export interface InstanceGeneralSettings {
   branding?: InstanceBrandingSettings;
   theming?: InstanceThemingSettings;
   navigation?: InstanceNavigationSettings;
+  companyPermissions?: InstanceCompanyPermissionsSettings;
 }
 
 export interface InstanceExperimentalSettings {

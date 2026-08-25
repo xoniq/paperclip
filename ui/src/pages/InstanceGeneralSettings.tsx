@@ -6,6 +6,7 @@ import type {
   InstanceBrandingSettings,
   InstanceThemingSettings,
   InstanceNavigationSettings,
+  InstanceCompanyPermissionsSettings,
 } from "@paperclipai/shared";
 import {
   DAILY_RETENTION_PRESETS,
@@ -15,8 +16,9 @@ import {
   DEFAULT_INSTANCE_BRANDING,
   DEFAULT_INSTANCE_THEMING,
   DEFAULT_INSTANCE_NAVIGATION,
+  DEFAULT_INSTANCE_COMPANY_PERMISSIONS,
 } from "@paperclipai/shared";
-import { Check, LayoutList, LogOut, Palette, SlidersHorizontal, Sparkles } from "lucide-react";
+import { Check, LayoutList, LogOut, Palette, ShieldCheck, SlidersHorizontal, Sparkles } from "lucide-react";
 import { healthApi } from "@/api/health";
 import { instanceSettingsApi } from "@/api/instanceSettings";
 import { ModeBadge } from "@/components/access/ModeBadge";
@@ -68,6 +70,7 @@ export function InstanceGeneralSettings({ embedded = false }: { embedded?: boole
       await queryClient.invalidateQueries({ queryKey: queryKeys.instance.branding });
       await queryClient.invalidateQueries({ queryKey: queryKeys.instance.theming });
       await queryClient.invalidateQueries({ queryKey: queryKeys.instance.navigation });
+      await queryClient.invalidateQueries({ queryKey: queryKeys.instance.companyPermissions });
     },
     onError: (error) => {
       setActionError(error instanceof Error ? error.message : "Failed to update general settings.");
@@ -167,6 +170,12 @@ export function InstanceGeneralSettings({ embedded = false }: { embedded?: boole
       <NavigationSection
         navigation={generalQuery.data?.navigation}
         onSave={(navigation) => updateGeneralMutation.mutate({ navigation })}
+        disabled={updateGeneralMutation.isPending || signOutMutation.isPending}
+      />
+
+      <CompanyPermissionsSection
+        permissions={generalQuery.data?.companyPermissions}
+        onSave={(companyPermissions) => updateGeneralMutation.mutate({ companyPermissions })}
         disabled={updateGeneralMutation.isPending || signOutMutation.isPending}
       />
 
@@ -795,6 +804,146 @@ function NavigationSection({
             Save navigation settings
           </Button>
           {isSaved && <span className="text-xs text-emerald-500 font-medium">Navigation settings saved!</span>}
+        </div>
+      </form>
+    </section>
+  );
+}
+
+function CompanyPermissionsSection({
+  permissions,
+  onSave,
+  disabled,
+}: {
+  permissions?: InstanceCompanyPermissionsSettings;
+  onSave: (permissions: InstanceCompanyPermissionsSettings) => void;
+  disabled: boolean;
+}) {
+  const [allowNonAdminsCreateCompanies, setAllowNonAdminsCreateCompanies] = useState(
+    permissions?.allowNonAdminsCreateCompanies ?? DEFAULT_INSTANCE_COMPANY_PERMISSIONS.allowNonAdminsCreateCompanies,
+  );
+  const [allowNonAdminsCreateAgents, setAllowNonAdminsCreateAgents] = useState(
+    permissions?.allowNonAdminsCreateAgents ?? DEFAULT_INSTANCE_COMPANY_PERMISSIONS.allowNonAdminsCreateAgents,
+  );
+  const [allowNonAdminsInviteMembers, setAllowNonAdminsInviteMembers] = useState(
+    permissions?.allowNonAdminsInviteMembers ?? DEFAULT_INSTANCE_COMPANY_PERMISSIONS.allowNonAdminsInviteMembers,
+  );
+  const [allowNonAdminsManageCompanySettings, setAllowNonAdminsManageCompanySettings] = useState(
+    permissions?.allowNonAdminsManageCompanySettings ?? DEFAULT_INSTANCE_COMPANY_PERMISSIONS.allowNonAdminsManageCompanySettings,
+  );
+  const [allowNonAdminsDeleteResources, setAllowNonAdminsDeleteResources] = useState(
+    permissions?.allowNonAdminsDeleteResources ?? DEFAULT_INSTANCE_COMPANY_PERMISSIONS.allowNonAdminsDeleteResources,
+  );
+  const [isSaved, setIsSaved] = useState(false);
+
+  useEffect(() => {
+    if (permissions) {
+      setAllowNonAdminsCreateCompanies(
+        permissions.allowNonAdminsCreateCompanies ?? DEFAULT_INSTANCE_COMPANY_PERMISSIONS.allowNonAdminsCreateCompanies,
+      );
+      setAllowNonAdminsCreateAgents(
+        permissions.allowNonAdminsCreateAgents ?? DEFAULT_INSTANCE_COMPANY_PERMISSIONS.allowNonAdminsCreateAgents,
+      );
+      setAllowNonAdminsInviteMembers(
+        permissions.allowNonAdminsInviteMembers ?? DEFAULT_INSTANCE_COMPANY_PERMISSIONS.allowNonAdminsInviteMembers,
+      );
+      setAllowNonAdminsManageCompanySettings(
+        permissions.allowNonAdminsManageCompanySettings ?? DEFAULT_INSTANCE_COMPANY_PERMISSIONS.allowNonAdminsManageCompanySettings,
+      );
+      setAllowNonAdminsDeleteResources(
+        permissions.allowNonAdminsDeleteResources ?? DEFAULT_INSTANCE_COMPANY_PERMISSIONS.allowNonAdminsDeleteResources,
+      );
+    }
+  }, [permissions]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSave({
+      allowNonAdminsCreateCompanies,
+      allowNonAdminsCreateAgents,
+      allowNonAdminsInviteMembers,
+      allowNonAdminsManageCompanySettings,
+      allowNonAdminsDeleteResources,
+    });
+    setIsSaved(true);
+    setTimeout(() => setIsSaved(false), 2500);
+  };
+
+  const permissionItems = [
+    {
+      id: "create-companies",
+      label: "Allow non-admins to create companies",
+      description: "When disabled, only instance administrators can create new companies.",
+      checked: allowNonAdminsCreateCompanies,
+      onChange: setAllowNonAdminsCreateCompanies,
+    },
+    {
+      id: "create-agents",
+      label: "Allow non-admins to hire & configure agents",
+      description: "When disabled, non-admin members cannot add new agents.",
+      checked: allowNonAdminsCreateAgents,
+      onChange: setAllowNonAdminsCreateAgents,
+    },
+    {
+      id: "invite-members",
+      label: "Allow non-admins to invite members",
+      description: "When disabled, non-admin members cannot generate company invite links.",
+      checked: allowNonAdminsInviteMembers,
+      onChange: setAllowNonAdminsInviteMembers,
+    },
+    {
+      id: "manage-settings",
+      label: "Allow non-admins to modify company settings",
+      description: "When disabled, non-admin members cannot alter company budgets or prefixes.",
+      checked: allowNonAdminsManageCompanySettings,
+      onChange: setAllowNonAdminsManageCompanySettings,
+    },
+    {
+      id: "delete-resources",
+      label: "Allow non-admins to delete tasks & projects",
+      description: "When disabled, non-admin members cannot permanently delete issues or projects.",
+      checked: allowNonAdminsDeleteResources,
+      onChange: setAllowNonAdminsDeleteResources,
+    },
+  ];
+
+  return (
+    <section className="space-y-4">
+      <div className="space-y-1.5">
+        <div className="flex items-center gap-2">
+          <ShieldCheck className="h-4 w-4 text-muted-foreground" />
+          <h2 className="text-sm font-semibold">Company User Permissions & Restraints</h2>
+        </div>
+        <p className="max-w-2xl text-sm text-muted-foreground">
+          Control privileges and restraints for standard users across companies.
+        </p>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-4 rounded-lg border border-border bg-card p-4">
+        <div className="divide-y divide-border">
+          {permissionItems.map((item) => (
+            <div key={item.id} className="flex items-start justify-between gap-4 py-3 first:pt-0 last:pb-0">
+              <div className="space-y-0.5">
+                <label className="text-xs font-medium text-foreground cursor-pointer" onClick={() => !disabled && item.onChange(!item.checked)}>
+                  {item.label}
+                </label>
+                <p className="text-xs text-muted-foreground">{item.description}</p>
+              </div>
+              <ToggleSwitch
+                checked={item.checked}
+                onCheckedChange={item.onChange}
+                disabled={disabled}
+                aria-label={item.label}
+              />
+            </div>
+          ))}
+        </div>
+
+        <div className="flex items-center gap-3 pt-2">
+          <Button type="submit" size="sm" disabled={disabled}>
+            Save permissions
+          </Button>
+          {isSaved && <span className="text-xs text-emerald-500 font-medium">Permissions saved!</span>}
         </div>
       </form>
     </section>

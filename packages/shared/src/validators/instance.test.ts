@@ -7,6 +7,7 @@ import {
   instanceThemingSettingsSchema,
   themeOptionSchema,
   instanceNavigationSettingsSchema,
+  instanceCompanyPermissionsSettingsSchema,
   patchInstanceGeneralSettingsSchema,
 } from "./instance.js";
 
@@ -260,6 +261,40 @@ describe("instance navigation settings validators", () => {
     expect(patch.navigation?.hiddenSidebarItems).toEqual(["costs", "activity"]);
   });
 });
+
+describe("instance company permissions settings validators", () => {
+  it("defaults all company permissions to true", () => {
+    const general = instanceGeneralSettingsSchema.parse({});
+    expect(general.companyPermissions).toEqual({
+      allowNonAdminsCreateCompanies: true,
+      allowNonAdminsCreateAgents: true,
+      allowNonAdminsInviteMembers: true,
+      allowNonAdminsManageCompanySettings: true,
+      allowNonAdminsDeleteResources: true,
+    });
+  });
+
+  it("parses custom permissions and validates patch", () => {
+    const perms = instanceCompanyPermissionsSettingsSchema.parse({
+      allowNonAdminsCreateCompanies: false,
+      allowNonAdminsCreateAgents: false,
+      allowNonAdminsInviteMembers: true,
+      allowNonAdminsManageCompanySettings: false,
+      allowNonAdminsDeleteResources: false,
+    });
+    expect(perms.allowNonAdminsCreateCompanies).toBe(false);
+    expect(perms.allowNonAdminsCreateAgents).toBe(false);
+    expect(perms.allowNonAdminsInviteMembers).toBe(true);
+
+    const patch = patchInstanceGeneralSettingsSchema.parse({
+      companyPermissions: {
+        allowNonAdminsCreateCompanies: false,
+      },
+    });
+    expect(patch.companyPermissions?.allowNonAdminsCreateCompanies).toBe(false);
+  });
+});
+
 
 
 

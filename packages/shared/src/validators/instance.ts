@@ -8,6 +8,7 @@ import {
   DEFAULT_INSTANCE_BRANDING,
   DEFAULT_INSTANCE_THEMING,
   DEFAULT_INSTANCE_NAVIGATION,
+  DEFAULT_INSTANCE_COMPANY_PERMISSIONS,
   DEFAULT_ISSUE_GRAPH_LIVENESS_AUTO_RECOVERY_LOOKBACK_HOURS,
   MAX_ISSUE_GRAPH_LIVENESS_AUTO_RECOVERY_LOOKBACK_HOURS,
   MIN_ISSUE_GRAPH_LIVENESS_AUTO_RECOVERY_LOOKBACK_HOURS,
@@ -58,6 +59,16 @@ export const instanceNavigationSettingsSchema = z.object({
 
 export const patchInstanceNavigationSettingsSchema = instanceNavigationSettingsSchema.partial();
 
+export const instanceCompanyPermissionsSettingsSchema = z.object({
+  allowNonAdminsCreateCompanies: z.boolean().default(DEFAULT_INSTANCE_COMPANY_PERMISSIONS.allowNonAdminsCreateCompanies),
+  allowNonAdminsCreateAgents: z.boolean().default(DEFAULT_INSTANCE_COMPANY_PERMISSIONS.allowNonAdminsCreateAgents),
+  allowNonAdminsInviteMembers: z.boolean().default(DEFAULT_INSTANCE_COMPANY_PERMISSIONS.allowNonAdminsInviteMembers),
+  allowNonAdminsManageCompanySettings: z.boolean().default(DEFAULT_INSTANCE_COMPANY_PERMISSIONS.allowNonAdminsManageCompanySettings),
+  allowNonAdminsDeleteResources: z.boolean().default(DEFAULT_INSTANCE_COMPANY_PERMISSIONS.allowNonAdminsDeleteResources),
+});
+
+export const patchInstanceCompanyPermissionsSettingsSchema = instanceCompanyPermissionsSettingsSchema.partial();
+
 export const instanceGeneralSettingsSchema = z.object({
   censorUsernameInLogs: z.boolean().default(false),
   keyboardShortcuts: z.boolean().default(false),
@@ -71,6 +82,7 @@ export const instanceGeneralSettingsSchema = z.object({
   branding: instanceBrandingSettingsSchema.default(DEFAULT_INSTANCE_BRANDING),
   theming: instanceThemingSettingsSchema.default(DEFAULT_INSTANCE_THEMING),
   navigation: instanceNavigationSettingsSchema.default(DEFAULT_INSTANCE_NAVIGATION),
+  companyPermissions: instanceCompanyPermissionsSettingsSchema.default(DEFAULT_INSTANCE_COMPANY_PERMISSIONS),
 }).strict();
 
 export const patchInstanceGeneralSettingsSchema = instanceGeneralSettingsSchema.partial();
@@ -158,6 +170,8 @@ export type InstanceThemingSettings = z.infer<typeof instanceThemingSettingsSche
 export type PatchInstanceThemingSettings = z.infer<typeof patchInstanceThemingSettingsSchema>;
 export type InstanceNavigationSettings = z.infer<typeof instanceNavigationSettingsSchema>;
 export type PatchInstanceNavigationSettings = z.infer<typeof patchInstanceNavigationSettingsSchema>;
+export type InstanceCompanyPermissionsSettings = z.infer<typeof instanceCompanyPermissionsSettingsSchema>;
+export type PatchInstanceCompanyPermissionsSettings = z.infer<typeof patchInstanceCompanyPermissionsSettingsSchema>;
 export type InstanceGeneralSettings = z.infer<typeof instanceGeneralSettingsSchema>;
 export type PatchInstanceGeneralSettings = z.infer<typeof patchInstanceGeneralSettingsSchema>;
 export type InstanceExperimentalSettings = z.infer<typeof instanceExperimentalSettingsSchema>;

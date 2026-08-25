@@ -23,6 +23,7 @@ import {
   feedbackVoteValueSchema,
   updateCompanyBrandingSchema,
   updateCompanySchema,
+  DEFAULT_INSTANCE_COMPANY_PERMISSIONS,
 } from "@paperclipai/shared";
 import {
   COMPANY_IMPORT_TRANSFERS_ROUTE_PATH,
@@ -57,6 +58,7 @@ import {
   companyPortabilityService,
   companyService,
   feedbackService,
+  instanceSettingsService,
   logActivity,
   workTimelineService,
 } from "../services/index.js";
@@ -280,6 +282,7 @@ export function companyRoutes(db: Db, storage?: StorageService, options?: Compan
   const budgets = budgetService(db);
   const artifacts = companyArtifactsService(db, storage);
   const feedback = feedbackService(db);
+  const instanceSettings = instanceSettingsService(db);
   const importJobs = new Map<string, ImportJobRecord>();
   // Terminal jobs are retained in memory for an hour after they settle. A long
   // import can outlast a user stepping away, and dropping the completion after
@@ -1115,8 +1118,11 @@ export function companyRoutes(db: Db, storage?: StorageService, options?: Compan
     next();
   }, validate(createCompanySchema), async (req, res) => {
     assertBoard(req);
-    if (!(req.actor.source === "local_implicit" || req.actor.isInstanceAdmin)) {
-      throw forbidden("Instance admin required");
+    const generalSettings = await instanceSettings.getGeneral();
+    const permissions = generalSettings.companyPermissions ?? DEFAULT_INSTANCE_COMPANY_PERMISSIONS;
+    const isInstanceAdminOrLocal = req.actor.source === "local_implicit" || req.actor.isInstanceAdmin;
+    if (!permissions.allowNonAdminsCreateCompanies && !isInstanceAdminOrLocal) {
+      throw forbidden("Instance admin required to create companies");
     }
     const ownerPrincipalId = req.actor.userId ?? "local-board";
     const company = await svc.create({

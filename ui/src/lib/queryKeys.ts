@@ -389,6 +389,7 @@ export const queryKeys = {
     themes: ["instance", "themes"] as const,
     theming: ["instance", "theming"] as const,
     navigation: ["instance", "navigation"] as const,
+    companyPermissions: ["instance", "company-permissions"] as const,
     generalSettings: ["instance", "general-settings"] as const,
     schedulerHeartbeats: ["instance", "scheduler-heartbeats"] as const,
     experimentalSettings: ["instance", "experimental-settings"] as const,
