@@ -23,6 +23,9 @@ import {
   MessagesSquare,
   GanttChartSquare,
   LayoutGrid,
+  CalendarDays,
+  BrainCircuit,
+  TrendingUp,
 } from "lucide-react";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -203,6 +206,8 @@ export function Sidebar() {
           {showCases && !isItemHidden("cases") ? (
             <SidebarNavItem to="/cases" label="Cases" icon={Layers} textBadge="beta" />
           ) : null}
+          {!isItemHidden("calendar") && <SidebarNavItem to="/calendar" label="Calendar" icon={CalendarDays} />}
+          {!isItemHidden("braindump") && <SidebarNavItem to="/braindump" label="Braindump" icon={BrainCircuit} />}
           {!isItemHidden("routines") && <SidebarNavItem to="/routines" label="Routines" icon={Repeat} />}
           {showPipelines && !isItemHidden("pipelines") ? (
             <SidebarNavItem to="/pipelines" label="Pipelines" icon={GitBranch} />
@@ -250,6 +255,7 @@ export function Sidebar() {
           {!isItemHidden("org") && <SidebarNavItem to="/org" label="Org" icon={Network} />}
           {showApps && !isItemHidden("apps") ? <SidebarNavItem to="/apps" label="Apps" icon={AppWindow} /> : null}
           {!isItemHidden("timeline") && <SidebarNavItem to="/timeline" label="Timeline" icon={GanttChartSquare} />}
+          {!isItemHidden("revenue") && <SidebarNavItem to="/revenue" label="Revenue" icon={TrendingUp} />}
           {!isItemHidden("costs") && <SidebarNavItem to="/costs" label="Costs" icon={DollarSign} />}
           {!isItemHidden("activity") && <SidebarNavItem to="/activity" label="Activity" icon={History} />}
           {!isItemHidden("company-settings") && <SidebarNavItem to="/company/settings" label="Settings" icon={Settings} />}

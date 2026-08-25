@@ -19,6 +19,17 @@ export const queryKeys = {
     stats: ["companies", "stats"] as const,
     exportFidelity: (companyId: string) => ["companies", companyId, "export-fidelity"] as const,
   },
+  calendar: {
+    events: (companyId: string, query?: Record<string, string | undefined>) =>
+      ["calendar", companyId, "events", query ?? {}] as const,
+  },
+  braindumps: {
+    list: (companyId: string, status?: string) =>
+      ["braindumps", companyId, status ?? "all"] as const,
+  },
+  financials: {
+    metrics: (companyId: string) => ["financials", companyId] as const,
+  },
   apps: {
     gallery: (companyId: string) => ["apps", companyId, "gallery"] as const,
     attention: (companyId: string) => ["apps", companyId, "attention"] as const,

@@ -46,6 +46,9 @@ import { issueTreeControlRoutes } from "./routes/issue-tree-control.js";
 import { caseRoutes } from "./routes/cases.js";
 import { fileResourceRoutes } from "./routes/file-resources.js";
 import { routineRoutes } from "./routes/routines.js";
+import { calendarRoutes } from "./routes/calendar.js";
+import { braindumpRoutes } from "./routes/braindump.js";
+import { financialRoutes } from "./routes/financials.js";
 import { pipelineRoutes } from "./routes/pipelines.js";
 import { environmentRoutes } from "./routes/environments.js";
 import { executionWorkspaceRoutes } from "./routes/execution-workspaces.js";
@@ -506,6 +509,9 @@ export async function createApp(
   api.use(issueTreeControlRoutes(db));
   api.use(fileResourceRoutes(db));
   api.use(routineRoutes(db, { pluginWorkerManager: workerManager }));
+  api.use(calendarRoutes(db));
+  api.use(braindumpRoutes(db));
+  api.use(financialRoutes(db));
   api.use(pipelineRoutes(db));
   api.use(environmentRoutes(db, {
     pluginWorkerManager: workerManager,

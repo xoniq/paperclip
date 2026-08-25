@@ -1008,3 +1008,6 @@ export type {
   PluginDatabaseNamespaceStatus,
 } from "./plugin.js";
 export * from "./app-definition.js";
+export * from "./calendar.js";
+export * from "./braindump.js";
+export * from "./financials.js";

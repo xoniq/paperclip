@@ -193,3 +193,6 @@ export {
 export { reconcilePersistedRuntimeServicesOnStartup, restartDesiredRuntimeServicesOnStartup } from "./workspace-runtime.js";
 export { createStorageServiceFromConfig, getStorageService } from "../storage/index.js";
 export { themeService, type ThemeService } from "./theme-service.js";
+export { calendarService, type CalendarService } from "./calendar.js";
+export { braindumpService, type BraindumpService } from "./braindump.js";
+export { financialsService, type FinancialsService } from "./financials.js";

@@ -39,3 +39,6 @@ export { llmRoutes } from "./llms.js";
 export { accessRoutes } from "./access.js";
 export { instanceSettingsRoutes } from "./instance-settings.js";
 export { instanceDatabaseBackupRoutes } from "./instance-database-backups.js";
+export { calendarRoutes } from "./calendar.js";
+export { braindumpRoutes } from "./braindump.js";
+export { financialRoutes } from "./financials.js";

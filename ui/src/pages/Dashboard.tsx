@@ -34,9 +34,11 @@ import { ActiveAgentsPanel } from "../components/ActiveAgentsPanel";
 import { ChartCard, RunActivityChart, PriorityChart, IssueStatusChart, SuccessRateChart } from "../components/ActivityCharts";
 import { PageSkeleton } from "../components/PageSkeleton";
 import { Card } from "@/components/ui/card";
-import type { Agent, Issue } from "@paperclipai/shared";
 import { PluginSlotOutlet } from "@/plugins/slots";
 import { SmokeLabDashboardCard } from "../components/SmokeLabDashboardCard";
+import { MissionControlHeader } from "../components/MissionControlHeader";
+import { LiveOperationsWidget } from "../components/LiveOperationsWidget";
+import type { Agent, Issue } from "@paperclipai/shared";
 
 const DASHBOARD_ACTIVITY_LIMIT = 10;
 
@@ -267,6 +269,10 @@ export function Dashboard() {
   return (
     <div className="space-y-6">
       {error && <p className="text-sm text-destructive">{error.message}</p>}
+
+      <MissionControlHeader />
+
+      <LiveOperationsWidget />
 
       {hasNoAgents && (
         <div className="flex items-center justify-between gap-3 rounded-md border border-amber-300 bg-amber-50 px-4 py-3 dark:border-amber-500/25 dark:bg-amber-950/60">

@@ -686,6 +686,8 @@ const SIDEBAR_ITEMS_CATALOG = [
     items: [
       { id: "issues", label: "Tasks" },
       { id: "cases", label: "Cases" },
+      { id: "calendar", label: "Calendar" },
+      { id: "braindump", label: "Braindump" },
       { id: "routines", label: "Routines" },
       { id: "pipelines", label: "Pipelines" },
       { id: "goals", label: "Goals" },
@@ -707,6 +709,7 @@ const SIDEBAR_ITEMS_CATALOG = [
       { id: "org", label: "Org Chart" },
       { id: "apps", label: "Apps" },
       { id: "timeline", label: "Timeline" },
+      { id: "revenue", label: "Revenue & Financials" },
       { id: "costs", label: "Costs" },
       { id: "activity", label: "Activity Feed" },
       { id: "company-settings", label: "Company Settings" },
