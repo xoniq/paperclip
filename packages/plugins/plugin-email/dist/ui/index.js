@@ -12,7 +12,7 @@ var DATA_OVERVIEW = "overview";
 var ACTION_SEND_TEST = "sendTest";
 
 // src/ui/index.tsx
-import { jsx, jsxs } from "react/jsx-runtime";
+import { Fragment, jsx, jsxs } from "react/jsx-runtime";
 var stack = { display: "grid", gap: "16px" };
 var card = {
   border: "1px solid var(--border, #e4e4e7)",
@@ -142,21 +142,29 @@ function EmailCompanySettingsPage({ context }) {
       /* @__PURE__ */ jsx(Row, { name: "Template", children: config.htmlTemplate ? "Custom HTML template" : "Default clean theme" })
     ] }),
     /* @__PURE__ */ jsxs("div", { style: card, children: [
-      /* @__PURE__ */ jsx("strong", { children: "Allowed recipients" }),
-      /* @__PURE__ */ jsx("p", { style: muted, children: "Agents may only mail these. Everything else fails with an error naming the address." }),
-      /* @__PURE__ */ jsx("div", { style: { display: "flex", flexWrap: "wrap", gap: "6px" }, children: allowlist.map((entry) => /* @__PURE__ */ jsx(
-        "span",
-        {
-          style: {
-            ...mono,
-            fontSize: "12px",
-            border: "1px solid var(--border, #e4e4e7)",
-            padding: "2px 8px"
+      /* @__PURE__ */ jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center" }, children: [
+        /* @__PURE__ */ jsx("strong", { children: config.allowAnyRecipient ? "Recipients safeguard" : "Allowed recipients" }),
+        config.allowAnyRecipient ? /* @__PURE__ */ jsx(StatusBadge, { label: "Unrestricted", status: "warning" }) : null
+      ] }),
+      config.allowAnyRecipient ? /* @__PURE__ */ jsxs("p", { style: muted, children: [
+        "Agents may email any recipient (allowlist safeguard disabled for outbound/leads).",
+        config.bccAddress ? ` Monitored via BCC to ${config.bccAddress}.` : " Recommend configuring a BCC address for auditability."
+      ] }) : /* @__PURE__ */ jsxs(Fragment, { children: [
+        /* @__PURE__ */ jsx("p", { style: muted, children: "Agents may only mail these. Everything else fails with an error naming the address." }),
+        /* @__PURE__ */ jsx("div", { style: { display: "flex", flexWrap: "wrap", gap: "6px" }, children: allowlist.map((entry) => /* @__PURE__ */ jsx(
+          "span",
+          {
+            style: {
+              ...mono,
+              fontSize: "12px",
+              border: "1px solid var(--border, #e4e4e7)",
+              padding: "2px 8px"
+            },
+            children: entry
           },
-          children: entry
-        },
-        entry
-      )) })
+          entry
+        )) })
+      ] })
     ] }),
     budget ? /* @__PURE__ */ jsxs("div", { style: card, children: [
       /* @__PURE__ */ jsx("strong", { children: "Rate limit" }),

@@ -1,6 +1,6 @@
 // src/manifest.ts
 var PLUGIN_ID = "paperclip.email";
-var PLUGIN_VERSION = "0.1.1";
+var PLUGIN_VERSION = "0.1.2";
 var TOOL_SEND_EMAIL = "send_email";
 var SLOT_COMPANY_SETTINGS = "email-company-settings";
 var EXPORT_COMPANY_SETTINGS = "EmailCompanySettingsPage";
@@ -158,6 +158,12 @@ var manifest = {
         title: "BCC address",
         description: "Optional BCC address. If configured, a copy of all outgoing emails sent via the plugin will be delivered here.",
         type: "string"
+      },
+      allowAnyRecipient: {
+        title: "Allow any recipient (disable allowlist safeguard)",
+        description: "When enabled, agents can send emails to any valid email address without needing them on the allowlist (e.g. for cold lead outreach). Default is false (allowlist enforced).",
+        type: "boolean",
+        default: false
       },
       allowedRecipients: {
         title: "Allowed recipients",

@@ -2,7 +2,7 @@ import type { PaperclipPluginManifestV1 } from "@paperclipai/plugin-sdk";
 
 /** Stable plugin ID used by host registration, state namespacing, and tool namespacing. */
 export const PLUGIN_ID = "paperclip.email";
-export const PLUGIN_VERSION = "0.1.1";
+export const PLUGIN_VERSION = "0.1.2";
 
 /**
  * Tool name as declared here and registered in the worker. The host namespaces
@@ -191,6 +191,13 @@ const manifest: PaperclipPluginManifestV1 = {
         description:
           "Optional BCC address. If configured, a copy of all outgoing emails sent via the plugin will be delivered here.",
         type: "string",
+      },
+      allowAnyRecipient: {
+        title: "Allow any recipient (disable allowlist safeguard)",
+        description:
+          "When enabled, agents can send emails to any valid email address without needing them on the allowlist (e.g. for cold lead outreach). Default is false (allowlist enforced).",
+        type: "boolean",
+        default: false,
       },
       allowedRecipients: {
         title: "Allowed recipients",

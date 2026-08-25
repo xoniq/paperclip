@@ -121,6 +121,17 @@ describe("resolveRecipients", () => {
     );
     expect(result.allowed).toEqual(["jelle@example.com"]);
   });
+
+  it("admits any valid address when allowAnyRecipient is true", () => {
+    const result = resolveRecipients(
+      ["coldlead@target.com", "another@enterprise.io", "not-an-address"],
+      [],
+      true,
+    );
+    expect(result.allowed).toEqual(["coldlead@target.com", "another@enterprise.io"]);
+    expect(result.rejected).toEqual([]);
+    expect(result.unparseable).toEqual(["not-an-address"]);
+  });
 });
 
 describe("sanitizeSubject", () => {

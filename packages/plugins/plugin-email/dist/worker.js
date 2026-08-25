@@ -26177,7 +26177,7 @@ function isAllowedRecipient(address, allowlist) {
   const domain = address.slice(address.indexOf("@"));
   return allowlist.some((entry) => entry.startsWith("@") ? entry === domain : entry === address);
 }
-function resolveRecipients(values, allowlist) {
+function resolveRecipients(values, allowlist, allowAnyRecipient = false) {
   const allowed = [];
   const unparseable = [];
   const rejected = [];
@@ -26187,7 +26187,7 @@ function resolveRecipients(values, allowlist) {
       unparseable.push(typeof value === "string" ? value : JSON.stringify(value) ?? String(value));
       continue;
     }
-    if (!isAllowedRecipient(address, allowlist)) {
+    if (!allowAnyRecipient && !isAllowedRecipient(address, allowlist)) {
       if (!rejected.includes(address)) rejected.push(address);
       continue;
     }
@@ -26244,6 +26244,7 @@ function parseConfig(raw) {
     fromName: readString(raw.fromName) ?? DEFAULT_FROM_NAME,
     replyToAddress: parseAddress(raw.replyToAddress) ?? "",
     bccAddress: parseAddress(raw.bccAddress),
+    allowAnyRecipient: raw.allowAnyRecipient === true,
     allowedRecipients,
     subjectPrefix: readString(raw.subjectPrefix),
     htmlTemplate: readString(raw.htmlTemplate),
@@ -26286,9 +26287,14 @@ function validateConfig(raw) {
       `allowedRecipients contains entries that are neither an address nor an @domain: ${invalid.map((entry) => String(entry)).join(", ")}`
     );
   }
-  if (config.allowedRecipients.length === 0) {
+  if (!config.allowAnyRecipient && config.allowedRecipients.length === 0) {
     errors.push(
-      "allowedRecipients is empty \u2014 every send would be rejected. Add at least one address or @domain."
+      "allowedRecipients is empty \u2014 every send would be rejected. Add at least one address or @domain, or enable 'Allow any recipient'."
+    );
+  }
+  if (config.allowAnyRecipient && !config.bccAddress) {
+    warnings.push(
+      "Allow any recipient is enabled without a BCC copy address configured. Setting a BCC address is recommended for auditing outbound emails."
     );
   }
   if (config.htmlTemplate) {
@@ -26322,7 +26328,7 @@ async function resolvePassword(ctx, config, companyId) {
 
 // src/manifest.ts
 var PLUGIN_ID = "paperclip.email";
-var PLUGIN_VERSION = "0.1.1";
+var PLUGIN_VERSION = "0.1.2";
 var TOOL_SEND_EMAIL = "send_email";
 var SLOT_COMPANY_SETTINGS = "email-company-settings";
 var EXPORT_COMPANY_SETTINGS = "EmailCompanySettingsPage";
@@ -26480,6 +26486,12 @@ var manifest = {
         title: "BCC address",
         description: "Optional BCC address. If configured, a copy of all outgoing emails sent via the plugin will be delivered here.",
         type: "string"
+      },
+      allowAnyRecipient: {
+        title: "Allow any recipient (disable allowlist safeguard)",
+        description: "When enabled, agents can send emails to any valid email address without needing them on the allowlist (e.g. for cold lead outreach). Default is false (allowlist enforced).",
+        type: "boolean",
+        default: false
       },
       allowedRecipients: {
         title: "Allowed recipients",
@@ -26879,8 +26891,16 @@ async function sendEmail(input) {
   if (request.body.length > MAX_BODY_CHARS) {
     return { ok: false, error: `body must be at most ${MAX_BODY_CHARS} characters` };
   }
-  const toResolution = resolveRecipients(request.to, config.allowedRecipients);
-  const ccResolution = resolveRecipients(rawCc, config.allowedRecipients);
+  const toResolution = resolveRecipients(
+    request.to,
+    config.allowedRecipients,
+    config.allowAnyRecipient
+  );
+  const ccResolution = resolveRecipients(
+    rawCc,
+    config.allowedRecipients,
+    config.allowAnyRecipient
+  );
   const unparseable = [...toResolution.unparseable, ...ccResolution.unparseable];
   if (unparseable.length > 0) {
     return { ok: false, error: `not valid email addresses: ${unparseable.join(", ")}` };
@@ -27009,6 +27029,7 @@ function describeConfig(config) {
     fromName: config.fromName,
     replyToAddress: config.replyToAddress,
     bccAddress: config.bccAddress,
+    allowAnyRecipient: config.allowAnyRecipient,
     allowedRecipients: config.allowedRecipients,
     subjectPrefix: config.subjectPrefix,
     htmlTemplate: config.htmlTemplate,

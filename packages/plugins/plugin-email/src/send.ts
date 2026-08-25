@@ -172,8 +172,16 @@ export async function sendEmail(input: SendEmailInput): Promise<SendEmailOutcome
   // A partial send is worse than no send: the agent would report success while
   // some recipients silently never heard from it. So any bad address fails the
   // whole call, with the offending entries named so the agent can correct.
-  const toResolution = resolveRecipients(request.to, config.allowedRecipients);
-  const ccResolution = resolveRecipients(rawCc, config.allowedRecipients);
+  const toResolution = resolveRecipients(
+    request.to,
+    config.allowedRecipients,
+    config.allowAnyRecipient,
+  );
+  const ccResolution = resolveRecipients(
+    rawCc,
+    config.allowedRecipients,
+    config.allowAnyRecipient,
+  );
 
   const unparseable = [...toResolution.unparseable, ...ccResolution.unparseable];
   if (unparseable.length > 0) {

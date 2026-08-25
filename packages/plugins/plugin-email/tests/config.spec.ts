@@ -121,6 +121,28 @@ describe("validateConfig", () => {
     expect(invalidBcc.ok).toBe(false);
     expect(invalidBcc.errors.join(" ")).toContain("bccAddress must be a valid email address");
   });
+
+  it("allows empty allowedRecipients when allowAnyRecipient is true", () => {
+    const validUnrestricted = validateConfig({
+      ...VALID,
+      allowAnyRecipient: true,
+      allowedRecipients: [],
+      bccAddress: "archive@example.com",
+    });
+    expect(validUnrestricted.ok).toBe(true);
+    expect(validUnrestricted.errors).toEqual([]);
+  });
+
+  it("warns when allowAnyRecipient is true without a bccAddress", () => {
+    const unrestrictedNoBcc = validateConfig({
+      ...VALID,
+      allowAnyRecipient: true,
+      allowedRecipients: [],
+      bccAddress: null,
+    });
+    expect(unrestrictedNoBcc.ok).toBe(true);
+    expect(unrestrictedNoBcc.warnings.join(" ")).toContain("Allow any recipient is enabled without a BCC");
+  });
 });
 
 describe("manifest", () => {

@@ -54,6 +54,7 @@ function describeConfig(config: EmailConfig) {
     fromName: config.fromName,
     replyToAddress: config.replyToAddress,
     bccAddress: config.bccAddress,
+    allowAnyRecipient: config.allowAnyRecipient,
     allowedRecipients: config.allowedRecipients,
     subjectPrefix: config.subjectPrefix,
     htmlTemplate: config.htmlTemplate,

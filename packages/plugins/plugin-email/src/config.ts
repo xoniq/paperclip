@@ -17,6 +17,8 @@ export interface EmailConfig {
   fromName: string;
   replyToAddress: string;
   bccAddress: string | null;
+  /** When true, allows sending to any recipient without checking allowedRecipients. */
+  allowAnyRecipient: boolean;
   /** Normalized allowlist: exact addresses and `@domain` entries, lowercased. */
   allowedRecipients: string[];
   subjectPrefix: string | null;
@@ -88,6 +90,7 @@ export function parseConfig(raw: Record<string, unknown>): EmailConfig {
     fromName: readString(raw.fromName) ?? DEFAULT_FROM_NAME,
     replyToAddress: parseAddress(raw.replyToAddress) ?? "",
     bccAddress: parseAddress(raw.bccAddress),
+    allowAnyRecipient: raw.allowAnyRecipient === true,
     allowedRecipients,
     subjectPrefix: readString(raw.subjectPrefix),
     htmlTemplate: readString(raw.htmlTemplate),
@@ -148,12 +151,15 @@ export function validateConfig(raw: Record<string, unknown>): ConfigValidation {
         .join(", ")}`,
     );
   }
-  if (config.allowedRecipients.length === 0) {
-    // Fail closed rather than warn. An empty allowlist with working SMTP
-    // credentials is the configuration where a prompt injection gets to pick
-    // the recipient, so it must not be reachable by leaving a field blank.
+  if (!config.allowAnyRecipient && config.allowedRecipients.length === 0) {
+    // Fail closed rather than warn when allowAnyRecipient is false.
     errors.push(
-      "allowedRecipients is empty — every send would be rejected. Add at least one address or @domain.",
+      "allowedRecipients is empty — every send would be rejected. Add at least one address or @domain, or enable 'Allow any recipient'.",
+    );
+  }
+  if (config.allowAnyRecipient && !config.bccAddress) {
+    warnings.push(
+      "Allow any recipient is enabled without a BCC copy address configured. Setting a BCC address is recommended for auditing outbound emails.",
     );
   }
 

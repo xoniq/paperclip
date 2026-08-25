@@ -20,6 +20,7 @@ interface ConfigSummary {
   fromName: string;
   replyToAddress: string;
   bccAddress?: string | null;
+  allowAnyRecipient?: boolean;
   allowedRecipients: string[];
   subjectPrefix: string | null;
   htmlTemplate?: string | null;
@@ -183,25 +184,39 @@ export function EmailCompanySettingsPage({ context }: PluginCompanySettingsPageP
       </div>
 
       <div style={card}>
-        <strong>Allowed recipients</strong>
-        <p style={muted}>
-          Agents may only mail these. Everything else fails with an error naming the address.
-        </p>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
-          {allowlist.map((entry) => (
-            <span
-              key={entry}
-              style={{
-                ...mono,
-                fontSize: "12px",
-                border: "1px solid var(--border, #e4e4e7)",
-                padding: "2px 8px",
-              }}
-            >
-              {entry}
-            </span>
-          ))}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <strong>{config.allowAnyRecipient ? "Recipients safeguard" : "Allowed recipients"}</strong>
+          {config.allowAnyRecipient ? (
+            <StatusBadge label="Unrestricted" status="warning" />
+          ) : null}
         </div>
+        {config.allowAnyRecipient ? (
+          <p style={muted}>
+            Agents may email any recipient (allowlist safeguard disabled for outbound/leads).
+            {config.bccAddress ? ` Monitored via BCC to ${config.bccAddress}.` : " Recommend configuring a BCC address for auditability."}
+          </p>
+        ) : (
+          <>
+            <p style={muted}>
+              Agents may only mail these. Everything else fails with an error naming the address.
+            </p>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+              {allowlist.map((entry) => (
+                <span
+                  key={entry}
+                  style={{
+                    ...mono,
+                    fontSize: "12px",
+                    border: "1px solid var(--border, #e4e4e7)",
+                    padding: "2px 8px",
+                  }}
+                >
+                  {entry}
+                </span>
+              ))}
+            </div>
+          </>
+        )}
       </div>
 
       {budget ? (

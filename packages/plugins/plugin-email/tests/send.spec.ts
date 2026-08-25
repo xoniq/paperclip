@@ -161,6 +161,37 @@ describe("sendEmail", () => {
     expect(spy.options).toHaveLength(0);
   });
 
+  it("sends to any recipient when allowAnyRecipient is enabled", async () => {
+    const spy = createTransportSpy();
+    const unrestrictedConfig = parseConfig({
+      ...RAW_CONFIG,
+      allowAnyRecipient: true,
+      allowedRecipients: [],
+      bccAddress: "leads-tracker@qinox.nl",
+    });
+
+    const outcome = await sendEmail({
+      ctx: harness.ctx,
+      companyId: COMPANY_ID,
+      config: unrestrictedConfig,
+      source: "agent",
+      now: NOW,
+      transportFactory: spy.factory,
+      request: {
+        to: ["cold-prospect@acme-corp.com"],
+        cc: ["partner@sales.com"],
+        subject: "Introduction",
+        body: "Hello there",
+      },
+    });
+
+    expect(outcome.ok).toBe(true);
+    expect(spy.sent).toHaveLength(1);
+    expect(spy.sent[0]?.to).toEqual(["cold-prospect@acme-corp.com"]);
+    expect(spy.sent[0]?.cc).toEqual(["partner@sales.com"]);
+    expect(spy.sent[0]?.bcc).toEqual(["leads-tracker@qinox.nl"]);
+  });
+
   it("refuses the whole send when only one of several recipients is disallowed", async () => {
     // A partial send would have the agent report success while someone silently
     // never heard from it.

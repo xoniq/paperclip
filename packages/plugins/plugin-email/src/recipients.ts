@@ -112,6 +112,7 @@ export interface RecipientResolution {
 export function resolveRecipients(
   values: readonly unknown[],
   allowlist: readonly string[],
+  allowAnyRecipient = false,
 ): RecipientResolution {
   const allowed: string[] = [];
   const unparseable: string[] = [];
@@ -123,7 +124,7 @@ export function resolveRecipients(
       unparseable.push(typeof value === "string" ? value : JSON.stringify(value) ?? String(value));
       continue;
     }
-    if (!isAllowedRecipient(address, allowlist)) {
+    if (!allowAnyRecipient && !isAllowedRecipient(address, allowlist)) {
       if (!rejected.includes(address)) rejected.push(address);
       continue;
     }
