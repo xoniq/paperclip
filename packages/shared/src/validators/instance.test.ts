@@ -4,6 +4,8 @@ import {
   patchInstanceExperimentalSettingsSchema,
   instanceGeneralSettingsSchema,
   instanceBrandingSettingsSchema,
+  instanceThemingSettingsSchema,
+  themeOptionSchema,
   patchInstanceGeneralSettingsSchema,
 } from "./instance.js";
 
@@ -198,4 +200,41 @@ describe("instance branding settings validators", () => {
     expect(patch.branding?.platformName).toBe("Custom Platform");
   });
 });
+
+describe("instance theming settings validators", () => {
+  it("defaults to null theming settings", () => {
+    const general = instanceGeneralSettingsSchema.parse({});
+    expect(general.theming).toEqual({
+      activeTheme: null,
+      customCss: null,
+    });
+  });
+
+  it("parses theme option and validates theming patch", () => {
+    const theme = themeOptionSchema.parse({
+      id: "qinox-dark",
+      name: "Qinox Dark",
+      filename: "qinox-dark.css",
+      description: "Sleek dark theme",
+      author: "Qinox AI",
+    });
+    expect(theme.id).toBe("qinox-dark");
+    expect(theme.name).toBe("Qinox Dark");
+
+    const theming = instanceThemingSettingsSchema.parse({
+      activeTheme: "qinox-dark",
+      customCss: ":root { --primary: #8b5cf6; }",
+    });
+    expect(theming.activeTheme).toBe("qinox-dark");
+    expect(theming.customCss).toContain("--primary");
+
+    const patch = patchInstanceGeneralSettingsSchema.parse({
+      theming: {
+        activeTheme: "midnight-blue",
+      },
+    });
+    expect(patch.theming?.activeTheme).toBe("midnight-blue");
+  });
+});
+
 

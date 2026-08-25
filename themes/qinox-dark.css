@@ -1,0 +1,34 @@
+/*
+ * Name: Qinox Dark
+ * Description: Sleek dark theme with rich violet accents, emerald status hues, and obsidian panels
+ * Author: Qinox AI
+ */
+
+:root, .dark {
+  --background: #0b0f19;
+  --foreground: #f1f5f9;
+  --card: #111827;
+  --card-foreground: #f8fafc;
+  --popover: #111827;
+  --popover-foreground: #f8fafc;
+  --primary: #8b5cf6;
+  --primary-foreground: #ffffff;
+  --secondary: #1e293b;
+  --secondary-foreground: #f1f5f9;
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8;
+  --accent: #2e1065;
+  --accent-foreground: #ddd6fe;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #1f293d;
+  --input: #1f293d;
+  --ring: #8b5cf6;
+  --sidebar: #0d121f;
+  --sidebar-foreground: #f1f5f9;
+  --sidebar-primary: #8b5cf6;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #1e293b;
+  --sidebar-accent-foreground: #f1f5f9;
+  --sidebar-border: #1f293d;
+}

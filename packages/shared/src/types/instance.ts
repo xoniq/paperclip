@@ -46,6 +46,25 @@ export const DEFAULT_INSTANCE_BRANDING: InstanceBrandingSettings = {
   tagline: null,
 };
 
+export interface ThemeOption {
+  id: string;
+  name: string;
+  filename: string;
+  description?: string;
+  author?: string;
+  isCustom?: boolean;
+}
+
+export interface InstanceThemingSettings {
+  activeTheme: string | null;
+  customCss: string | null;
+}
+
+export const DEFAULT_INSTANCE_THEMING: InstanceThemingSettings = {
+  activeTheme: null,
+  customCss: null,
+};
+
 export interface InstanceGeneralSettings {
   censorUsernameInLogs: boolean;
   keyboardShortcuts: boolean;
@@ -57,6 +76,7 @@ export interface InstanceGeneralSettings {
    */
   executionMode?: InstanceExecutionMode;
   branding?: InstanceBrandingSettings;
+  theming?: InstanceThemingSettings;
 }
 
 export interface InstanceExperimentalSettings {

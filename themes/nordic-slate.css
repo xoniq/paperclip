@@ -1,0 +1,34 @@
+/*
+ * Name: Nordic Slate
+ * Description: Clean, frosty arctic slate with ice-blue focus accents
+ * Author: Qinox AI
+ */
+
+:root, .dark {
+  --background: #181d24;
+  --foreground: #eceff4;
+  --card: #202630;
+  --card-foreground: #eceff4;
+  --popover: #202630;
+  --popover-foreground: #eceff4;
+  --primary: #88c0d0;
+  --primary-foreground: #2e3440;
+  --secondary: #2e3440;
+  --secondary-foreground: #eceff4;
+  --muted: #2e3440;
+  --muted-foreground: #d8dee9;
+  --accent: #3b4252;
+  --accent-foreground: #eceff4;
+  --destructive: #bf616a;
+  --destructive-foreground: #ffffff;
+  --border: #3b4252;
+  --input: #3b4252;
+  --ring: #88c0d0;
+  --sidebar: #151920;
+  --sidebar-foreground: #eceff4;
+  --sidebar-primary: #88c0d0;
+  --sidebar-primary-foreground: #2e3440;
+  --sidebar-accent: #2e3440;
+  --sidebar-accent-foreground: #eceff4;
+  --sidebar-border: #3b4252;
+}

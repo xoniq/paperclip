@@ -1,0 +1,34 @@
+/*
+ * Name: Emerald Terminal
+ * Description: Cyberpunk-inspired terminal palette with luminous emerald accents
+ * Author: Qinox AI
+ */
+
+:root, .dark {
+  --background: #050d0a;
+  --foreground: #ecfdf5;
+  --card: #091712;
+  --card-foreground: #ecfdf5;
+  --popover: #091712;
+  --popover-foreground: #ecfdf5;
+  --primary: #10b981;
+  --primary-foreground: #022c22;
+  --secondary: #132e24;
+  --secondary-foreground: #ecfdf5;
+  --muted: #132e24;
+  --muted-foreground: #6ee7b7;
+  --accent: #064e3b;
+  --accent-foreground: #a7f3d0;
+  --destructive: #f87171;
+  --destructive-foreground: #ffffff;
+  --border: #164e3b;
+  --input: #164e3b;
+  --ring: #10b981;
+  --sidebar: #040a08;
+  --sidebar-foreground: #ecfdf5;
+  --sidebar-primary: #10b981;
+  --sidebar-primary-foreground: #022c22;
+  --sidebar-accent: #132e24;
+  --sidebar-accent-foreground: #ecfdf5;
+  --sidebar-border: #164e3b;
+}

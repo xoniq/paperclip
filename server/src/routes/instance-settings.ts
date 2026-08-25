@@ -6,11 +6,12 @@ import {
   patchInstanceExperimentalSettingsSchema,
   patchInstanceGeneralSettingsSchema,
   DEFAULT_INSTANCE_BRANDING,
+  DEFAULT_INSTANCE_THEMING,
 } from "@paperclipai/shared";
 import { forbidden } from "../errors.js";
 import { isCloudManagedInstance } from "../services/cloud-instance.js";
 import { validate } from "../middleware/validate.js";
-import { heartbeatService, instanceSettingsService, logActivity } from "../services/index.js";
+import { heartbeatService, instanceSettingsService, themeService, logActivity } from "../services/index.js";
 import { environmentService } from "../services/environments.js";
 import { assertEnvironmentSelectionForCompany } from "./environment-selection.js";
 import { assertBoardOrgAccess, getActorInfo } from "./authz.js";
@@ -30,10 +31,31 @@ export function instanceSettingsRoutes(db: Db) {
   const svc = instanceSettingsService(db);
   const environments = environmentService(db);
   const heartbeat = heartbeatService(db);
+  const themes = themeService();
 
   router.get("/instance/branding", async (_req, res) => {
     const general = await svc.getGeneral();
     res.json(general.branding ?? DEFAULT_INSTANCE_BRANDING);
+  });
+
+  router.get("/instance/themes", async (_req, res) => {
+    const list = await themes.listThemes();
+    res.json(list);
+  });
+
+  router.get("/instance/themes/:filename/css", async (req, res) => {
+    const css = await themes.getThemeCss(req.params.filename);
+    if (!css) {
+      res.status(404).send("/* Theme not found */");
+      return;
+    }
+    res.setHeader("Content-Type", "text/css; charset=utf-8");
+    res.send(css);
+  });
+
+  router.get("/instance/theming", async (_req, res) => {
+    const general = await svc.getGeneral();
+    res.json(general.theming ?? DEFAULT_INSTANCE_THEMING);
   });
 
   router.get("/instance/settings", async (req, res) => {

@@ -1,5 +1,7 @@
 import type {
   InstanceBrandingSettings,
+  InstanceThemingSettings,
+  ThemeOption,
   InstanceExperimentalSettingsWithManaged,
   InstanceGeneralSettings,
   InstanceSettings,
@@ -17,6 +19,10 @@ export const instanceSettingsApi = {
     api.patch<InstanceSettings>("/instance/settings", patch),
   getBranding: () =>
     api.get<InstanceBrandingSettings>("/instance/branding"),
+  getThemes: () =>
+    api.get<ThemeOption[]>("/instance/themes"),
+  getTheming: () =>
+    api.get<InstanceThemingSettings>("/instance/theming"),
   getGeneral: () =>
     api.get<InstanceGeneralSettings>("/instance/settings/general"),
   updateGeneral: (patch: PatchInstanceGeneralSettings) =>

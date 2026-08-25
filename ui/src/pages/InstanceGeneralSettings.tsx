@@ -1,14 +1,20 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { PatchInstanceGeneralSettings, BackupRetentionPolicy, InstanceBrandingSettings } from "@paperclipai/shared";
+import type {
+  PatchInstanceGeneralSettings,
+  BackupRetentionPolicy,
+  InstanceBrandingSettings,
+  InstanceThemingSettings,
+} from "@paperclipai/shared";
 import {
   DAILY_RETENTION_PRESETS,
   WEEKLY_RETENTION_PRESETS,
   MONTHLY_RETENTION_PRESETS,
   DEFAULT_BACKUP_RETENTION,
   DEFAULT_INSTANCE_BRANDING,
+  DEFAULT_INSTANCE_THEMING,
 } from "@paperclipai/shared";
-import { LogOut, SlidersHorizontal, Sparkles } from "lucide-react";
+import { Check, LogOut, Palette, SlidersHorizontal, Sparkles } from "lucide-react";
 import { healthApi } from "@/api/health";
 import { instanceSettingsApi } from "@/api/instanceSettings";
 import { ModeBadge } from "@/components/access/ModeBadge";
@@ -58,6 +64,7 @@ export function InstanceGeneralSettings({ embedded = false }: { embedded?: boole
       signOutMutation.reset();
       await queryClient.invalidateQueries({ queryKey: queryKeys.instance.generalSettings });
       await queryClient.invalidateQueries({ queryKey: queryKeys.instance.branding });
+      await queryClient.invalidateQueries({ queryKey: queryKeys.instance.theming });
     },
     onError: (error) => {
       setActionError(error instanceof Error ? error.message : "Failed to update general settings.");
@@ -145,6 +152,12 @@ export function InstanceGeneralSettings({ embedded = false }: { embedded?: boole
       <BrandingSection
         branding={generalQuery.data?.branding}
         onSave={(branding) => updateGeneralMutation.mutate({ branding })}
+        disabled={updateGeneralMutation.isPending || signOutMutation.isPending}
+      />
+
+      <ThemingSection
+        theming={generalQuery.data?.theming}
+        onSave={(theming) => updateGeneralMutation.mutate({ theming })}
         disabled={updateGeneralMutation.isPending || signOutMutation.isPending}
       />
 
@@ -498,6 +511,139 @@ function BrandingSection({
             Save branding
           </Button>
           {isSaved && <span className="text-xs text-emerald-500 font-medium">Branding saved!</span>}
+        </div>
+      </form>
+    </section>
+  );
+}
+
+function ThemingSection({
+  theming,
+  onSave,
+  disabled,
+}: {
+  theming?: InstanceThemingSettings;
+  onSave: (theming: InstanceThemingSettings) => void;
+  disabled: boolean;
+}) {
+  const [activeTheme, setActiveTheme] = useState<string | null>(theming?.activeTheme ?? DEFAULT_INSTANCE_THEMING.activeTheme);
+  const [customCss, setCustomCss] = useState(theming?.customCss ?? "");
+  const [isSaved, setIsSaved] = useState(false);
+
+  const themesQuery = useQuery({
+    queryKey: queryKeys.instance.themes,
+    queryFn: () => instanceSettingsApi.getThemes(),
+  });
+
+  useEffect(() => {
+    if (theming) {
+      setActiveTheme(theming.activeTheme ?? DEFAULT_INSTANCE_THEMING.activeTheme);
+      setCustomCss(theming.customCss ?? "");
+    }
+  }, [theming]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSave({
+      activeTheme: activeTheme || null,
+      customCss: customCss.trim() ? customCss : null,
+    });
+    setIsSaved(true);
+    setTimeout(() => setIsSaved(false), 2500);
+  };
+
+  const themes = themesQuery.data ?? [];
+
+  return (
+    <section className="space-y-4">
+      <div className="space-y-1.5">
+        <div className="flex items-center gap-2">
+          <Palette className="h-4 w-4 text-muted-foreground" />
+          <h2 className="text-sm font-semibold">Themes & Custom Stylesheets</h2>
+        </div>
+        <p className="max-w-2xl text-sm text-muted-foreground">
+          Select an active theme stylesheet from the <code>themes/</code> directory or add custom CSS overrides below.
+        </p>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-4 rounded-lg border border-border bg-card p-4">
+        <div className="space-y-3">
+          <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            Available Themes ({themes.length} found)
+          </label>
+
+          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            <button
+              type="button"
+              disabled={disabled}
+              onClick={() => setActiveTheme(null)}
+              className={cn(
+                "flex flex-col items-start rounded-md border p-3 text-left transition-colors",
+                activeTheme === null
+                  ? "border-primary bg-primary/10 text-foreground"
+                  : "border-border bg-background hover:bg-accent/50 text-muted-foreground"
+              )}
+            >
+              <div className="flex w-full items-center justify-between">
+                <span className="text-sm font-semibold text-foreground">Default</span>
+                {activeTheme === null && <Check className="h-4 w-4 text-primary" />}
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground">Standard theme</p>
+            </button>
+
+            {themes.map((theme) => {
+              const isSelected = activeTheme === theme.id;
+              return (
+                <button
+                  key={theme.id}
+                  type="button"
+                  disabled={disabled}
+                  onClick={() => setActiveTheme(theme.id)}
+                  className={cn(
+                    "flex flex-col items-start rounded-md border p-3 text-left transition-colors",
+                    isSelected
+                      ? "border-primary bg-primary/10 text-foreground"
+                      : "border-border bg-background hover:bg-accent/50 text-muted-foreground"
+                  )}
+                >
+                  <div className="flex w-full items-center justify-between">
+                    <span className="text-sm font-semibold text-foreground">{theme.name}</span>
+                    {isSelected && <Check className="h-4 w-4 text-primary" />}
+                  </div>
+                  {theme.description && (
+                    <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{theme.description}</p>
+                  )}
+                  {theme.author && (
+                    <span className="mt-2 text-xs font-mono text-muted-foreground/70">by {theme.author}</span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="space-y-1.5 pt-2">
+          <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            Custom CSS Overrides (optional)
+          </label>
+          <textarea
+            value={customCss}
+            onChange={(e) => setCustomCss(e.target.value)}
+            placeholder="/* Add custom CSS rules here */&#10;:root { --radius: 0.75rem; }"
+            rows={4}
+            disabled={disabled}
+            className="w-full font-mono text-xs rounded-md border border-input bg-transparent px-3 py-2 text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+          />
+          <p className="text-xs text-muted-foreground">
+            Custom CSS is injected directly into all pages and overrides standard stylesheet rules.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-3 pt-2">
+          <Button type="submit" size="sm" disabled={disabled}>
+            Save theme settings
+          </Button>
+          {isSaved && <span className="text-xs text-emerald-500 font-medium">Theme settings saved!</span>}
         </div>
       </form>
     </section>

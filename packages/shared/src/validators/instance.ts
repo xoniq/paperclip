@@ -6,6 +6,7 @@ import {
   MONTHLY_RETENTION_PRESETS,
   DEFAULT_BACKUP_RETENTION,
   DEFAULT_INSTANCE_BRANDING,
+  DEFAULT_INSTANCE_THEMING,
   DEFAULT_ISSUE_GRAPH_LIVENESS_AUTO_RECOVERY_LOOKBACK_HOURS,
   MAX_ISSUE_GRAPH_LIVENESS_AUTO_RECOVERY_LOOKBACK_HOURS,
   MIN_ISSUE_GRAPH_LIVENESS_AUTO_RECOVERY_LOOKBACK_HOURS,
@@ -34,6 +35,22 @@ export const instanceBrandingSettingsSchema = z.object({
 
 export const patchInstanceBrandingSettingsSchema = instanceBrandingSettingsSchema.partial();
 
+export const themeOptionSchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1),
+  filename: z.string().min(1),
+  description: z.string().optional(),
+  author: z.string().optional(),
+  isCustom: z.boolean().optional(),
+});
+
+export const instanceThemingSettingsSchema = z.object({
+  activeTheme: z.string().trim().nullable().default(DEFAULT_INSTANCE_THEMING.activeTheme),
+  customCss: z.string().nullable().default(DEFAULT_INSTANCE_THEMING.customCss),
+});
+
+export const patchInstanceThemingSettingsSchema = instanceThemingSettingsSchema.partial();
+
 export const instanceGeneralSettingsSchema = z.object({
   censorUsernameInLogs: z.boolean().default(false),
   keyboardShortcuts: z.boolean().default(false),
@@ -45,6 +62,7 @@ export const instanceGeneralSettingsSchema = z.object({
   // Kubernetes sandbox provider and denies local/ssh execution (cloud_tenant).
   executionMode: z.enum(["kubernetes", "any"]).optional(),
   branding: instanceBrandingSettingsSchema.default(DEFAULT_INSTANCE_BRANDING),
+  theming: instanceThemingSettingsSchema.default(DEFAULT_INSTANCE_THEMING),
 }).strict();
 
 export const patchInstanceGeneralSettingsSchema = instanceGeneralSettingsSchema.partial();
@@ -127,6 +145,9 @@ export const issueGraphLivenessAutoRecoveryRequestSchema = z.object({
 
 export type InstanceBrandingSettings = z.infer<typeof instanceBrandingSettingsSchema>;
 export type PatchInstanceBrandingSettings = z.infer<typeof patchInstanceBrandingSettingsSchema>;
+export type ThemeOption = z.infer<typeof themeOptionSchema>;
+export type InstanceThemingSettings = z.infer<typeof instanceThemingSettingsSchema>;
+export type PatchInstanceThemingSettings = z.infer<typeof patchInstanceThemingSettingsSchema>;
 export type InstanceGeneralSettings = z.infer<typeof instanceGeneralSettingsSchema>;
 export type PatchInstanceGeneralSettings = z.infer<typeof patchInstanceGeneralSettingsSchema>;
 export type InstanceExperimentalSettings = z.infer<typeof instanceExperimentalSettingsSchema>;
