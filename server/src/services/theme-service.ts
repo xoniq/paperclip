@@ -1,5 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import type { ThemeOption } from "@paperclipai/shared";
 import { resolvePaperclipHomeDir } from "../home-paths.js";
 
@@ -42,20 +43,34 @@ function parseThemeMetadata(content: string, id: string, filename: string, isCus
 export function themeService() {
   const getThemeDirectories = (): { dir: string; isCustom: boolean }[] => {
     const dirs: { dir: string; isCustom: boolean }[] = [];
+    const seen = new Set<string>();
 
-    // 1. Bundled / workspace themes directory
-    const repoThemesDir = path.resolve(process.cwd(), "themes");
-    dirs.push({ dir: repoThemesDir, isCustom: false });
+    const addDir = (dir: string, isCustom: boolean) => {
+      const resolved = path.resolve(dir);
+      if (!seen.has(resolved)) {
+        seen.add(resolved);
+        dirs.push({ dir: resolved, isCustom });
+      }
+    };
 
-    const parentThemesDir = path.resolve(process.cwd(), "../themes");
-    if (parentThemesDir !== repoThemesDir) {
-      dirs.push({ dir: parentThemesDir, isCustom: false });
+    // 1. Bundled / workspace themes directory relative to process cwd
+    addDir(path.resolve(process.cwd(), "themes"), false);
+    addDir(path.resolve(process.cwd(), "../themes"), false);
+
+    // 2. Relative to current module directory (src/services or dist/services)
+    try {
+      const currentDir = path.dirname(fileURLToPath(import.meta.url));
+      addDir(path.resolve(currentDir, "../../themes"), false);
+      addDir(path.resolve(currentDir, "../../../themes"), false);
+      addDir(path.resolve(currentDir, "../themes"), false);
+    } catch {
+      // Ignore if fileURLToPath is unavailable
     }
 
-    // 2. User home themes directory (~/.paperclip/themes)
+    // 3. User home themes directory (~/.paperclip/themes)
     const homeDir = resolvePaperclipHomeDir();
     const userThemesDir = path.join(homeDir, "themes");
-    dirs.push({ dir: userThemesDir, isCustom: true });
+    addDir(userThemesDir, true);
 
     return dirs;
   };

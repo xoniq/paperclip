@@ -3,6 +3,18 @@
 Place your custom `.css` stylesheets in this directory (or in `~/.paperclip/themes/`).
 They will be automatically scanned by Paperclip and made selectable in **Settings → General → Themes & Custom Stylesheets**.
 
+## Master Theme & Reference Template
+
+Check out [`master-default.css`](./master-default.css) for the complete master theme stylesheet containing every available token in Paperclip:
+- **Semantic color roles**: `--background`, `--foreground`, `--card`, `--popover`, `--primary`, `--secondary`, `--muted`, `--accent`, `--destructive`, `--border`, `--input`, `--ring`
+- **Sidebar & navigation**: `--sidebar`, `--sidebar-primary`, `--sidebar-accent`, `--sidebar-border`, `--sidebar-ring`
+- **Status indicators**: `--status-agent-*`, `--status-task-*`, and high-contrast `--status-task-icon-*`
+- **Chart palettes**: `--chart-1` through `--chart-5`
+- **Agent capsule gradients**: `--agent-1a/b` through `--agent-10a/b`
+- **Project & folder hues**: `--project-seed`, `--folder-color-*`
+- **Geometry & typography**: `--radius`, `--font-sans`, `--font-mono`
+- **Direct CSS component overrides**: sidebar, buttons, cards, inputs, scrollbars, dialogs
+
 ## CSS Format & Metadata Header
 
 You can include an optional metadata header at the top of your `.css` file:
@@ -14,32 +26,18 @@ You can include an optional metadata header at the top of your `.css` file:
  * Author: Your Organization
  */
 
-:root, .dark {
-  --background: #0d1117;
-  --foreground: #c9d1d9;
-  --card: #161b22;
-  --card-foreground: #c9d1d9;
-  --popover: #161b22;
-  --popover-foreground: #c9d1d9;
-  --primary: #58a6ff;
-  --primary-foreground: #0d1117;
-  --secondary: #21262d;
-  --secondary-foreground: #c9d1d9;
-  --muted: #21262d;
-  --muted-foreground: #8b949e;
-  --accent: #1f6feb;
-  --accent-foreground: #f0f6fc;
-  --destructive: #f85149;
-  --destructive-foreground: #ffffff;
-  --border: #30363d;
-  --input: #30363d;
-  --ring: #58a6ff;
-  --sidebar: #010409;
-  --sidebar-foreground: #c9d1d9;
-  --sidebar-primary: #58a6ff;
-  --sidebar-primary-foreground: #0d1117;
-  --sidebar-accent: #21262d;
-  --sidebar-accent-foreground: #c9d1d9;
-  --sidebar-border: #30363d;
+:root {
+  --primary: #4f46e5;
+  --ring: #6366f1;
+  --radius: 0.5rem;
+}
+
+.dark {
+  --background: #0b0f19;
+  --foreground: #f1f5f9;
+  --card: #111827;
+  --primary: #8b5cf6;
+  --sidebar: #0d121f;
 }
 ```
+
