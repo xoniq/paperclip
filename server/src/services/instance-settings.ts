@@ -14,6 +14,10 @@ export type InstanceSettingsWriteDb = Pick<
 import {
   DEFAULT_FEEDBACK_DATA_SHARING_PREFERENCE,
   DEFAULT_BACKUP_RETENTION,
+  DEFAULT_INSTANCE_BRANDING,
+  DEFAULT_INSTANCE_THEMING,
+  DEFAULT_INSTANCE_NAVIGATION,
+  DEFAULT_INSTANCE_COMPANY_PERMISSIONS,
   DEFAULT_ISSUE_GRAPH_LIVENESS_AUTO_RECOVERY_LOOKBACK_HOURS,
   PAPERCLIP_CLOUD_MANAGED_BY,
   instanceGeneralSettingsSchema,
@@ -202,6 +206,10 @@ function normalizeGeneralSettings(raw: unknown): InstanceGeneralSettings {
       feedbackDataSharingPreference:
         parsed.data.feedbackDataSharingPreference ?? DEFAULT_FEEDBACK_DATA_SHARING_PREFERENCE,
       backupRetention: parsed.data.backupRetention ?? DEFAULT_BACKUP_RETENTION,
+      branding: parsed.data.branding ?? DEFAULT_INSTANCE_BRANDING,
+      theming: parsed.data.theming ?? DEFAULT_INSTANCE_THEMING,
+      navigation: parsed.data.navigation ?? DEFAULT_INSTANCE_NAVIGATION,
+      companyPermissions: parsed.data.companyPermissions ?? DEFAULT_INSTANCE_COMPANY_PERMISSIONS,
       // Absent => unrestricted; only carry through an explicit policy.
       ...(parsed.data.executionMode ? { executionMode: parsed.data.executionMode } : {}),
     };
@@ -211,6 +219,10 @@ function normalizeGeneralSettings(raw: unknown): InstanceGeneralSettings {
     keyboardShortcuts: false,
     feedbackDataSharingPreference: DEFAULT_FEEDBACK_DATA_SHARING_PREFERENCE,
     backupRetention: DEFAULT_BACKUP_RETENTION,
+    branding: DEFAULT_INSTANCE_BRANDING,
+    theming: DEFAULT_INSTANCE_THEMING,
+    navigation: DEFAULT_INSTANCE_NAVIGATION,
+    companyPermissions: DEFAULT_INSTANCE_COMPANY_PERMISSIONS,
   };
 }
 
@@ -423,9 +435,29 @@ export function instanceSettingsService(db: Db, options: InstanceSettingsService
 
     updateGeneral: async (patch: PatchInstanceGeneralSettings): Promise<InstanceSettings> => {
       const current = await getOrCreateRow();
+      const currentGeneral = normalizeGeneralSettings(current.general);
       const nextGeneral = normalizeGeneralSettings({
-        ...normalizeGeneralSettings(current.general),
+        ...currentGeneral,
         ...patch,
+        branding:
+          patch.branding !== undefined
+            ? { ...(currentGeneral.branding ?? DEFAULT_INSTANCE_BRANDING), ...patch.branding }
+            : currentGeneral.branding,
+        theming:
+          patch.theming !== undefined
+            ? { ...(currentGeneral.theming ?? DEFAULT_INSTANCE_THEMING), ...patch.theming }
+            : currentGeneral.theming,
+        navigation:
+          patch.navigation !== undefined
+            ? { ...(currentGeneral.navigation ?? DEFAULT_INSTANCE_NAVIGATION), ...patch.navigation }
+            : currentGeneral.navigation,
+        companyPermissions:
+          patch.companyPermissions !== undefined
+            ? {
+                ...(currentGeneral.companyPermissions ?? DEFAULT_INSTANCE_COMPANY_PERMISSIONS),
+                ...patch.companyPermissions,
+              }
+            : currentGeneral.companyPermissions,
       });
       const now = new Date();
       const [updated] = await db
