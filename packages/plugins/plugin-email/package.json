@@ -1,6 +1,6 @@
 {
   "name": "@paperclipai/plugin-email",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Let Paperclip agents send email over your own SMTP server, with a recipient allowlist, a fixed sender, and per-company rate limits.",
   "license": "MIT",
   "homepage": "https://github.com/paperclipai/paperclip",
