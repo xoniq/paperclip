@@ -1,0 +1,296 @@
+/*
+ * Name: Qinox AI
+ * Description: Official Qinox AI signature theme with obsidian base, vibrant cyan & mint accents, frosted glass panels, and crisp typography for both light and dark modes.
+ * Author: Qinox AI (qinox.nl)
+ */
+
+/* ==========================================================================
+   1. GLOBAL ROOT & LIGHT MODE TOKENS
+   ========================================================================== */
+:root {
+  /* --- Typography --- */
+  --font-sans: "InterVariable", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  --font-heading: var(--font-sans);
+
+  /* --- Geometry --- */
+  --radius: 0.5rem;
+
+  /* --- Core Semantic Palette (Light Mode - Crisp Arctic & Cyan) --- */
+  --background: #f7f9fc;
+  --foreground: #090b10;
+
+  --card: #ffffff;
+  --card-foreground: #090b10;
+
+  --popover: #ffffff;
+  --popover-foreground: #090b10;
+
+  --primary: #0284c7;
+  --primary-foreground: #ffffff;
+
+  --secondary: #eef2f6;
+  --secondary-foreground: #090b10;
+
+  --muted: #eef2f6;
+  --muted-foreground: #64748b;
+
+  --accent: #e0f7f6;
+  --accent-foreground: #0f766e;
+
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+
+  --border: #e2e8f0;
+  --input: #e2e8f0;
+  --ring: #0284c7;
+
+  /* --- Sidebar & Navigation (Light Mode) --- */
+  --sidebar: #f0f4f9;
+  --sidebar-foreground: #090b10;
+  --sidebar-primary: #0284c7;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #e2e8f0;
+  --sidebar-accent-foreground: #090b10;
+  --sidebar-border: #e2e8f0;
+  --sidebar-ring: #0284c7;
+
+  /* --- Task & Agent Status Base Hues --- */
+  --status-agent-idle: #94a3b8;
+  --status-agent-running: #0284c7;
+  --status-agent-paused: #f59e0b;
+  --status-agent-error: #ef4444;
+
+  --status-task-backlog: #94a3b8;
+  --status-task-todo: #f59e0b;
+  --status-task-in_progress: #0284c7;
+  --status-task-in_review: #6366f1;
+  --status-task-done: #10b981;
+  --status-task-blocked: #ef4444;
+  --status-task-cancelled: #94a3b8;
+
+  /* --- High-contrast Status Icon Hues --- */
+  --status-task-icon-backlog: #64748b;
+  --status-task-icon-todo: #d97706;
+  --status-task-icon-in_progress: #0284c7;
+  --status-task-icon-in_review: #4f46e5;
+  --status-task-icon-done: #059669;
+  --status-task-icon-blocked: #dc2626;
+  --status-task-icon-cancelled: #64748b;
+  --status-task-icon-in_queue: #0284c7;
+
+  /* --- Data Visualization / Chart Series (Light Mode) --- */
+  --chart-1: #0284c7;
+  --chart-2: #0d9488;
+  --chart-3: #10b981;
+  --chart-4: #f59e0b;
+  --chart-5: #6366f1;
+
+  /* --- Project & Domain Colors --- */
+  --project-seed: #0284c7;
+  --project-none: #64748b;
+  --liveness-blue: #0284c7;
+
+  --folder-color-indigo: #6366f1;
+  --folder-color-violet: #8b5cf6;
+  --folder-color-emerald: #10b981;
+  --folder-color-cyan: #06b6d4;
+  --folder-color-amber: #f59e0b;
+  --folder-color-slate: #64748b;
+
+  /* --- Agent Capsule 2-Stop Gradients (1–10) --- */
+  --agent-1a: #78f0d5;  --agent-1b: #0284c7;
+  --agent-2a: #44d8ff;  --agent-2b: #3b82f6;
+  --agent-3a: #a78bfa;  --agent-3b: #0284c7;
+  --agent-4a: #fef08a;  --agent-4b: #f59e0b;
+  --agent-5a: #38bdf8;  --agent-5b: #10b981;
+  --agent-6a: #fb7185;  --agent-6b: #e11d48;
+  --agent-7a: #67e8f9;  --agent-7b: #4f46e5;
+  --agent-8a: #a7f3d0;  --agent-8b: #06b6d4;
+  --agent-9a: #fed7aa;  --agent-9b: #ea580c;
+  --agent-10a: #78f0d5; --agent-10b: #44d8ff;
+
+  /* --- Chat & Task Composer --- */
+  --bubble-agent: #f0f4f9;
+  --bubble-agent-card-padding-inline: 0.875rem;
+  --tc-mode-agent: var(--status-task-backlog);
+  --tc-mode-plan: var(--status-task-todo);
+  --tc-mode-ask: #0284c7;
+
+  /* --- Search & Match Chips --- */
+  --chip-match-title-bg: #e0f2fe;
+  --chip-match-title-fg: #0369a1;
+  --chip-match-title-border: #bae6fd;
+  --chip-match-comment-bg: #ccfbf1;
+  --chip-match-comment-fg: #0f766e;
+  --chip-match-comment-border: #99f6e4;
+  --chip-match-document-bg: #e0e7ff;
+  --chip-match-document-fg: #3730a3;
+  --chip-match-document-border: #c7d2fe;
+  --chip-match-identifier-bg: var(--muted);
+  --chip-match-identifier-fg: var(--muted-foreground);
+  --chip-match-identifier-border: var(--border);
+
+  /* --- Document Annotations --- */
+  --paperclip-doc-annotation-highlight-open: #fef08a;
+  --paperclip-doc-annotation-highlight-focused: #fde047;
+  --paperclip-doc-annotation-highlight-stale: #fef08a;
+  --paperclip-doc-annotation-highlight-resolved: #fef9c3;
+}
+
+/* ==========================================================================
+   2. DARK MODE OVERRIDES (Qinox Signature Obsidian & Electric Cyan/Mint)
+   ========================================================================== */
+.dark {
+  /* --- Core Semantic Palette (Qinox Dark) --- */
+  --background: #07090d;
+  --foreground: #f3f5f8;
+
+  --card: #0c1017;
+  --card-foreground: #f3f5f8;
+
+  --popover: #0c1017;
+  --popover-foreground: #f3f5f8;
+
+  --primary: #44d8ff;
+  --primary-foreground: #07090d;
+
+  --secondary: #131722;
+  --secondary-foreground: #f3f5f8;
+
+  --muted: #131722;
+  --muted-foreground: #9ea7b7;
+
+  --accent: #0f2430;
+  --accent-foreground: #78f0d5;
+
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+
+  --border: #1a2232;
+  --input: #1a2232;
+  --ring: #44d8ff;
+
+  /* --- Sidebar & Navigation (Qinox Dark) --- */
+  --sidebar: #090b10;
+  --sidebar-foreground: #f3f5f8;
+  --sidebar-primary: #44d8ff;
+  --sidebar-primary-foreground: #07090d;
+  --sidebar-accent: #131722;
+  --sidebar-accent-foreground: #78f0d5;
+  --sidebar-border: #1a2232;
+  --sidebar-ring: #44d8ff;
+
+  /* --- Task & Agent Status Base Hues (Dark Mode) --- */
+  --status-agent-idle: #9ea7b7;
+  --status-agent-running: #44d8ff;
+  --status-agent-paused: #f59e0b;
+  --status-agent-error: #ef4444;
+
+  --status-task-backlog: #9ea7b7;
+  --status-task-todo: #f59e0b;
+  --status-task-in_progress: #44d8ff;
+  --status-task-in_review: #a78bfa;
+  --status-task-done: #78f0d5;
+  --status-task-blocked: #ef4444;
+  --status-task-cancelled: #9ea7b7;
+
+  /* --- High-contrast Status Icon Hues (Dark Mode) --- */
+  --status-task-icon-backlog: #9ea7b7;
+  --status-task-icon-todo: #fbbf24;
+  --status-task-icon-in_progress: #44d8ff;
+  --status-task-icon-in_review: #c4b5fd;
+  --status-task-icon-done: #78f0d5;
+  --status-task-icon-blocked: #f87171;
+  --status-task-icon-cancelled: #9ea7b7;
+  --status-task-icon-in_queue: #44d8ff;
+
+  /* --- Data Visualization / Chart Series (Dark Mode) --- */
+  --chart-1: #44d8ff;
+  --chart-2: #78f0d5;
+  --chart-3: #38bdf8;
+  --chart-4: #fbbf24;
+  --chart-5: #a78bfa;
+
+  /* --- Chat & Task Composer (Dark Mode) --- */
+  --bubble-agent: #0f141e;
+  --tc-mode-ask: #44d8ff;
+
+  /* --- Search & Match Chips (Dark Mode) --- */
+  --chip-match-title-bg: rgba(68, 216, 255, 0.12);
+  --chip-match-title-fg: #7dd3fc;
+  --chip-match-title-border: rgba(68, 216, 255, 0.28);
+  --chip-match-comment-bg: rgba(120, 240, 213, 0.12);
+  --chip-match-comment-fg: #78f0d5;
+  --chip-match-comment-border: rgba(120, 240, 213, 0.28);
+  --chip-match-document-bg: rgba(167, 139, 250, 0.12);
+  --chip-match-document-fg: #c4b5fd;
+  --chip-match-document-border: rgba(167, 139, 250, 0.28);
+
+  /* --- Document Annotations (Dark Mode) --- */
+  --paperclip-doc-annotation-highlight-open: #a16207;
+  --paperclip-doc-annotation-highlight-focused: #ca8a04;
+  --paperclip-doc-annotation-highlight-stale: #854d0e;
+  --paperclip-doc-annotation-highlight-resolved: #713f12;
+}
+
+/* ==========================================================================
+   3. QINOX COMPONENT ACCENTS & POLISH
+   ========================================================================== */
+
+/* --- Sidebar Styling --- */
+aside[data-slot="sidebar"], nav[aria-label="Sidebar"] {
+  border-right: 1px solid var(--sidebar-border);
+  background-color: var(--sidebar);
+}
+
+/* --- Card & Panel Elevations --- */
+[data-slot="card"], .rounded-lg.border.bg-card {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dark [data-slot="card"]:hover, .dark .rounded-lg.border.bg-card:hover {
+  border-color: rgba(68, 216, 255, 0.25);
+}
+
+/* --- Interactive Buttons --- */
+button[data-slot="button"] {
+  font-weight: 500;
+  transition: all 0.15s ease;
+}
+
+button[data-slot="button"]:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* --- Form Inputs, Textareas & Selects --- */
+input[data-slot="input"], textarea[data-slot="textarea"], [data-slot="select-trigger"] {
+  border-color: var(--input);
+  background-color: transparent;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+input[data-slot="input"]:focus, textarea[data-slot="textarea"]:focus, [data-slot="select-trigger"]:focus {
+  border-color: var(--ring);
+  box-shadow: 0 0 0 1px var(--ring);
+}
+
+/* --- Custom Qinox Scrollbars --- */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--muted);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
+}
