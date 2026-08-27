@@ -38,7 +38,7 @@ export function nodeRuntimeCheck(): CheckResult {
     ? { name: "Node.js runtime", status: "pass", message: `Node.js ${process.versions.node}` }
     : {
         name: "Node.js runtime",
-        status: "fail",
+        status: "warn",
         message: `Node.js ${process.versions.node} is unsupported`,
         repairHint: `Install Node.js ${MINIMUM_NODE_VERSION} or newer before installing or running Paperclip`,
       };

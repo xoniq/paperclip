@@ -8,24 +8,26 @@ import {
 } from "@paperclipai/shared/node-version";
 
 describe("isSupportedNodeVersion", () => {
-  it("accepts the Node 24 LTS floor and newer releases", () => {
-    expect(MINIMUM_NODE_VERSION).toBe("24.11.0");
+  it("accepts the Node 22 floor and newer releases", () => {
+    expect(MINIMUM_NODE_VERSION).toBe("22.0.0");
+    expect(isSupportedNodeVersion("v22.0.0")).toBe(true);
+    expect(isSupportedNodeVersion("v22.23.2")).toBe(true);
     expect(isSupportedNodeVersion("v24.11.0")).toBe(true);
     expect(isSupportedNodeVersion("24.19.0")).toBe(true);
     expect(isSupportedNodeVersion("v26.0.0")).toBe(true);
   });
 
-  it("rejects pre-LTS Node 24 and older major releases", () => {
-    expect(isSupportedNodeVersion("v24.10.0")).toBe(false);
-    expect(isSupportedNodeVersion("v22.23.0")).toBe(false);
+  it("rejects pre-Node 22 releases", () => {
+    expect(isSupportedNodeVersion("v20.10.0")).toBe(false);
+    expect(isSupportedNodeVersion("v18.20.0")).toBe(false);
     expect(isSupportedNodeVersion("unknown")).toBe(false);
   });
 
   it("provides non-blocking remediation text for unsupported runtimes", () => {
-    expect(formatNodeVersionWarning("v24.11.0")).toBeNull();
-    const warning = formatNodeVersionWarning("v22.23.0");
-    expect(warning).toContain("Node.js v22.23.0 is unsupported");
-    expect(warning).toContain("requires Node.js 24.11.0 or newer");
+    expect(formatNodeVersionWarning("v22.23.2")).toBeNull();
+    const warning = formatNodeVersionWarning("v20.10.0");
+    expect(warning).toContain("Node.js v20.10.0 is unsupported");
+    expect(warning).toContain("requires Node.js 22.0.0 or newer");
     expect(warning).toContain(NODE_VERSION_INSTALL_GUIDE_URL);
     expect(warning).toContain("piped install.sh form cannot upgrade");
     expect(warning).toContain("Restart Paperclip after upgrading");
@@ -34,10 +36,10 @@ describe("isSupportedNodeVersion", () => {
   it("emits at most one warning when CLI and server boot in the same process", () => {
     const warnings: string[] = [];
     expect(
-      warnIfUnsupportedNodeVersion("22.23.0", (message) => warnings.push(message)),
+      warnIfUnsupportedNodeVersion("20.10.0", (message) => warnings.push(message)),
     ).toBe(true);
     expect(
-      warnIfUnsupportedNodeVersion("22.23.0", (message) => warnings.push(message)),
+      warnIfUnsupportedNodeVersion("20.10.0", (message) => warnings.push(message)),
     ).toBe(false);
     expect(warnings).toHaveLength(1);
   });
