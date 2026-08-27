@@ -14,6 +14,7 @@ import {
   MIN_ISSUE_GRAPH_LIVENESS_AUTO_RECOVERY_LOOKBACK_HOURS,
 } from "../types/instance.js";
 import { feedbackDataSharingPreferenceSchema } from "./feedback.js";
+import { shapeWithoutDefaults } from "./partial.js";
 
 function presetSchema<T extends readonly number[]>(presets: T, label: string) {
   return z.number().refine(
@@ -85,10 +86,14 @@ export const instanceGeneralSettingsSchema = z.object({
   companyPermissions: instanceCompanyPermissionsSettingsSchema.default(DEFAULT_INSTANCE_COMPANY_PERMISSIONS),
 }).strict();
 
-export const patchInstanceGeneralSettingsSchema = instanceGeneralSettingsSchema.partial();
+export const patchInstanceGeneralSettingsSchema = z
+  .object(shapeWithoutDefaults(instanceGeneralSettingsSchema.shape))
+  .partial()
+  .strict();
 
 export const instanceExperimentalSettingsSchema = z.object({
   enableEnvironments: z.boolean().default(false),
+  enableNativeRunner: z.boolean().default(false),
   enableManagedSandboxOnly: z.boolean().default(false),
   enableIsolatedWorkspaces: z.boolean().default(false),
   enableStreamlinedLeftNavigation: z.boolean().default(true),
@@ -130,11 +135,17 @@ export const instanceExperimentalSettingsSchema = z.object({
     .default(DEFAULT_ISSUE_GRAPH_LIVENESS_AUTO_RECOVERY_LOOKBACK_HOURS),
 }).strict();
 
-export const patchInstanceExperimentalSettingsSchema = instanceExperimentalSettingsSchema
-  .omit({
-    worktreeRunExecutionActivatedAt: true,
-    worktreeRunExecutionActivationInstanceId: true,
-  })
+export const patchInstanceExperimentalSettingsSchema = z
+  .object(
+    shapeWithoutDefaults(
+      instanceExperimentalSettingsSchema
+        .omit({
+          worktreeRunExecutionActivatedAt: true,
+          worktreeRunExecutionActivationInstanceId: true,
+        })
+        .shape,
+    ),
+  )
   .partial()
   .strip();
 
@@ -147,11 +158,11 @@ export const managedSettingMetadataSchema = z.object({
 // instances every overlaid key is listed in `managedKeys`; self-hosted
 // responses omit the field entirely.
 export const instanceExperimentalSettingsWithManagedSchema = instanceExperimentalSettingsSchema.extend({
-  managedKeys: z.record(managedSettingMetadataSchema).optional(),
+  managedKeys: z.record(z.string(), managedSettingMetadataSchema).optional(),
 }).strict();
 
 export const patchInstanceSettingsSchema = z.object({
-  defaultEnvironmentId: z.string().uuid().nullable().optional(),
+  defaultEnvironmentId: z.string().guid().nullable().optional(),
 }).strict();
 
 export const issueGraphLivenessAutoRecoveryRequestSchema = z.object({
@@ -173,17 +184,24 @@ export type PatchInstanceNavigationSettings = z.infer<typeof patchInstanceNaviga
 export type InstanceCompanyPermissionsSettings = z.infer<typeof instanceCompanyPermissionsSettingsSchema>;
 export type PatchInstanceCompanyPermissionsSettings = z.infer<typeof patchInstanceCompanyPermissionsSettingsSchema>;
 export type InstanceGeneralSettings = z.infer<typeof instanceGeneralSettingsSchema>;
-export type PatchInstanceGeneralSettings = z.infer<typeof patchInstanceGeneralSettingsSchema>;
+// The patch schema removes each default so an absent key stays absent. Declare
+// the type from the full settings type, so every field keeps its precise type.
+export type PatchInstanceGeneralSettings = Partial<InstanceGeneralSettings>;
 export type InstanceExperimentalSettings = z.infer<typeof instanceExperimentalSettingsSchema>;
-export type PatchInstanceExperimentalSettings = z.infer<typeof patchInstanceExperimentalSettingsSchema>;
+export type PatchInstanceExperimentalSettings = Partial<
+  Omit<
+    InstanceExperimentalSettings,
+    "worktreeRunExecutionActivatedAt" | "worktreeRunExecutionActivationInstanceId"
+  >
+>;
 export type PatchInstanceSettings = z.infer<typeof patchInstanceSettingsSchema>;
 export type IssueGraphLivenessAutoRecoveryRequest = z.infer<
   typeof issueGraphLivenessAutoRecoveryRequestSchema
 >;
 
 export const instanceSettingsSchema = z.object({
-  id: z.string().uuid(),
-  defaultEnvironmentId: z.string().uuid().nullable(),
+  id: z.string().guid(),
+  defaultEnvironmentId: z.string().guid().nullable(),
   general: instanceGeneralSettingsSchema,
   experimental: instanceExperimentalSettingsWithManagedSchema,
   createdAt: z.union([z.date(), z.string().datetime()]),

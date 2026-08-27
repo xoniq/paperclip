@@ -77,7 +77,7 @@ export function InstanceGeneralSettings({ embedded = false }: { embedded?: boole
     },
   });
 
-  if (generalQuery.isLoading) {
+  if (generalQuery.isLoading || healthQuery.isLoading) {
     return <div className="text-sm text-muted-foreground">Loading general settings...</div>;
   }
 
@@ -95,6 +95,22 @@ export function InstanceGeneralSettings({ embedded = false }: { embedded?: boole
   const keyboardShortcuts = generalQuery.data?.keyboardShortcuts === true;
   const feedbackDataSharingPreference = generalQuery.data?.feedbackDataSharingPreference ?? "prompt";
   const backupRetention: BackupRetentionPolicy = generalQuery.data?.backupRetention ?? DEFAULT_BACKUP_RETENTION;
+  const hiddenSettings = new Set(healthQuery.data?.hiddenSettings ?? []);
+  const showDeploymentStatus = !hiddenSettings.has("instance.general.deploymentStatus");
+  const showCensorUsernameInLogs = !hiddenSettings.has("instance.general.censorUsernameInLogs");
+  const showKeyboardShortcuts = !hiddenSettings.has("instance.general.keyboardShortcuts");
+  const showBackupRetention = !hiddenSettings.has("instance.general.backupRetention");
+  const showFeedbackDataSharing = !hiddenSettings.has("instance.general.feedbackDataSharingPreference");
+  const showSignOut = !hiddenSettings.has("instance.general.signOut");
+  const visibleTopics = [
+    ...(showCensorUsernameInLogs ? ["log display"] : []),
+    ...(showKeyboardShortcuts ? ["keyboard shortcuts"] : []),
+    ...(showBackupRetention ? ["backup retention"] : []),
+    ...(showFeedbackDataSharing ? ["data sharing"] : []),
+  ];
+  const topicSummary = visibleTopics.length > 2
+    ? `${visibleTopics.slice(0, -1).join(", ")}, and ${visibleTopics[visibleTopics.length - 1]}`
+    : visibleTopics.join(" and ");
   const visibleActionError = signOutMutation.error instanceof Error
     ? signOutMutation.error.message
     : signOutMutation.error
@@ -110,8 +126,8 @@ export function InstanceGeneralSettings({ embedded = false }: { embedded?: boole
             <h1 className="text-lg font-semibold">General</h1>
           </div>
           <p className="text-sm text-muted-foreground">
-            Configure instance-wide preferences including log display, keyboard shortcuts, backup
-            retention, and data sharing.
+            Configure instance-wide preferences
+            {visibleTopics.length > 0 ? <> including {topicSummary}</> : null}.
           </p>
         </div>
       ) : null}
@@ -122,6 +138,7 @@ export function InstanceGeneralSettings({ embedded = false }: { embedded?: boole
         </div>
       )}
 
+      {showDeploymentStatus && (
       <section>
         <div className="space-y-3">
           <div className="flex items-center gap-2">
@@ -154,6 +171,7 @@ export function InstanceGeneralSettings({ embedded = false }: { embedded?: boole
           </div>
         </div>
       </section>
+      )}
 
       <BrandingSection
         branding={generalQuery.data?.branding}
@@ -179,6 +197,7 @@ export function InstanceGeneralSettings({ embedded = false }: { embedded?: boole
         disabled={updateGeneralMutation.isPending || signOutMutation.isPending}
       />
 
+      {showCensorUsernameInLogs && (
       <section>
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-1.5">
@@ -197,7 +216,9 @@ export function InstanceGeneralSettings({ embedded = false }: { embedded?: boole
           />
         </div>
       </section>
+      )}
 
+      {showKeyboardShortcuts && (
       <section>
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-1.5">
@@ -215,7 +236,9 @@ export function InstanceGeneralSettings({ embedded = false }: { embedded?: boole
           />
         </div>
       </section>
+      )}
 
+      {showBackupRetention && (
       <section>
         <div className="space-y-5">
           <div className="space-y-1.5">
@@ -317,7 +340,9 @@ export function InstanceGeneralSettings({ embedded = false }: { embedded?: boole
           </div>
         </div>
       </section>
+      )}
 
+      {showFeedbackDataSharing && (
       <section>
         <div className="space-y-4">
           <div className="space-y-1.5">
@@ -394,6 +419,9 @@ export function InstanceGeneralSettings({ embedded = false }: { embedded?: boole
         </div>
       </section>
 
+      )}
+
+      {showSignOut && (
       <section>
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-1.5">
@@ -416,6 +444,7 @@ export function InstanceGeneralSettings({ embedded = false }: { embedded?: boole
           </Button>
         </div>
       </section>
+      )}
     </div>
   );
 }
