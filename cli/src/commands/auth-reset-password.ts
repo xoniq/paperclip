@@ -81,7 +81,7 @@ export async function resetPassword(opts: {
     if (existingAccount) {
       await db
         .update(authAccounts)
-        .set({ password: hashed, updatedAt: new Date() })
+        .set({ password: hashed, issuer: "local:credential", updatedAt: new Date() })
         .where(eq(authAccounts.id, existingAccount.id));
     } else {
       await db.insert(authAccounts).values({
@@ -90,6 +90,7 @@ export async function resetPassword(opts: {
         providerId: "credential",
         userId: user.id,
         password: hashed,
+        issuer: "local:credential",
         createdAt: new Date(),
         updatedAt: new Date(),
       });
