@@ -87,7 +87,13 @@ export const instanceGeneralSettingsSchema = z.object({
 }).strict();
 
 export const patchInstanceGeneralSettingsSchema = z
-  .object(shapeWithoutDefaults(instanceGeneralSettingsSchema.shape))
+  .object({
+    ...shapeWithoutDefaults(instanceGeneralSettingsSchema.shape),
+    branding: patchInstanceBrandingSettingsSchema.optional(),
+    theming: patchInstanceThemingSettingsSchema.optional(),
+    navigation: patchInstanceNavigationSettingsSchema.optional(),
+    companyPermissions: patchInstanceCompanyPermissionsSettingsSchema.optional(),
+  })
   .partial()
   .strict();
 

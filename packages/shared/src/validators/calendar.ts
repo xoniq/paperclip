@@ -15,7 +15,7 @@ export const calendarEventSchema = z.object({
   participants: z.array(z.string()).nullable().optional(),
   resourceId: z.string().nullable().optional(),
   resourceType: z.enum(["routine", "issue", "run", "custom"]).nullable().optional(),
-  metadata: z.record(z.unknown()).nullable().optional(),
+  metadata: z.record(z.string(), z.unknown()).nullable().optional(),
 });
 
 export const calendarFreeSlotSchema = z.object({
