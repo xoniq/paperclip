@@ -1,9 +1,12 @@
+import fs from "node:fs/promises";
+import { constants as fsConstants } from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import {
   runAdapterExecutionTargetShellCommand,
   type AdapterExecutionTarget,
 } from "@paperclipai/adapter-utils/execution-target";
-import { ensurePathInEnv } from "@paperclipai/adapter-utils/server-utils";
+import { ensurePathInEnv, resolveCommandPath } from "@paperclipai/adapter-utils/server-utils";
 
 const DEFAULT_CURSOR_COMMAND_BASENAMES = new Set(["agent", "cursor-agent"]);
 // `.local/bin` first because the official Cursor Agent installer drops the
@@ -14,6 +17,15 @@ const CURSOR_SANDBOX_BIN_DIRS = [
   path.posix.join(".local", "bin"),
   path.posix.join(".cursor", "bin"),
 ];
+
+async function pathExists(candidate: string): Promise<boolean> {
+  try {
+    await fs.access(candidate, process.platform === "win32" ? fsConstants.F_OK : fsConstants.X_OK);
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 function commandBasename(command: string): string {
   return command.trim().split(/[\\/]/).pop()?.toLowerCase() ?? "";
@@ -179,12 +191,53 @@ export async function prepareCursorSandboxCommand(input: {
   graceSec: number;
 }): Promise<PreparedCursorSandboxCommand> {
   if (input.target?.kind !== "remote" || input.target.transport !== "sandbox") {
+    const preferredBasenames = !hasPathSeparator(input.command)
+      ? preferredSandboxCommandBasenames(input.command)
+      : [];
+    if (preferredBasenames.length === 0) {
+      return {
+        command: input.command,
+        env: input.env,
+        remoteSystemHomeDir: null,
+        addedPathEntry: null,
+        preferredCommandPath: null,
+      };
+    }
+
+    const runtimeEnv = ensurePathInEnv(input.env);
+    const alreadyResolved = await resolveCommandPath(input.command, input.cwd, runtimeEnv);
+    if (alreadyResolved) {
+      return {
+        command: input.command,
+        env: input.env,
+        remoteSystemHomeDir: null,
+        addedPathEntry: null,
+        preferredCommandPath: alreadyResolved,
+      };
+    }
+
+    const homeDir = input.remoteSystemHomeDirHint?.trim() || input.env.HOME || process.env.HOME || os.homedir();
+    const candidatePaths = homeDir ? candidateSandboxCommandPaths(homeDir, preferredBasenames) : [];
+    let localPreferredCommandPath: string | null = null;
+    for (const candidate of candidatePaths) {
+      if (await pathExists(candidate)) {
+        localPreferredCommandPath = candidate;
+        break;
+      }
+    }
+
+    const localPathEntries = homeDir ? candidateSandboxPathEntries(homeDir) : [];
+    const currentPath = runtimeEnv.PATH ?? runtimeEnv.Path ?? "";
+    const nextPath = localPathEntries.length > 0 ? prependPosixPathEntries(currentPath, localPathEntries) : currentPath;
+    const env = nextPath === currentPath ? input.env : { ...input.env, PATH: nextPath };
+    const addedPathEntry = nextPath === currentPath ? null : localPathEntries[0];
+
     return {
-      command: input.command,
-      env: input.env,
-      remoteSystemHomeDir: null,
-      addedPathEntry: null,
-      preferredCommandPath: null,
+      command: localPreferredCommandPath ?? input.command,
+      env,
+      remoteSystemHomeDir: homeDir ?? null,
+      addedPathEntry,
+      preferredCommandPath: localPreferredCommandPath,
     };
   }
 

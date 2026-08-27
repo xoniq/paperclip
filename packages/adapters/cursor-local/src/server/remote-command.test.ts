@@ -134,4 +134,40 @@ describe("prepareCursorSandboxCommand", () => {
       await fs.rm(root, { recursive: true, force: true });
     }
   });
+
+  it("resolves ~/.local/bin/agent and prepends PATH for local host execution", async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "paperclip-cursor-local-command-"));
+    const localHomeDir = path.join(root, "home");
+    const localWorkspace = path.join(root, "workspace");
+    const agentPath = path.join(localHomeDir, ".local", "bin", "agent");
+    await fs.mkdir(localWorkspace, { recursive: true });
+    await writeFakeAgent(agentPath);
+
+    try {
+      const result = await prepareCursorSandboxCommand({
+        runId: "run-local-command-1",
+        target: { kind: "local" },
+        command: "agent",
+        cwd: localWorkspace,
+        env: {
+          HOME: localHomeDir,
+          PATH: "/usr/bin:/bin",
+        },
+        timeoutSec: 30,
+        graceSec: 5,
+      });
+
+      expect(result.command).toBe(agentPath);
+      expect(result.preferredCommandPath).toBe(agentPath);
+      expect(result.remoteSystemHomeDir).toBe(localHomeDir);
+      expect(result.addedPathEntry).toBe(path.join(localHomeDir, ".local", "bin"));
+      expect(result.env.PATH?.split(":").slice(0, 2)).toEqual([
+        path.join(localHomeDir, ".local", "bin"),
+        path.join(localHomeDir, ".cursor", "bin"),
+      ]);
+    } finally {
+      await fs.rm(root, { recursive: true, force: true });
+    }
+  });
 });
+
