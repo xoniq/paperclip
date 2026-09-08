@@ -720,6 +720,7 @@ const SIDEBAR_ITEMS_CATALOG = [
       { id: "routines", label: "Routines" },
       { id: "pipelines", label: "Pipelines" },
       { id: "goals", label: "Goals" },
+      { id: "documents", label: "Documents" },
       { id: "artifacts", label: "Artifacts" },
       { id: "skills", label: "Skills" },
       { id: "workspaces", label: "Workspaces" },

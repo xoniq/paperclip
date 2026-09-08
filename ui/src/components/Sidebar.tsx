@@ -14,6 +14,7 @@ import {
   Layers,
   GitBranch,
   Package,
+  FileText,
   Settings,
   FolderOpen,
   PanelLeftClose,
@@ -221,6 +222,7 @@ export function Sidebar() {
               aria-hidden="true"
             />
           ) : null}
+          {!isItemHidden("documents") && <SidebarNavItem to="/documents" label="Documents" icon={FileText} />}
           {!isItemHidden("artifacts") && <SidebarNavItem to="/artifacts" label="Artifacts" icon={Package} />}
           {!isItemHidden("skills") && <SidebarNavItem to="/skills" label="Skills" icon={Boxes} />}
           {showWorkspacesLink && !isItemHidden("workspaces") ? (

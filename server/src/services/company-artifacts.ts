@@ -468,6 +468,7 @@ export function companyArtifactsService(db: Db, storage?: StorageService) {
               : null,
             updatedAt: row.updatedAt.toISOString(),
             href: buildIssueHref(company.issuePrefix, identifier, `document-${row.key}`),
+            documentKey: row.key,
           });
         }
       }
@@ -608,6 +609,7 @@ export function companyArtifactsService(db: Db, storage?: StorageService) {
               : null,
             updatedAt: row.updatedAt.toISOString(),
             href: buildIssueHref(company.issuePrefix, identifier, `work-product-${row.workProductId}`),
+            documentKey: null,
           });
         }
 
@@ -714,6 +716,7 @@ export function companyArtifactsService(db: Db, storage?: StorageService) {
               : null,
             updatedAt: row.updatedAt.toISOString(),
             href: buildIssueHref(company.issuePrefix, identifier, `attachment-${row.attachmentId}`),
+            documentKey: null,
           };
         }));
 

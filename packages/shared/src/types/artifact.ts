@@ -35,6 +35,7 @@ export interface CompanyArtifact {
   createdByAgent: CompanyArtifactAgentSummary | null;
   updatedAt: string;
   href: string;
+  documentKey?: string | null;
 }
 
 export interface CompanyArtifactGroup {
