@@ -1,7 +1,7 @@
 {
   "name": "@paperclipai/plugin-email",
-  "version": "0.1.2",
-  "description": "Let Paperclip agents send email over your own SMTP server, with a recipient allowlist, a fixed sender, and per-company rate limits.",
+  "version": "0.2.0",
+  "description": "Let Paperclip agents send email over your own SMTP server or save drafts in your IMAP mailbox, with a recipient allowlist, a fixed sender, and per-company rate limits.",
   "license": "MIT",
   "homepage": "https://github.com/paperclipai/paperclip",
   "bugs": {
@@ -39,6 +39,7 @@
   },
   "dependencies": {
     "@paperclipai/plugin-sdk": "workspace:*",
+    "imapflow": "^2.0.0",
     "nodemailer": "^7.0.9"
   },
   "devDependencies": {

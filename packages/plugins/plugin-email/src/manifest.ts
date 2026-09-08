@@ -2,7 +2,7 @@ import type { PaperclipPluginManifestV1 } from "@paperclipai/plugin-sdk";
 
 /** Stable plugin ID used by host registration, state namespacing, and tool namespacing. */
 export const PLUGIN_ID = "paperclip.email";
-export const PLUGIN_VERSION = "0.1.2";
+export const PLUGIN_VERSION = "0.2.0";
 
 /**
  * Tool name as declared here and registered in the worker. The host namespaces
@@ -17,7 +17,7 @@ export const DATA_OVERVIEW = "overview";
 export const ACTION_SEND_TEST = "sendTest";
 
 /**
- * SMTP email sender.
+ * SMTP email sender and IMAP draft manager.
  *
  * Deliberately narrow: an agent may choose *what* to say and *which* of the
  * operator's allowlisted addresses to say it to. It may not choose the sender,
@@ -25,18 +25,17 @@ export const ACTION_SEND_TEST = "sendTest";
  * arguments are model output and model output is attacker-reachable through
  * any document the agent reads.
  *
- * Note there is no `http.outbound` capability here: SMTP is a raw TCP/TLS
- * socket opened by nodemailer inside the worker process, not a host-mediated
- * fetch. The host therefore cannot audit the connection itself — the audit
- * trail this plugin offers is the activity-log entry it writes per send.
+ * Operators can configure the plugin in draft mode, placing messages directly
+ * into the IMAP Drafts mailbox so humans can verify and send them from their
+ * mail client without copy-pasting.
  */
 const manifest: PaperclipPluginManifestV1 = {
   id: PLUGIN_ID,
   apiVersion: 1,
   version: PLUGIN_VERSION,
-  displayName: "Email (SMTP)",
+  displayName: "Email (SMTP / IMAP Drafts)",
   description:
-    "Lets agents send email through your own SMTP server. Recipients must be allowlisted, the sender and reply-to are fixed by the operator, and every send is rate limited per company and written to the activity log.",
+    "Lets agents send email through your SMTP server or save messages as drafts in your IMAP mailbox. Recipients must be allowlisted, the sender and reply-to are fixed by the operator, and every send is rate limited per company and written to the activity log.",
   author: "Paperclip",
   categories: ["connector"],
   capabilities: [
@@ -62,7 +61,7 @@ const manifest: PaperclipPluginManifestV1 = {
       name: TOOL_SEND_EMAIL,
       displayName: "Send email",
       description:
-        "Send an email through the company's configured SMTP server. Recipients must appear in the operator's allowlist or the call fails. The sender address and reply-to are set by the operator and cannot be overridden. The body is Markdown and is delivered as both plain text and HTML.",
+        "Send an email through the company's configured email server, or save it as a draft in the mailbox if draft mode is active. Recipients must appear in the operator's allowlist or the call fails. The sender address and reply-to are set by the operator and cannot be overridden. The body is Markdown and is delivered as both plain text and HTML.",
       parametersSchema: {
         type: "object",
         required: ["to", "subject", "body"],
@@ -91,6 +90,11 @@ const manifest: PaperclipPluginManifestV1 = {
             description:
               "Message body in Markdown. Headings, bold, italic, code, lists, links, and pipe tables are rendered to HTML; the raw Markdown is sent as the plain-text alternative.",
             maxLength: 100000,
+          },
+          draft: {
+            type: "boolean",
+            description:
+              "Optional. When true, saves the message as a draft in your IMAP mailbox instead of sending immediately. If draft mode is configured for this company, messages are always saved as drafts.",
           },
           attachments: {
             type: "array",
@@ -126,6 +130,14 @@ const manifest: PaperclipPluginManifestV1 = {
     type: "object",
     required: ["host", "fromAddress", "replyToAddress", "allowedRecipients"],
     properties: {
+      deliveryMode: {
+        title: "Delivery mode",
+        description:
+          "Whether to send emails immediately via SMTP or save them as drafts in your IMAP mailbox for manual verification.",
+        type: "string",
+        enum: ["send", "draft"],
+        default: "send",
+      },
       host: {
         title: "SMTP host",
         description: "Hostname of your SMTP server, e.g. smtp.fastmail.com.",
@@ -160,6 +172,45 @@ const manifest: PaperclipPluginManifestV1 = {
           "Pick an existing secret, or paste the password once and it is stored as a secret on save.",
         type: ["string", "object"],
         format: "secret-ref",
+      },
+      imapHost: {
+        title: "IMAP host",
+        description:
+          "Hostname of your IMAP server, e.g. imap.fastmail.com or imap.gmail.com. If omitted, defaults to your SMTP host (or imap.* if smtp.*).",
+        type: "string",
+      },
+      imapPort: {
+        title: "IMAP port",
+        description:
+          "993 for implicit TLS (the usual choice), 143 for STARTTLS.",
+        type: "number",
+        default: 993,
+      },
+      imapSecure: {
+        title: "IMAP implicit TLS",
+        description:
+          "On for port 993 (standard SSL/TLS). Leave off for port 143.",
+        type: "boolean",
+        default: true,
+      },
+      imapUsername: {
+        title: "IMAP username",
+        description:
+          "Leave empty to reuse the SMTP username.",
+        type: "string",
+      },
+      imapPassword: {
+        title: "IMAP password",
+        description:
+          "Pick an existing secret, or paste the password once. Leave empty to reuse the SMTP password.",
+        type: ["string", "object"],
+        format: "secret-ref",
+      },
+      draftsFolder: {
+        title: "Drafts folder name",
+        description:
+          "Name of the mailbox folder for drafts (leave empty to auto-detect via IMAP \\Drafts special-use, or 'Drafts').",
+        type: "string",
       },
       rejectUnauthorized: {
         title: "Verify TLS certificate",

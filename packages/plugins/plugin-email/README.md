@@ -1,8 +1,15 @@
 # @paperclipai/plugin-email
 
-Gives Paperclip agents one tool — `send_email` — that sends through your own SMTP server.
+Gives Paperclip agents one tool — `send_email` — that can either send immediately through your SMTP server or place messages directly as drafts into your IMAP mailbox for operator review.
 
-The point of the plugin is not the sending. Sending is twenty lines of nodemailer. The point is everything around it: an agent that can email is an agent that can be talked into emailing, because tool arguments are model output and model output is reachable by anything the agent read during the run — an issue comment, a web page, a file in the repo. So the operator fixes the sender, the operator fixes the recipient list, and the agent gets to choose only what to say.
+The point of the plugin is control and human-in-the-loop safety. An agent that can email is an agent that can be talked into emailing, because tool arguments are model output and model output is reachable by anything the agent read during the run — an issue comment, a web page, a file in the repo. So the operator fixes the sender, the operator fixes the recipient list, and the operator chooses whether emails go out live or land as concept drafts in the operator's mailbox.
+
+## Delivery modes: Live send vs. Mailbox draft
+
+Under **Company settings → Email**, you can configure **Delivery mode**:
+
+- **Send immediately (SMTP)** — messages are dispatched directly to allowlisted recipients via SMTP.
+- **Save as draft (IMAP)** — messages are appended to your mailbox's **Drafts** folder (via IMAP) with the `\Draft` flag. They immediately appear in your desktop or mobile mail client (Apple Mail, Thunderbird, Outlook, Gmail). You can inspect the rendered formatting, verify recipient addresses, edit if needed, and hit "Send" from your mail client without copy-pasting from Paperclip.
 
 ## What an agent can and cannot do
 
@@ -11,11 +18,13 @@ The point of the plugin is not the sending. Sending is twenty lines of nodemaile
 | Recipients (`to`, `cc`) | Agent — but only from the operator's allowlist |
 | Subject and body | Agent |
 | Attachments | Agent (max 5, 10MB total) |
+| Optional draft override (`draft: true`) | Agent — if company is in live mode, agent can ask for a draft |
+| **Delivery mode (SMTP vs IMAP Draft)** | **Operator only** |
 | **From address and display name** | **Operator only** |
 | **Reply-to** | **Operator only** |
 | **How often** | **Operator only** (per-company rate limit) |
 
-`from` and `replyTo` are not in the tool's parameter schema, and the schema is `additionalProperties: false`. Passing them does nothing — there is a test that proves it.
+`from` and `replyTo` are not in the tool's parameter schema, and the schema is `additionalProperties: false`. Passing them does nothing — there is a test that proves it. If the operator sets Delivery mode to **Save as draft**, agents cannot override it to send live.
 
 ## Setup
 
@@ -27,14 +36,17 @@ paperclipai plugin install packages/plugins/plugin-email
 
 2. Open **Company settings → Email** and fill in:
 
+- **Delivery mode** — `Send immediately (SMTP)` or `Save as draft (IMAP)`.
 - **SMTP host / port** — 587 with STARTTLS is the usual pairing; 465 needs "Implicit TLS" on.
-- **Username / password** — pick an existing secret in the picker, or paste the password once and it is stored as a secret on save. Leave both empty only for a relay that authenticates by IP.
-- **From address**, **From display name**, **Reply-to** — reply-to is required. A report nobody can answer is a dead end.
+- **IMAP host / port / credentials** (for Draft mode) — defaults to your SMTP host/credentials (or `imap.*` if host is `smtp.*`) and port 993 with implicit TLS.
+- **Drafts folder** — optional folder name (e.g. `Drafts` or `Concepten`). If empty, auto-detected via IMAP `\Drafts` SPECIAL-USE flag.
+- **Username / password** — pick an existing secret in the picker, or paste the password once and it is stored as a secret on save.
+- **From address**, **From display name**, **Reply-to** — reply-to is required.
 - **Allowed recipients** — exact addresses (`jelle@example.com`) or whole domains (`@example.com`). An empty list blocks every send, and the config will not validate without at least one entry.
 - **Custom HTML template** — optional custom HTML template per company with `{{body}}` or `[body]` (and optional `{{subject}}` and `{{footer}}`). If empty, the default clean responsive theme is used.
 - **Max per hour / per day** — defaults are 20 and 100, per company.
 
-3. Hit **Send test email** on the settings page. It runs the same pipeline an agent does — same allowlist, same rate limit, same activity-log entry — so a passing test proves the thing agents will actually use.
+3. Hit **Send test email** (or **Save test draft** in draft mode) on the settings page. It runs the same pipeline an agent does — same allowlist, same rate limit, same activity-log entry — so a passing test proves the thing agents will actually use.
 
 ## Using it from a routine
 

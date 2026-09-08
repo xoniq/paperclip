@@ -99,8 +99,23 @@ describe("worker", () => {
       hasPassword: true,
       passwordIsSecretRef: true,
       allowedRecipients: ["jelle@example.com"],
+      deliveryMode: "send",
+      imapPort: 993,
     });
     expect(overview.budget).toMatchObject({ hourUsed: 0, dayUsed: 0 });
+
+    // Test with draft mode
+    await definition.onConfigChanged?.(
+      { ...RAW_CONFIG, deliveryMode: "draft", draftsFolder: "Concepten" },
+      { companyId: COMPANY_ID },
+    );
+    const draftOverview = await harness.getData<Record<string, unknown>>(DATA_OVERVIEW, {
+      companyId: COMPANY_ID,
+    });
+    expect(draftOverview.config).toMatchObject({
+      deliveryMode: "draft",
+      draftsFolder: "Concepten",
+    });
   });
 
   it("refuses a test send with no recipient chosen", async () => {

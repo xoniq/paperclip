@@ -79,12 +79,28 @@ function EmailCompanySettingsPage({ context }) {
     try {
       const result = await sendTest({ companyId, to: target });
       if (result?.ok) {
-        toast({ title: "Test email sent", body: `Delivered to ${target}.`, tone: "success" });
+        if (result.draft) {
+          toast({
+            title: "Test draft saved",
+            body: `Placed in ${result.draftFolder ?? "Drafts"} for ${target}.`,
+            tone: "success"
+          });
+        } else {
+          toast({ title: "Test email sent", body: `Delivered to ${target}.`, tone: "success" });
+        }
       } else {
-        toast({ title: "Test email failed", body: result?.error ?? "Unknown error", tone: "error" });
+        toast({
+          title: config?.deliveryMode === "draft" ? "Test draft failed" : "Test email failed",
+          body: result?.error ?? "Unknown error",
+          tone: "error"
+        });
       }
     } catch (err) {
-      toast({ title: "Test email failed", body: err.message, tone: "error" });
+      toast({
+        title: config?.deliveryMode === "draft" ? "Test draft failed" : "Test email failed",
+        body: err.message,
+        tone: "error"
+      });
     } finally {
       setSending(false);
       refresh();
@@ -96,7 +112,7 @@ function EmailCompanySettingsPage({ context }) {
     return /* @__PURE__ */ jsxs("div", { style: card, children: [
       /* @__PURE__ */ jsx("strong", { children: "Email is not configured" }),
       /* @__PURE__ */ jsxs("p", { style: muted, children: [
-        "Fill in the SMTP host, sender, reply-to, and at least one allowed recipient under this plugin's configuration. Until then the ",
+        "Fill in the email host, sender, reply-to, and at least one allowed recipient under this plugin's configuration. Until then the ",
         /* @__PURE__ */ jsx("code", { style: mono, children: "send_email" }),
         " tool refuses every call."
       ] }),
@@ -112,22 +128,43 @@ function EmailCompanySettingsPage({ context }) {
   return /* @__PURE__ */ jsxs("div", { style: stack, children: [
     /* @__PURE__ */ jsxs("div", { style: card, children: [
       /* @__PURE__ */ jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center" }, children: [
-        /* @__PURE__ */ jsx("strong", { children: "SMTP" }),
-        /* @__PURE__ */ jsx(
-          StatusBadge,
-          {
-            label: config.passwordIsSecretRef ? "Secret bound" : config.hasPassword ? "Inline password" : "No password",
-            status: config.passwordIsSecretRef ? "ok" : config.hasPassword ? "warning" : "info"
-          }
-        )
+        /* @__PURE__ */ jsx("strong", { children: "Email Server" }),
+        /* @__PURE__ */ jsxs("div", { style: { display: "flex", gap: "6px" }, children: [
+          /* @__PURE__ */ jsx(
+            StatusBadge,
+            {
+              label: config.deliveryMode === "draft" ? "Draft mode (IMAP)" : "Live sending (SMTP)",
+              status: config.deliveryMode === "draft" ? "warning" : "ok"
+            }
+          ),
+          /* @__PURE__ */ jsx(
+            StatusBadge,
+            {
+              label: config.passwordIsSecretRef ? "Secret bound" : config.hasPassword ? "Inline password" : "No password",
+              status: config.passwordIsSecretRef ? "ok" : config.hasPassword ? "warning" : "info"
+            }
+          )
+        ] })
       ] }),
-      /* @__PURE__ */ jsxs(Row, { name: "Server", children: [
+      /* @__PURE__ */ jsx(Row, { name: "Mode", children: config.deliveryMode === "draft" ? "Save as draft in mailbox (IMAP)" : "Send immediately (SMTP)" }),
+      /* @__PURE__ */ jsxs(Row, { name: "SMTP Server", children: [
         config.host,
         ":",
         config.port,
         " ",
         config.secure ? "(implicit TLS)" : "(STARTTLS)"
       ] }),
+      config.deliveryMode === "draft" ? /* @__PURE__ */ jsxs(Fragment, { children: [
+        /* @__PURE__ */ jsxs(Row, { name: "IMAP Server", children: [
+          config.imapHost || config.host,
+          ":",
+          config.imapPort ?? 993,
+          " ",
+          config.imapSecure !== false ? "(implicit TLS)" : "(STARTTLS)"
+        ] }),
+        /* @__PURE__ */ jsx(Row, { name: "IMAP Username", children: config.imapUsername ?? config.username ?? "\u2014" }),
+        /* @__PURE__ */ jsx(Row, { name: "Drafts folder", children: config.draftsFolder ?? "Auto-detected (\\Drafts)" })
+      ] }) : null,
       /* @__PURE__ */ jsx(Row, { name: "Username", children: config.username ?? "\u2014" }),
       /* @__PURE__ */ jsx(Row, { name: "TLS verification", children: config.rejectUnauthorized ? "on" : "off" }),
       /* @__PURE__ */ jsxs(Row, { name: "From", children: [
@@ -173,8 +210,8 @@ function EmailCompanySettingsPage({ context }) {
       /* @__PURE__ */ jsx("p", { style: muted, children: "Failed attempts count too \u2014 the limit exists to stop a retry loop, not just a chatty one." })
     ] }) : null,
     /* @__PURE__ */ jsxs("div", { style: card, children: [
-      /* @__PURE__ */ jsx("strong", { children: "Send a test" }),
-      /* @__PURE__ */ jsx("p", { style: muted, children: "Goes through the same allowlist, rate limit, and logging as an agent send." }),
+      /* @__PURE__ */ jsx("strong", { children: config.deliveryMode === "draft" ? "Save a test draft" : "Send a test" }),
+      /* @__PURE__ */ jsx("p", { style: muted, children: config.deliveryMode === "draft" ? "Appends a test message to your IMAP Drafts mailbox through the same allowlist, rate limit, and logging pipeline as agents." : "Goes through the same allowlist, rate limit, and logging as an agent send." }),
       /* @__PURE__ */ jsxs("div", { style: { display: "flex", gap: "8px", flexWrap: "wrap" }, children: [
         exactAddresses.length > 0 ? /* @__PURE__ */ jsxs(
           "select",
@@ -197,7 +234,7 @@ function EmailCompanySettingsPage({ context }) {
             style: { ...mono, fontSize: "13px", padding: "6px 8px", flex: "1 1 220px" }
           }
         ),
-        /* @__PURE__ */ jsx("button", { type: "button", onClick: handleTest, disabled: sending, style: { padding: "6px 14px" }, children: sending ? "Sending\u2026" : "Send test email" })
+        /* @__PURE__ */ jsx("button", { type: "button", onClick: handleTest, disabled: sending, style: { padding: "6px 14px" }, children: sending ? config.deliveryMode === "draft" ? "Saving\u2026" : "Sending\u2026" : config.deliveryMode === "draft" ? "Save test draft" : "Send test email" })
       ] })
     ] }),
     /* @__PURE__ */ jsxs("div", { style: card, children: [
@@ -214,14 +251,21 @@ function EmailCompanySettingsPage({ context }) {
           children: [
             /* @__PURE__ */ jsxs("div", { style: { display: "flex", justifyContent: "space-between", gap: "8px" }, children: [
               /* @__PURE__ */ jsx("span", { style: { fontSize: "13px" }, children: entry.subject }),
-              /* @__PURE__ */ jsx(StatusBadge, { label: entry.ok ? "sent" : "failed", status: entry.ok ? "ok" : "error" })
+              /* @__PURE__ */ jsx(
+                StatusBadge,
+                {
+                  label: !entry.ok ? "failed" : entry.draft ? "draft" : "sent",
+                  status: !entry.ok ? "error" : entry.draft ? "info" : "ok"
+                }
+              )
             ] }),
             /* @__PURE__ */ jsxs("div", { style: { ...muted, ...mono, fontSize: "12px" }, children: [
               new Date(entry.at).toLocaleString(),
               " \xB7 ",
               entry.to.join(", "),
               " \xB7 ",
-              entry.source
+              entry.source,
+              entry.draft ? ` \xB7 draft (${entry.draftFolder ?? "Drafts"})` : ""
             ] }),
             entry.error ? /* @__PURE__ */ jsx("div", { style: { color: "#dc2626", fontSize: "12px" }, children: entry.error }) : null
           ]

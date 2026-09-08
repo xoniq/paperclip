@@ -6,6 +6,7 @@ import { parseConfig, type EmailConfig } from "../src/config.js";
 import { sendEmail } from "../src/send.js";
 import { readSendLog } from "../src/state.js";
 import type { SmtpMessage, SmtpTransportFactory, SmtpTransportOptions } from "../src/smtp.js";
+import type { ImapClientFactory, ImapClientOptions } from "../src/imap.js";
 
 const COMPANY_ID = "11111111-1111-4111-8111-111111111111";
 const NOW = 1_800_000_000_000;
@@ -29,6 +30,49 @@ interface TransportSpy {
   options: SmtpTransportOptions[];
   closed: number;
   factory: SmtpTransportFactory;
+}
+
+interface ImapSpy {
+  drafts: SmtpMessage[];
+  options: ImapClientOptions[];
+  closed: number;
+  factory: ImapClientFactory;
+}
+
+function createImapSpy(
+  outcome: { error?: Error; path?: string; uid?: number } = {},
+): ImapSpy {
+  const spy: ImapSpy = {
+    drafts: [],
+    options: [],
+    closed: 0,
+    factory: () => ({
+      appendDraft: async () => ({ messageId: "", path: "" }),
+      verify: async () => {},
+      close: async () => {},
+    }),
+  };
+
+  spy.factory = (options) => {
+    spy.options.push(options);
+    return {
+      async appendDraft(message) {
+        if (outcome.error) throw outcome.error;
+        spy.drafts.push(message);
+        return {
+          messageId: "<draft-1@example.com>",
+          path: outcome.path ?? options.draftsFolder ?? "Drafts",
+          uid: outcome.uid ?? 101,
+        };
+      },
+      async verify() {},
+      async close() {
+        spy.closed += 1;
+      },
+    };
+  };
+
+  return spy;
 }
 
 /** A transport that records instead of connecting, with a scripted outcome. */
@@ -437,5 +481,152 @@ describe("sendEmail", () => {
     expect(sentMessage.html).toContain("<article><h2");
     expect(sentMessage.html).toContain("Game update released!");
     expect(sentMessage.html).toContain("<footer>Sent automatically by a Paperclip agent (run run-42).</footer>");
+  });
+
+  it("saves to IMAP drafts when deliveryMode is draft, without touching SMTP transport", async () => {
+    const smtpSpy = createTransportSpy();
+    const imapSpy = createImapSpy();
+    const draftConfig = parseConfig({
+      ...RAW_CONFIG,
+      deliveryMode: "draft",
+    });
+
+    const outcome = await sendEmail({
+      ctx: harness.ctx,
+      companyId: COMPANY_ID,
+      config: draftConfig,
+      source: "agent",
+      runId: "run-draft-1",
+      now: NOW,
+      transportFactory: smtpSpy.factory,
+      imapClientFactory: imapSpy.factory,
+      request: {
+        to: ["jelle@example.com"],
+        subject: "Review needed",
+        body: "Please verify before sending.",
+      },
+    });
+
+    expect(outcome.ok).toBe(true);
+    expect(outcome.draft).toBe(true);
+    expect(outcome.draftFolder).toBe("Drafts");
+    expect(outcome.messageId).toBe("<draft-1@example.com>");
+    expect(outcome.recipients).toEqual(["jelle@example.com"]);
+
+    // SMTP must not have been touched at all
+    expect(smtpSpy.sent).toHaveLength(0);
+    expect(smtpSpy.closed).toBe(0);
+
+    // IMAP received the draft
+    expect(imapSpy.drafts).toHaveLength(1);
+    expect(imapSpy.closed).toBe(1);
+    const draftMsg = imapSpy.drafts[0]!;
+    expect(draftMsg.to).toEqual(["jelle@example.com"]);
+    expect(draftMsg.subject).toBe("[Paperclip] Review needed");
+    expect(draftMsg.text).toBe("Please verify before sending.");
+    expect(draftMsg.html).toContain("Draft created automatically by a Paperclip agent (run run-draft-1).");
+
+    // IMAP options derived properly
+    expect(imapSpy.options[0]?.host).toBe("imap.example.com");
+    expect(imapSpy.options[0]?.port).toBe(993);
+
+    // Activity log reflects draft
+    const entry = harness.activity.at(-1)!;
+    expect(entry.message).toContain("Email draft saved for jelle@example.com");
+    expect(entry.metadata).toMatchObject({
+      ok: true,
+      draft: true,
+      draftFolder: "Drafts",
+      recipients: ["jelle@example.com"],
+    });
+
+    // Send log has draft flag
+    const log = await readSendLog(harness.ctx, COMPANY_ID);
+    expect(log[0]?.draft).toBe(true);
+    expect(log[0]?.draftFolder).toBe("Drafts");
+  });
+
+  it("saves to IMAP drafts when request.draft is true, even when deliveryMode is send", async () => {
+    const smtpSpy = createTransportSpy();
+    const imapSpy = createImapSpy();
+
+    const outcome = await sendEmail({
+      ctx: harness.ctx,
+      companyId: COMPANY_ID,
+      config,
+      source: "agent",
+      runId: "run-draft-2",
+      now: NOW,
+      transportFactory: smtpSpy.factory,
+      imapClientFactory: imapSpy.factory,
+      request: {
+        to: ["jelle@example.com"],
+        subject: "Draft request",
+        body: "Agent explicitly requested a draft.",
+        draft: true,
+      },
+    });
+
+    expect(outcome.ok).toBe(true);
+    expect(outcome.draft).toBe(true);
+    expect(smtpSpy.sent).toHaveLength(0);
+    expect(imapSpy.drafts).toHaveLength(1);
+  });
+
+  it("handles IMAP draft failures gracefully and logs them", async () => {
+    const smtpSpy = createTransportSpy();
+    const imapSpy = createImapSpy({ error: new Error("IMAP connection timed out") });
+    const draftConfig = parseConfig({ ...RAW_CONFIG, deliveryMode: "draft" });
+
+    const outcome = await sendEmail({
+      ctx: harness.ctx,
+      companyId: COMPANY_ID,
+      config: draftConfig,
+      source: "agent",
+      now: NOW,
+      transportFactory: smtpSpy.factory,
+      imapClientFactory: imapSpy.factory,
+      request: {
+        to: ["jelle@example.com"],
+        subject: "Failing draft",
+        body: "This should fail gracefully.",
+      },
+    });
+
+    expect(outcome.ok).toBe(false);
+    expect(outcome.draft).toBe(true);
+    expect(outcome.error).toContain("timed out");
+    expect(imapSpy.closed).toBe(1);
+
+    // Activity log reflects draft failure
+    const entry = harness.activity.at(-1)!;
+    expect(entry.message).toContain("Saving email draft for jelle@example.com failed");
+  });
+
+  it("honors custom draftsFolder when configured", async () => {
+    const imapSpy = createImapSpy();
+    const customFolderConfig = parseConfig({
+      ...RAW_CONFIG,
+      deliveryMode: "draft",
+      draftsFolder: "Concepten",
+    });
+
+    const outcome = await sendEmail({
+      ctx: harness.ctx,
+      companyId: COMPANY_ID,
+      config: customFolderConfig,
+      source: "agent",
+      now: NOW,
+      imapClientFactory: imapSpy.factory,
+      request: {
+        to: ["jelle@example.com"],
+        subject: "Dutch draft",
+        body: "Naar Concepten map.",
+      },
+    });
+
+    expect(outcome.ok).toBe(true);
+    expect(outcome.draftFolder).toBe("Concepten");
+    expect(imapSpy.options[0]?.draftsFolder).toBe("Concepten");
   });
 });

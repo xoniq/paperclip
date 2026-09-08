@@ -32,6 +32,10 @@ export interface SendLogEntry {
   source: "agent" | "test";
   agentId?: string;
   runId?: string;
+  /** Whether the message was saved as a draft to the mailbox instead of sent via SMTP. */
+  draft?: boolean;
+  /** Mailbox folder the draft was appended to, if applicable. */
+  draftFolder?: string;
 }
 
 function scopeKey(companyId: string) {

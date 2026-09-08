@@ -1,6 +1,8 @@
 import type { EnvSecretRefBinding, PluginContext } from "@paperclipai/plugin-sdk";
 import { normalizeAllowlistEntry, parseAddress } from "./recipients.js";
 
+export type DeliveryMode = "send" | "draft";
+
 /**
  * Operator configuration after normalization. The password keeps its raw
  * binding shape here — it is resolved through `ctx.secrets` at send time and
@@ -26,9 +28,24 @@ export interface EmailConfig {
   htmlTemplate: string | null;
   maxPerHour: number;
   maxPerDay: number;
+  /** Delivery mode: "send" delivers via SMTP, "draft" saves to IMAP mailbox drafts folder. */
+  deliveryMode: DeliveryMode;
+  /** IMAP server host. If omitted, defaults to host or imap.* if host is smtp.*. */
+  imapHost: string | null;
+  /** IMAP port, default 993 for implicit TLS. */
+  imapPort: number;
+  /** Implicit TLS for IMAP (default true for port 993). */
+  imapSecure: boolean;
+  /** IMAP username. If omitted, defaults to SMTP username. */
+  imapUsername: string | null;
+  /** IMAP password. If omitted, defaults to SMTP password. */
+  imapPassword: string | EnvSecretRefBinding | null;
+  /** Mailbox folder for drafts (e.g. 'Drafts'). If omitted, auto-detected via \Drafts special-use. */
+  draftsFolder: string | null;
 }
 
 export const DEFAULT_PORT = 587;
+export const DEFAULT_IMAP_PORT = 993;
 export const DEFAULT_FROM_NAME = "Paperclip";
 export const DEFAULT_MAX_PER_HOUR = 20;
 export const DEFAULT_MAX_PER_DAY = 100;
@@ -77,6 +94,8 @@ export function parseConfig(raw: Record<string, unknown>): EmailConfig {
     if (normalized && !allowedRecipients.includes(normalized)) allowedRecipients.push(normalized);
   }
 
+  const isDraftMode = raw.deliveryMode === "draft" || raw.saveAsDraft === true;
+
   return {
     host: readString(raw.host) ?? "",
     port: readPositiveInteger(raw.port, DEFAULT_PORT),
@@ -96,6 +115,13 @@ export function parseConfig(raw: Record<string, unknown>): EmailConfig {
     htmlTemplate: readString(raw.htmlTemplate),
     maxPerHour: readPositiveInteger(raw.maxPerHour, DEFAULT_MAX_PER_HOUR),
     maxPerDay: readPositiveInteger(raw.maxPerDay, DEFAULT_MAX_PER_DAY),
+    deliveryMode: isDraftMode ? "draft" : "send",
+    imapHost: readString(raw.imapHost),
+    imapPort: readPositiveInteger(raw.imapPort, DEFAULT_IMAP_PORT),
+    imapSecure: raw.imapSecure !== false,
+    imapUsername: readString(raw.imapUsername),
+    imapPassword: readSecretField(raw.imapPassword),
+    draftsFolder: readString(raw.draftsFolder),
   };
 }
 
@@ -142,6 +168,28 @@ export function validateConfig(raw: Record<string, unknown>): ConfigValidation {
     warnings.push("A password is set but username is empty; most servers reject that combination.");
   }
 
+  // IMAP specific validation if draft mode is selected or IMAP options are populated
+  if (config.deliveryMode === "draft") {
+    const resolvedImapHost = resolveImapHost(config);
+    if (!resolvedImapHost) {
+      errors.push("An IMAP host or SMTP host is required when delivery mode is draft.");
+    }
+    const hasImapPassword = config.imapPassword != null || config.password != null;
+    if (!hasImapPassword) {
+      warnings.push("No IMAP password is set. Most IMAP servers require authentication to save drafts.");
+    } else if (typeof config.imapPassword === "string") {
+      warnings.push(
+        "imapPassword is stored as a literal string. Bind a secret reference instead.",
+      );
+    }
+    if (!config.imapSecure && config.imapPort === 993) {
+      warnings.push("IMAP port 993 normally needs implicit TLS. Turn on 'IMAP implicit TLS' or switch to port 143.");
+    }
+    if (config.imapSecure && config.imapPort === 143) {
+      warnings.push("IMAP port 143 normally uses STARTTLS. Turn off 'IMAP implicit TLS' or switch to port 993.");
+    }
+  }
+
   const rawAllowlist = Array.isArray(raw.allowedRecipients) ? raw.allowedRecipients : [];
   const invalid = rawAllowlist.filter((entry) => normalizeAllowlistEntry(entry) == null);
   if (invalid.length > 0) {
@@ -186,6 +234,41 @@ export function validateConfig(raw: Record<string, unknown>): ConfigValidation {
   }
 
   return { ok: errors.length === 0, errors, warnings };
+}
+
+/** Derive the IMAP hostname from explicit config or SMTP host fallback. */
+export function resolveImapHost(config: EmailConfig): string {
+  if (config.imapHost && config.imapHost.trim().length > 0) {
+    return config.imapHost.trim();
+  }
+  if (config.host.startsWith("smtp.")) {
+    return "imap." + config.host.slice(5);
+  }
+  return config.host;
+}
+
+/** Derive the IMAP username from explicit config or SMTP username fallback. */
+export function resolveImapUsername(config: EmailConfig): string | null {
+  return config.imapUsername ?? config.username;
+}
+
+/**
+ * Resolve the IMAP password at call time. Falls back to the SMTP password.
+ */
+export async function resolveImapPassword(
+  ctx: PluginContext,
+  config: EmailConfig,
+  companyId: string,
+): Promise<string | null> {
+  const passwordBinding = config.imapPassword ?? config.password;
+  if (passwordBinding == null) return null;
+  if (isSecretRef(passwordBinding)) {
+    return await ctx.secrets.resolve(passwordBinding, {
+      companyId,
+      configPath: config.imapPassword ? "imapPassword" : "password",
+    });
+  }
+  return passwordBinding;
 }
 
 /**

@@ -26,6 +26,14 @@ interface ConfigSummary {
   htmlTemplate?: string | null;
   maxPerHour: number;
   maxPerDay: number;
+  deliveryMode?: "send" | "draft";
+  imapHost?: string | null;
+  imapPort?: number;
+  imapSecure?: boolean;
+  imapUsername?: string | null;
+  hasImapPassword?: boolean;
+  imapPasswordIsSecretRef?: boolean;
+  draftsFolder?: string | null;
 }
 
 interface SendEntry {
@@ -36,6 +44,8 @@ interface SendEntry {
   messageId?: string;
   error?: string;
   source: "agent" | "test";
+  draft?: boolean;
+  draftFolder?: string;
 }
 
 interface Overview {
@@ -121,14 +131,35 @@ export function EmailCompanySettingsPage({ context }: PluginCompanySettingsPageP
     }
     setSending(true);
     try {
-      const result = (await sendTest({ companyId, to: target })) as { ok?: boolean; error?: string };
+      const result = (await sendTest({ companyId, to: target })) as {
+        ok?: boolean;
+        error?: string;
+        draft?: boolean;
+        draftFolder?: string;
+      };
       if (result?.ok) {
-        toast({ title: "Test email sent", body: `Delivered to ${target}.`, tone: "success" });
+        if (result.draft) {
+          toast({
+            title: "Test draft saved",
+            body: `Placed in ${result.draftFolder ?? "Drafts"} for ${target}.`,
+            tone: "success",
+          });
+        } else {
+          toast({ title: "Test email sent", body: `Delivered to ${target}.`, tone: "success" });
+        }
       } else {
-        toast({ title: "Test email failed", body: result?.error ?? "Unknown error", tone: "error" });
+        toast({
+          title: config?.deliveryMode === "draft" ? "Test draft failed" : "Test email failed",
+          body: result?.error ?? "Unknown error",
+          tone: "error",
+        });
       }
     } catch (err) {
-      toast({ title: "Test email failed", body: (err as Error).message, tone: "error" });
+      toast({
+        title: config?.deliveryMode === "draft" ? "Test draft failed" : "Test email failed",
+        body: (err as Error).message,
+        tone: "error",
+      });
     } finally {
       setSending(false);
       // The attempt is on the log and counted against the budget either way.
@@ -144,7 +175,7 @@ export function EmailCompanySettingsPage({ context }: PluginCompanySettingsPageP
       <div style={card}>
         <strong>Email is not configured</strong>
         <p style={muted}>
-          Fill in the SMTP host, sender, reply-to, and at least one allowed recipient under this
+          Fill in the email host, sender, reply-to, and at least one allowed recipient under this
           plugin's configuration. Until then the <code style={mono}>send_email</code> tool refuses
           every call.
         </p>
@@ -161,15 +192,33 @@ export function EmailCompanySettingsPage({ context }: PluginCompanySettingsPageP
     <div style={stack}>
       <div style={card}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <strong>SMTP</strong>
-          <StatusBadge
-            label={config.passwordIsSecretRef ? "Secret bound" : config.hasPassword ? "Inline password" : "No password"}
-            status={config.passwordIsSecretRef ? "ok" : config.hasPassword ? "warning" : "info"}
-          />
+          <strong>Email Server</strong>
+          <div style={{ display: "flex", gap: "6px" }}>
+            <StatusBadge
+              label={config.deliveryMode === "draft" ? "Draft mode (IMAP)" : "Live sending (SMTP)"}
+              status={config.deliveryMode === "draft" ? "warning" : "ok"}
+            />
+            <StatusBadge
+              label={config.passwordIsSecretRef ? "Secret bound" : config.hasPassword ? "Inline password" : "No password"}
+              status={config.passwordIsSecretRef ? "ok" : config.hasPassword ? "warning" : "info"}
+            />
+          </div>
         </div>
-        <Row name="Server">
+        <Row name="Mode">
+          {config.deliveryMode === "draft" ? "Save as draft in mailbox (IMAP)" : "Send immediately (SMTP)"}
+        </Row>
+        <Row name="SMTP Server">
           {config.host}:{config.port} {config.secure ? "(implicit TLS)" : "(STARTTLS)"}
         </Row>
+        {config.deliveryMode === "draft" ? (
+          <>
+            <Row name="IMAP Server">
+              {config.imapHost || config.host}:{config.imapPort ?? 993} {config.imapSecure !== false ? "(implicit TLS)" : "(STARTTLS)"}
+            </Row>
+            <Row name="IMAP Username">{config.imapUsername ?? config.username ?? "—"}</Row>
+            <Row name="Drafts folder">{config.draftsFolder ?? "Auto-detected (\\Drafts)"}</Row>
+          </>
+        ) : null}
         <Row name="Username">{config.username ?? "—"}</Row>
         <Row name="TLS verification">{config.rejectUnauthorized ? "on" : "off"}</Row>
         <Row name="From">
@@ -231,9 +280,11 @@ export function EmailCompanySettingsPage({ context }: PluginCompanySettingsPageP
       ) : null}
 
       <div style={card}>
-        <strong>Send a test</strong>
+        <strong>{config.deliveryMode === "draft" ? "Save a test draft" : "Send a test"}</strong>
         <p style={muted}>
-          Goes through the same allowlist, rate limit, and logging as an agent send.
+          {config.deliveryMode === "draft"
+            ? "Appends a test message to your IMAP Drafts mailbox through the same allowlist, rate limit, and logging pipeline as agents."
+            : "Goes through the same allowlist, rate limit, and logging as an agent send."}
         </p>
         <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
           {exactAddresses.length > 0 ? (
@@ -259,7 +310,9 @@ export function EmailCompanySettingsPage({ context }: PluginCompanySettingsPageP
             />
           )}
           <button type="button" onClick={handleTest} disabled={sending} style={{ padding: "6px 14px" }}>
-            {sending ? "Sending…" : "Send test email"}
+            {sending
+              ? config.deliveryMode === "draft" ? "Saving…" : "Sending…"
+              : config.deliveryMode === "draft" ? "Save test draft" : "Send test email"}
           </button>
         </div>
       </div>
@@ -282,10 +335,14 @@ export function EmailCompanySettingsPage({ context }: PluginCompanySettingsPageP
               >
                 <div style={{ display: "flex", justifyContent: "space-between", gap: "8px" }}>
                   <span style={{ fontSize: "13px" }}>{entry.subject}</span>
-                  <StatusBadge label={entry.ok ? "sent" : "failed"} status={entry.ok ? "ok" : "error"} />
+                  <StatusBadge
+                    label={!entry.ok ? "failed" : entry.draft ? "draft" : "sent"}
+                    status={!entry.ok ? "error" : entry.draft ? "info" : "ok"}
+                  />
                 </div>
                 <div style={{ ...muted, ...mono, fontSize: "12px" }}>
                   {new Date(entry.at).toLocaleString()} · {entry.to.join(", ")} · {entry.source}
+                  {entry.draft ? ` · draft (${entry.draftFolder ?? "Drafts"})` : ""}
                 </div>
                 {entry.error ? (
                   <div style={{ color: "#dc2626", fontSize: "12px" }}>{entry.error}</div>

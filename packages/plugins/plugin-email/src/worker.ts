@@ -60,6 +60,14 @@ function describeConfig(config: EmailConfig) {
     htmlTemplate: config.htmlTemplate,
     maxPerHour: config.maxPerHour,
     maxPerDay: config.maxPerDay,
+    deliveryMode: config.deliveryMode,
+    imapHost: config.imapHost,
+    imapPort: config.imapPort,
+    imapSecure: config.imapSecure,
+    imapUsername: config.imapUsername,
+    hasImapPassword: config.imapPassword != null,
+    imapPasswordIsSecretRef: typeof config.imapPassword === "object" && config.imapPassword !== null,
+    draftsFolder: config.draftsFolder,
   };
 }
 
@@ -74,7 +82,9 @@ const plugin = definePlugin({
       TOOL_SEND_EMAIL,
       {
         displayName: sendEmailDeclaration?.displayName ?? "Send email",
-        description: sendEmailDeclaration?.description ?? "Send an email over SMTP.",
+        description:
+          sendEmailDeclaration?.description ??
+          "Send an email over SMTP or save it as a draft in your IMAP mailbox.",
         parametersSchema: sendEmailDeclaration?.parametersSchema ?? { type: "object" },
       },
       async (params, runCtx): Promise<ToolResult> => {
@@ -103,9 +113,21 @@ const plugin = definePlugin({
           return { error: outcome.error ?? "email send failed" };
         }
 
+        if (outcome.draft) {
+          return {
+            content: `Email draft saved to mailbox (${outcome.draftFolder ?? "Drafts"}) for ${(outcome.recipients ?? []).join(", ")}. It is ready for review and sending in your email client.`,
+            data: {
+              messageId: outcome.messageId,
+              recipients: outcome.recipients,
+              draft: true,
+              draftFolder: outcome.draftFolder,
+            },
+          };
+        }
+
         return {
           content: `Email sent to ${(outcome.recipients ?? []).join(", ")}.`,
-          data: { messageId: outcome.messageId, recipients: outcome.recipients },
+          data: { messageId: outcome.messageId, recipients: outcome.recipients, draft: false },
         };
       },
     );
@@ -139,6 +161,8 @@ const plugin = definePlugin({
         return { ok: false, error: "Pick a recipient to send the test to." };
       }
 
+      const isDraft = config.deliveryMode === "draft";
+
       // The test send goes through the same pipeline as an agent send — same
       // allowlist, same rate limit, same logging. A test that took a shortcut
       // would prove the shortcut works, not the thing operators rely on.
@@ -149,21 +173,38 @@ const plugin = definePlugin({
         source: "test",
         request: {
           to: [to],
-          subject: "Paperclip test message",
-          body: [
-            "This is a test message from the Paperclip email plugin.",
-            "",
-            `- Server: \`${config.host}:${config.port}\``,
-            `- From: ${config.fromAddress}`,
-            `- Reply-to: ${config.replyToAddress}`,
-            "",
-            "If this arrived, agents on this company can send email.",
-          ].join("\n"),
+          subject: isDraft ? "Paperclip test draft message" : "Paperclip test message",
+          body: isDraft
+            ? [
+                "This is a test draft message from the Paperclip email plugin.",
+                "",
+                `- Mode: Save as draft (IMAP)`,
+                `- Server: \`${config.imapHost || config.host}:${config.imapPort}\``,
+                `- From: ${config.fromAddress}`,
+                `- Reply-to: ${config.replyToAddress}`,
+                `- Mailbox folder: ${config.draftsFolder || "Auto-detected Drafts"}`,
+                "",
+                "If this appeared in your Drafts folder, agents can save email drafts for your review.",
+              ].join("\n")
+            : [
+                "This is a test message from the Paperclip email plugin.",
+                "",
+                `- Server: \`${config.host}:${config.port}\``,
+                `- From: ${config.fromAddress}`,
+                `- Reply-to: ${config.replyToAddress}`,
+                "",
+                "If this arrived, agents on this company can send email.",
+              ].join("\n"),
         },
       });
 
       return outcome.ok
-        ? { ok: true, messageId: outcome.messageId }
+        ? {
+            ok: true,
+            messageId: outcome.messageId,
+            draft: outcome.draft,
+            draftFolder: outcome.draftFolder,
+          }
         : { ok: false, error: outcome.error };
     });
 

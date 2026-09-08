@@ -1,6 +1,6 @@
 // src/manifest.ts
 var PLUGIN_ID = "paperclip.email";
-var PLUGIN_VERSION = "0.1.2";
+var PLUGIN_VERSION = "0.2.0";
 var TOOL_SEND_EMAIL = "send_email";
 var SLOT_COMPANY_SETTINGS = "email-company-settings";
 var EXPORT_COMPANY_SETTINGS = "EmailCompanySettingsPage";
@@ -10,8 +10,8 @@ var manifest = {
   id: PLUGIN_ID,
   apiVersion: 1,
   version: PLUGIN_VERSION,
-  displayName: "Email (SMTP)",
-  description: "Lets agents send email through your own SMTP server. Recipients must be allowlisted, the sender and reply-to are fixed by the operator, and every send is rate limited per company and written to the activity log.",
+  displayName: "Email (SMTP / IMAP Drafts)",
+  description: "Lets agents send email through your SMTP server or save messages as drafts in your IMAP mailbox. Recipients must be allowlisted, the sender and reply-to are fixed by the operator, and every send is rate limited per company and written to the activity log.",
   author: "Paperclip",
   categories: ["connector"],
   capabilities: [
@@ -36,7 +36,7 @@ var manifest = {
     {
       name: TOOL_SEND_EMAIL,
       displayName: "Send email",
-      description: "Send an email through the company's configured SMTP server. Recipients must appear in the operator's allowlist or the call fails. The sender address and reply-to are set by the operator and cannot be overridden. The body is Markdown and is delivered as both plain text and HTML.",
+      description: "Send an email through the company's configured email server, or save it as a draft in the mailbox if draft mode is active. Recipients must appear in the operator's allowlist or the call fails. The sender address and reply-to are set by the operator and cannot be overridden. The body is Markdown and is delivered as both plain text and HTML.",
       parametersSchema: {
         type: "object",
         required: ["to", "subject", "body"],
@@ -64,6 +64,10 @@ var manifest = {
             type: "string",
             description: "Message body in Markdown. Headings, bold, italic, code, lists, links, and pipe tables are rendered to HTML; the raw Markdown is sent as the plain-text alternative.",
             maxLength: 1e5
+          },
+          draft: {
+            type: "boolean",
+            description: "Optional. When true, saves the message as a draft in your IMAP mailbox instead of sending immediately. If draft mode is configured for this company, messages are always saved as drafts."
           },
           attachments: {
             type: "array",
@@ -99,6 +103,13 @@ var manifest = {
     type: "object",
     required: ["host", "fromAddress", "replyToAddress", "allowedRecipients"],
     properties: {
+      deliveryMode: {
+        title: "Delivery mode",
+        description: "Whether to send emails immediately via SMTP or save them as drafts in your IMAP mailbox for manual verification.",
+        type: "string",
+        enum: ["send", "draft"],
+        default: "send"
+      },
       host: {
         title: "SMTP host",
         description: "Hostname of your SMTP server, e.g. smtp.fastmail.com.",
@@ -131,6 +142,39 @@ var manifest = {
         description: "Pick an existing secret, or paste the password once and it is stored as a secret on save.",
         type: ["string", "object"],
         format: "secret-ref"
+      },
+      imapHost: {
+        title: "IMAP host",
+        description: "Hostname of your IMAP server, e.g. imap.fastmail.com or imap.gmail.com. If omitted, defaults to your SMTP host (or imap.* if smtp.*).",
+        type: "string"
+      },
+      imapPort: {
+        title: "IMAP port",
+        description: "993 for implicit TLS (the usual choice), 143 for STARTTLS.",
+        type: "number",
+        default: 993
+      },
+      imapSecure: {
+        title: "IMAP implicit TLS",
+        description: "On for port 993 (standard SSL/TLS). Leave off for port 143.",
+        type: "boolean",
+        default: true
+      },
+      imapUsername: {
+        title: "IMAP username",
+        description: "Leave empty to reuse the SMTP username.",
+        type: "string"
+      },
+      imapPassword: {
+        title: "IMAP password",
+        description: "Pick an existing secret, or paste the password once. Leave empty to reuse the SMTP password.",
+        type: ["string", "object"],
+        format: "secret-ref"
+      },
+      draftsFolder: {
+        title: "Drafts folder name",
+        description: "Name of the mailbox folder for drafts (leave empty to auto-detect via IMAP \\Drafts special-use, or 'Drafts').",
+        type: "string"
       },
       rejectUnauthorized: {
         title: "Verify TLS certificate",

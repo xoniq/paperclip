@@ -28,3 +28,19 @@ export {
   type SmtpTransport,
   type SmtpTransportFactory,
 } from "./smtp.js";
+export {
+  compileMimeBuffer,
+  createImapFlowClient,
+  describeImapError,
+  type ImapClient,
+  type ImapClientFactory,
+  type ImapClientOptions,
+  type ImapDraftResult,
+} from "./imap.js";
+export {
+  resolveImapHost,
+  resolveImapPassword,
+  resolveImapUsername,
+  type DeliveryMode,
+} from "./config.js";
+

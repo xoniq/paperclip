@@ -1,6 +1,16 @@
 import type { PluginContext } from "@paperclipai/plugin-sdk";
 import type { EmailConfig } from "./config.js";
-import { resolvePassword } from "./config.js";
+import {
+  resolveImapHost,
+  resolveImapPassword,
+  resolveImapUsername,
+  resolvePassword,
+} from "./config.js";
+import {
+  createImapFlowClient,
+  describeImapError,
+  type ImapClientFactory,
+} from "./imap.js";
 import { markdownToHtml, wrapEmailHtml } from "./markdown.js";
 import { formatFrom, resolveRecipients, sanitizeSubject } from "./recipients.js";
 import {
@@ -25,6 +35,7 @@ export interface SendEmailRequest {
   cc?: unknown;
   subject?: unknown;
   body?: unknown;
+  draft?: unknown;
   attachments?: unknown;
 }
 
@@ -37,6 +48,10 @@ export interface SendEmailOutcome {
   recipients?: string[];
   /** Addresses the server refused. */
   rejected?: string[];
+  /** Whether the message was saved as a draft to the mailbox instead of sent. */
+  draft?: boolean;
+  /** Mailbox folder the draft was appended to, if applicable. */
+  draftFolder?: string;
 }
 
 export interface SendEmailInput {
@@ -49,6 +64,8 @@ export interface SendEmailInput {
   runId?: string;
   /** Injectable for tests; defaults to the real nodemailer transport. */
   transportFactory?: SmtpTransportFactory;
+  /** Injectable for tests; defaults to the real imapflow client. */
+  imapClientFactory?: ImapClientFactory;
   /** Injectable for tests; defaults to Date.now(). */
   now?: number;
 }
@@ -228,11 +245,19 @@ export async function sendEmail(input: SendEmailInput): Promise<SendEmailOutcome
     .filter((part): part is string => part != null && part.length > 0)
     .join(" ");
 
+  const isDraft = config.deliveryMode === "draft" || request.draft === true;
+
   const footer = source === "test"
-    ? "Test message sent from Paperclip company settings."
+    ? isDraft
+      ? "Test draft created from Paperclip company settings."
+      : "Test message sent from Paperclip company settings."
     : input.runId
-      ? `Sent automatically by a Paperclip agent (run ${input.runId}).`
-      : "Sent automatically by a Paperclip agent.";
+      ? isDraft
+        ? `Draft created automatically by a Paperclip agent (run ${input.runId}).`
+        : `Sent automatically by a Paperclip agent (run ${input.runId}).`
+      : isDraft
+        ? "Draft created automatically by a Paperclip agent."
+        : "Sent automatically by a Paperclip agent.";
 
   const bcc = config.bccAddress ? [config.bccAddress] : undefined;
 
@@ -248,34 +273,76 @@ export async function sendEmail(input: SendEmailInput): Promise<SendEmailOutcome
     attachments: attachmentResult.attachments,
   };
 
-  // --- send ----------------------------------------------------------------
-  const password = await resolvePassword(ctx, config, companyId);
-  const transport = transportFactory(transportOptionsFor(config, password));
-
   let outcome: SendEmailOutcome;
-  try {
-    const result = await transport.sendMail(message);
-    outcome = {
-      ok: result.rejected.length === 0,
-      messageId: result.messageId,
-      recipients: toResolution.allowed,
-      rejected: result.rejected,
-      error:
-        result.rejected.length > 0
-          ? `the server refused ${result.rejected.join(", ")}`
-          : undefined,
-    };
-  } catch (error) {
-    outcome = {
-      ok: false,
-      error: describeSmtpError(error),
-      recipients: toResolution.allowed,
-    };
-  } finally {
+
+  if (isDraft) {
+    // --- save to IMAP drafts -----------------------------------------------
+    const imapFactory = input.imapClientFactory ?? createImapFlowClient;
+    const imapPassword = await resolveImapPassword(ctx, config, companyId);
+    const imapClient = imapFactory({
+      host: resolveImapHost(config),
+      port: config.imapPort,
+      secure: config.imapSecure,
+      username: resolveImapUsername(config),
+      password: imapPassword,
+      rejectUnauthorized: config.rejectUnauthorized,
+      draftsFolder: config.draftsFolder,
+    });
+
     try {
-      transport.close();
-    } catch {
-      // A transport that cannot be closed has nothing left to tell us.
+      const result = await imapClient.appendDraft(message);
+      outcome = {
+        ok: true,
+        messageId: result.messageId,
+        recipients: toResolution.allowed,
+        draft: true,
+        draftFolder: result.path,
+      };
+    } catch (error) {
+      outcome = {
+        ok: false,
+        error: describeImapError(error),
+        recipients: toResolution.allowed,
+        draft: true,
+      };
+    } finally {
+      try {
+        await imapClient.close();
+      } catch {
+        // A client that cannot be closed has nothing left to tell us.
+      }
+    }
+  } else {
+    // --- send via SMTP -----------------------------------------------------
+    const password = await resolvePassword(ctx, config, companyId);
+    const transport = transportFactory(transportOptionsFor(config, password));
+
+    try {
+      const result = await transport.sendMail(message);
+      outcome = {
+        ok: result.rejected.length === 0,
+        messageId: result.messageId,
+        recipients: toResolution.allowed,
+        rejected: result.rejected,
+        draft: false,
+        error:
+          result.rejected.length > 0
+            ? `the server refused ${result.rejected.join(", ")}`
+            : undefined,
+      };
+    } catch (error) {
+      outcome = {
+        ok: false,
+        error: describeSmtpError(error),
+        recipients: toResolution.allowed,
+        draft: false,
+      };
+    } finally {
+      try {
+        transport.close();
+      } catch {
+        // A transport that cannot be closed has nothing left to tell us.
+      }
     }
   }
 
@@ -294,15 +361,20 @@ export async function sendEmail(input: SendEmailInput): Promise<SendEmailOutcome
       source,
       agentId: input.agentId,
       runId: input.runId,
+      draft: isDraft,
+      draftFolder: outcome.draftFolder,
     },
     now,
   );
 
+  const actionVerb = isDraft ? "Email draft saved" : "Email sent";
+  const failVerb = isDraft ? "Saving email draft" : "Email";
+
   await ctx.activity.log({
     companyId,
     message: outcome.ok
-      ? `Email sent to ${allRecipients.join(", ")}: ${subject}`
-      : `Email to ${allRecipients.join(", ")} failed: ${outcome.error ?? "unknown error"}`,
+      ? `${actionVerb} for ${allRecipients.join(", ")}: ${subject}`
+      : `${failVerb} for ${allRecipients.join(", ")} failed: ${outcome.error ?? "unknown error"}`,
     entityType: "email",
     entityId: outcome.messageId,
     metadata: {
@@ -314,6 +386,8 @@ export async function sendEmail(input: SendEmailInput): Promise<SendEmailOutcome
       runId: input.runId ?? null,
       attachmentCount: attachmentResult.attachments.length,
       error: outcome.error ?? null,
+      draft: isDraft,
+      draftFolder: outcome.draftFolder ?? null,
     },
   });
 

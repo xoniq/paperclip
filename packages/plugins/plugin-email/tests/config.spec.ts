@@ -20,6 +20,29 @@ describe("parseConfig", () => {
     expect(config.maxPerHour).toBe(20);
     expect(config.maxPerDay).toBe(100);
     expect(config.rejectUnauthorized).toBe(true);
+    expect(config.deliveryMode).toBe("send");
+    expect(config.imapPort).toBe(993);
+    expect(config.imapSecure).toBe(true);
+    expect(config.imapHost).toBeNull();
+    expect(config.draftsFolder).toBeNull();
+  });
+
+  it("parses draft deliveryMode and saveAsDraft boolean", () => {
+    const draftConfig = parseConfig({ ...VALID, deliveryMode: "draft" });
+    expect(draftConfig.deliveryMode).toBe("draft");
+
+    const saveAsDraftConfig = parseConfig({ ...VALID, saveAsDraft: true });
+    expect(saveAsDraftConfig.deliveryMode).toBe("draft");
+
+    const customImap = parseConfig({
+      ...VALID,
+      deliveryMode: "draft",
+      imapHost: "imap.custom.com",
+      imapPort: 993,
+      draftsFolder: "Concepten",
+    });
+    expect(customImap.imapHost).toBe("imap.custom.com");
+    expect(customImap.draftsFolder).toBe("Concepten");
   });
 
   it("accepts numbers pasted as strings", () => {
@@ -143,6 +166,38 @@ describe("validateConfig", () => {
     expect(unrestrictedNoBcc.ok).toBe(true);
     expect(unrestrictedNoBcc.warnings.join(" ")).toContain("Allow any recipient is enabled without a BCC");
   });
+
+  it("validates draft delivery mode requires imapHost or host", () => {
+    const validDraft = validateConfig({ ...VALID, deliveryMode: "draft" });
+    expect(validDraft.ok).toBe(true);
+
+    const noHostDraft = validateConfig({
+      ...VALID,
+      deliveryMode: "draft",
+      host: "",
+      imapHost: "",
+    });
+    expect(noHostDraft.ok).toBe(false);
+    expect(noHostDraft.errors.join(" ")).toContain("IMAP host or SMTP host is required");
+  });
+
+  it("warns about mismatched IMAP ports and TLS", () => {
+    const starttlsMismatched = validateConfig({
+      ...VALID,
+      deliveryMode: "draft",
+      imapPort: 143,
+      imapSecure: true,
+    });
+    expect(starttlsMismatched.warnings.join(" ")).toContain("IMAP port 143 normally uses STARTTLS");
+
+    const implicitTlsMismatched = validateConfig({
+      ...VALID,
+      deliveryMode: "draft",
+      imapPort: 993,
+      imapSecure: false,
+    });
+    expect(implicitTlsMismatched.warnings.join(" ")).toContain("IMAP port 993 normally needs implicit TLS");
+  });
 });
 
 describe("manifest", () => {
@@ -168,7 +223,7 @@ describe("manifest", () => {
       properties: Record<string, unknown>;
       additionalProperties?: boolean;
     };
-    expect(Object.keys(schema.properties)).toEqual(["to", "cc", "subject", "body", "attachments"]);
+    expect(Object.keys(schema.properties)).toEqual(["to", "cc", "subject", "body", "draft", "attachments"]);
     expect(schema.additionalProperties).toBe(false);
   });
 
