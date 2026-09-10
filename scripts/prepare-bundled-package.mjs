@@ -97,7 +97,7 @@ export function prepareBundledPackage(sourceDir, destinationDir) {
 
   execFileSync(
     "npm",
-    ["install", "--omit=dev", "--ignore-scripts", "--no-audit", "--no-fund"],
+    ["install", "--omit=dev", "--no-package-lock", "--legacy-peer-deps", "--ignore-scripts", "--no-audit", "--no-fund"],
     { cwd: destinationDir, stdio: "inherit" },
   );
   writeFileSync(deployedPackagePath, `${JSON.stringify(publishManifest, null, 2)}\n`);
