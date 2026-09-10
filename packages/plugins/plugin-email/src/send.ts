@@ -189,15 +189,18 @@ export async function sendEmail(input: SendEmailInput): Promise<SendEmailOutcome
   // A partial send is worse than no send: the agent would report success while
   // some recipients silently never heard from it. So any bad address fails the
   // whole call, with the offending entries named so the agent can correct.
+  const isDraft = config.deliveryMode === "draft" || request.draft === true;
+  const bypassAllowlist = config.allowAnyRecipient || isDraft;
+
   const toResolution = resolveRecipients(
     request.to,
     config.allowedRecipients,
-    config.allowAnyRecipient,
+    bypassAllowlist,
   );
   const ccResolution = resolveRecipients(
     rawCc,
     config.allowedRecipients,
-    config.allowAnyRecipient,
+    bypassAllowlist,
   );
 
   const unparseable = [...toResolution.unparseable, ...ccResolution.unparseable];
@@ -245,7 +248,6 @@ export async function sendEmail(input: SendEmailInput): Promise<SendEmailOutcome
     .filter((part): part is string => part != null && part.length > 0)
     .join(" ");
 
-  const isDraft = config.deliveryMode === "draft" || request.draft === true;
 
   const footer = source === "test"
     ? isDraft

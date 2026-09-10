@@ -81542,15 +81542,17 @@ async function sendEmail(input) {
   if (request.body.length > MAX_BODY_CHARS) {
     return { ok: false, error: `body must be at most ${MAX_BODY_CHARS} characters` };
   }
+  const isDraft = config2.deliveryMode === "draft" || request.draft === true;
+  const bypassAllowlist = config2.allowAnyRecipient || isDraft;
   const toResolution = resolveRecipients(
     request.to,
     config2.allowedRecipients,
-    config2.allowAnyRecipient
+    bypassAllowlist
   );
   const ccResolution = resolveRecipients(
     rawCc,
     config2.allowedRecipients,
-    config2.allowAnyRecipient
+    bypassAllowlist
   );
   const unparseable = [...toResolution.unparseable, ...ccResolution.unparseable];
   if (unparseable.length > 0) {
@@ -81582,7 +81584,6 @@ async function sendEmail(input) {
     };
   }
   const subject = [config2.subjectPrefix, sanitizeSubject(request.subject)].filter((part) => part != null && part.length > 0).join(" ");
-  const isDraft = config2.deliveryMode === "draft" || request.draft === true;
   const footer = source === "test" ? isDraft ? "Test draft created from Paperclip company settings." : "Test message sent from Paperclip company settings." : input.runId ? isDraft ? `Draft created automatically by a Paperclip agent (run ${input.runId}).` : `Sent automatically by a Paperclip agent (run ${input.runId}).` : isDraft ? "Draft created automatically by a Paperclip agent." : "Sent automatically by a Paperclip agent.";
   const bcc = config2.bccAddress ? [config2.bccAddress] : void 0;
   const message = {
