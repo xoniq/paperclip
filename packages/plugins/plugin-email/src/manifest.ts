@@ -2,7 +2,7 @@ import type { PaperclipPluginManifestV1 } from "@paperclipai/plugin-sdk";
 
 /** Stable plugin ID used by host registration, state namespacing, and tool namespacing. */
 export const PLUGIN_ID = "paperclip.email";
-export const PLUGIN_VERSION = "0.2.0";
+export const PLUGIN_VERSION = "0.2.1";
 
 /**
  * Tool name as declared here and registered in the worker. The host namespaces
