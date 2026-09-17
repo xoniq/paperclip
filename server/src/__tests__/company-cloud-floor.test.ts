@@ -25,6 +25,17 @@ vi.mock("../services/index.js", () => ({
   companyPortabilityService: () => ({}),
   companyService: () => mockCompanyService,
   feedbackService: () => ({}),
+  instanceSettingsService: () => ({
+    getGeneral: vi.fn().mockResolvedValue({
+      companyPermissions: {
+        allowNonAdminsCreateCompanies: true,
+        allowNonAdminsCreateAgents: true,
+        allowNonAdminsInviteMembers: true,
+        allowNonAdminsManageCompanySettings: true,
+        allowNonAdminsDeleteResources: true,
+      },
+    }),
+  }),
   logActivity: mockLogActivity,
   workTimelineService: () => ({}),
 }));
