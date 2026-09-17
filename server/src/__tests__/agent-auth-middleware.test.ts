@@ -102,6 +102,9 @@ function createApp(db: any, deploymentMode: "authenticated" | "local_trusted" = 
   app.get("/actor", (req, res) => {
     res.json(req.actor);
   });
+  app.post("/mcp/gateways/:gatewayPublicId", (req, res) => {
+    res.json({ reachedGatewayProtocol: true, actorType: req.actor.type });
+  });
   app.get("/companies/:companyId/protected", (req, res) => {
     assertCompanyAccess(req, req.params.companyId);
     res.json({ ok: true });
@@ -260,6 +263,31 @@ describe("agent auth middleware", () => {
     expect(res.body.error).toContain("Agent token did not verify");
   });
 
+  it("leaves public MCP gateway bearers for the gateway protocol to validate", async () => {
+    const { db } = createDbState({ agent: { id: randomUUID(), companyId: randomUUID() } });
+    const publicId = `gw_${"a".repeat(32)}`;
+
+    const res = await request(createApp(db, "local_trusted"))
+      .post(`/mcp/gateways/${publicId}`)
+      .set("Authorization", "Bearer pcgw_runtime_token")
+      .send({ jsonrpc: "2.0", id: 1, method: "initialize" });
+
+    expect(res.status).toBe(200);
+    expect(res.body).toMatchObject({ reachedGatewayProtocol: true });
+  });
+
+  it("does not bypass actor authentication for lookalike MCP gateway paths", async () => {
+    const { db } = createDbState({ agent: { id: randomUUID(), companyId: randomUUID() } });
+
+    const res = await request(createApp(db, "local_trusted"))
+      .post("/mcp/gateways/not-a-public-id")
+      .set("Authorization", "Bearer pcgw_runtime_token")
+      .send({ jsonrpc: "2.0", id: 1, method: "initialize" });
+
+    expect(res.status).toBe(401);
+    expect(res.body.error).toContain("Agent token did not verify");
+  });
+
   it.each([
     ["a gateway route with a trailing path segment", "/api/tool-gateway/gateways/gw-1/mcp/extra"],
     ["the session-token catalogue route", "/api/tool-gateway/tools"],
@@ -282,7 +310,6 @@ describe("agent auth middleware", () => {
     expect(res.body).toMatchObject({ type: "none" });
     expect(res.body.userId).toBeUndefined();
   });
-
   it.each([
     ["terminated", "Agent is terminated"],
     ["pending_approval", "Agent is pending approval"],

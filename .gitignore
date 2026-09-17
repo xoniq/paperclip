@@ -8,6 +8,9 @@ dist/
 !packages/plugins/plugin-email/dist/**
 packages/plugins/plugin-email/dist/**/*.map
 packages/plugins/plugin-email/dist/**/*.d.ts
+dist-preview/
+dist-flow-preview/
+packages/paperclip-runner/runner/target/
 ui/storybook-static/
 .env
 *.tsbuildinfo
@@ -63,6 +66,8 @@ diagnostics/
 # Playwright
 tests/e2e/test-results/
 tests/e2e/playwright-report/
+tests/runner-e2e/results/
+.env.runner-e2e.local
 tests/release-smoke/test-results/
 tests/release-smoke/playwright-report/
 test-results/issue-detail-perf/
@@ -77,3 +82,6 @@ tests/storybook-visual/playwright-report/
 .herenow
 backup/
 packages/plugins/*.zip
+.vercel/
+.env.local
+test-results/

@@ -42,3 +42,5 @@ export { instanceDatabaseBackupRoutes } from "./instance-database-backups.js";
 export { calendarRoutes } from "./calendar.js";
 export { braindumpRoutes } from "./braindump.js";
 export { financialRoutes } from "./financials.js";
+export { managedAgentProfileRoutes } from "./managed-agent-profiles.js";
+export { remoteAgentProfileRoutes } from "./remote-agent-profiles.js";

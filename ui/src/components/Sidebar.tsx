@@ -1,7 +1,7 @@
 import {
   Inbox,
   ListChecks,
-  CircleDot,
+  CircleCheck,
   Target,
   LayoutDashboard,
   DollarSign,
@@ -16,24 +16,25 @@ import {
   Package,
   Settings,
   FolderOpen,
-  PanelLeftClose,
-  PanelLeftOpen,
-  Pin,
-  AppWindow,
+  Unplug,
   MessagesSquare,
   GanttChartSquare,
   LayoutGrid,
   CalendarDays,
   BrainCircuit,
   TrendingUp,
+  Users,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { SidebarSection } from "./SidebarSection";
 import { SidebarNavItem } from "./SidebarNavItem";
 import { SidebarAgents } from "./SidebarAgents";
 import { SidebarProjects } from "./SidebarProjects";
 import { SidebarStarredProjects } from "./SidebarStarredProjects";
+import { SidebarAgentChats } from "./SidebarAgentChats";
+import { useAgentChatEnabled } from "@/hooks/useAgentChatEnabled";
+import { SidebarRecentTasks } from "./SidebarRecentTasks";
 import { useDialogActions } from "../context/DialogContext";
 import { useCompany } from "../context/CompanyContext";
 import { useSidebar } from "../context/SidebarContext";
@@ -44,21 +45,26 @@ import { instanceSettingsApi } from "../api/instanceSettings";
 import { queryKeys } from "../lib/queryKeys";
 import { attentionBadgeCount } from "../lib/attention";
 import { useInboxBadge } from "../hooks/useInboxBadge";
+import { useStreamlinedUiEnabled } from "../hooks/useStreamlinedUiEnabled";
 import { usePublishSharedQueryData, useSharedPollingQuery } from "../hooks/useSharedPolling";
-import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn, SIDEBAR_RAIL_HIDDEN_LABEL } from "../lib/utils";
 import { PluginSlotOutlet } from "@/plugins/slots";
 import { PluginLauncherOutlet } from "@/plugins/launchers";
 import { SidebarCompanyMenu } from "./SidebarCompanyMenu";
+import { primarySidebarStyles } from "./primary-sidebar-styles";
 
-export function Sidebar() {
+export function Sidebar({ children }: { children?: ReactNode }) {
   const { openNewIssue } = useDialogActions();
-  const { selectedCompanyId, selectedCompany } = useCompany();
-  const { isMobile, collapsed, collapseLocked, peeking, toggleCollapsed, setCollapsed } = useSidebar();
-  const rail = collapsed && !peeking;
+  const { enabled: agentChatEnabled } = useAgentChatEnabled();
+  // Every labeled section is collapsible (session-scoped, default open) —
+  // one policy across static nav groups and the data-driven sections.
   const [workOpen, setWorkOpen] = useState(true);
-  const [companyOpen, setCompanyOpen] = useState(true);
+  const [organizationOpen, setOrganizationOpen] = useState(true);
+  const { selectedCompanyId, selectedCompany } = useCompany();
+  const { collapsed, peeking } = useSidebar();
+  const { enabled: streamlinedUiEnabled } = useStreamlinedUiEnabled();
+  const rail = collapsed && !peeking;
   const { isItemHidden } = useNavigationCustomizer();
 
   const inboxBadge = useInboxBadge(selectedCompanyId);
@@ -85,9 +91,10 @@ export function Sidebar() {
   });
   usePublishSharedQueryData(sharedLiveRuns, liveRuns, liveRunsUpdatedAt);
   const liveRunCount = liveRuns?.length ?? 0;
-  
+  const liveIssueIds = new Set(
+    (liveRuns ?? []).flatMap((run) => run.issueId ? [run.issueId] : []),
+  );
   const showWorkspacesLink = experimentalSettings?.enableIsolatedWorkspaces === true;
-  const showApps = experimentalSettings?.enableApps === true;
   const showPipelines = experimentalSettings?.enablePipelines === true;
   const showStatusCards = experimentalSettings?.enableStatusCards === true;
   const goalsLinkPending = experimentalSettings === undefined;
@@ -101,7 +108,9 @@ export function Sidebar() {
   });
   const attentionCount = attentionBadgeCount(attentionFeed);
   const showCases = experimentalSettings?.enableCases === true;
-  const streamlined = true;
+  // Conference Room Chat flag (PAP-136/PAP-137): the Conference Room nav item
+  // is a new surface, hidden entirely while the flag is off (same no-flash
+  // pattern as showWorkspacesLink above).
   const conferenceRoomChatEnabled = experimentalSettings?.enableConferenceRoomChat === true;
 
   const pluginContext = {
@@ -110,43 +119,26 @@ export function Sidebar() {
   };
 
   return (
-    <aside className="w-full h-full min-h-0 border-r border-border bg-background flex flex-col">
-      <div className="flex items-center gap-1 px-3 h-12 shrink-0">
+    <aside
+      className={cn(
+        "w-full h-full min-h-0 flex flex-col",
+        streamlinedUiEnabled
+          ? primarySidebarStyles.surface
+          : "border-r border-border bg-background",
+      )}
+    >
+      {/* Top bar: company name, aligned with top sections and borderless.
+          Search deliberately does NOT live here:
+          the header's spare width goes to the workspace/organization name,
+          which is the user's orientation anchor and truncates otherwise.
+          Search is the first nav item below instead. */}
+      <div className="flex h-(--sz-60px) shrink-0 items-center gap-1 px-3">
         <SidebarCompanyMenu />
-        {!rail ? (
-          <>
-            {!isMobile && !collapseLocked ? (
-              peeking ? (
-                <Button
-                  variant="ghost"
-                  size="icon-sm"
-                  className="text-muted-foreground shrink-0"
-                  aria-label="Keep sidebar expanded"
-                  title="Keep sidebar expanded"
-                  onClick={() => setCollapsed(false)}
-                >
-                  <Pin className="h-4 w-4" />
-                </Button>
-              ) : (
-                <Button
-                  variant="ghost"
-                  size="icon-sm"
-                  className="text-muted-foreground shrink-0"
-                  aria-expanded={!collapsed}
-                  aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-                  title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-                  onClick={() => toggleCollapsed()}
-                >
-                  {collapsed ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
-                </Button>
-              )
-            ) : null}
-          </>
-        ) : null}
       </div>
 
-      <nav className="flex-1 min-h-0 overflow-y-auto scrollbar-auto-hide flex flex-col gap-4 pointer-coarse:gap-3 px-3 py-2">
-        <div className="flex flex-col gap-0.5">
+      <nav className={primarySidebarStyles.nav}>
+        <div className={primarySidebarStyles.group}>
+          {/* New Task button aligned with nav items */}
           {!isItemHidden("new-task") &&
             (() => {
               const newTaskButton = (
@@ -154,7 +146,9 @@ export function Sidebar() {
                   onClick={() => openNewIssue()}
                   data-slot="icon-button"
                   aria-label={rail ? "New Task" : undefined}
-                  className="flex items-center gap-2.5 mx-2 rounded-lg px-2 py-1.5 pointer-coarse:py-1 text-(length:--text-compact) font-medium text-foreground/80 hover:bg-accent/50 hover:text-foreground transition-colors"
+                  className={cn(
+                    "flex items-center gap-2.5 mx-2 rounded-lg px-2 py-1.5 pointer-coarse:py-1 text-(length:--text-compact) font-medium text-foreground/80 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                  )}
                 >
                   <SquarePen className="h-4 w-4 shrink-0" />
                   <span className={rail ? SIDEBAR_RAIL_HIDDEN_LABEL : "truncate"}>New Task</span>
@@ -202,13 +196,20 @@ export function Sidebar() {
         </div>
 
         <SidebarSection label="Work" collapsible={{ open: workOpen, onOpenChange: setWorkOpen }}>
-          {!isItemHidden("issues") && <SidebarNavItem to="/issues" label="Tasks" icon={CircleDot} />}
-          {showCases && !isItemHidden("cases") ? (
-            <SidebarNavItem to="/cases" label="Cases" icon={Layers} textBadge="beta" />
+          {!isItemHidden("issues") && <SidebarNavItem to="/issues" label="Tasks" icon={CircleCheck} />}
+          {streamlinedUiEnabled && !isItemHidden("projects") ? (
+            <>
+              <SidebarNavItem to="/projects" label="Projects" icon={FolderOpen} />
+              <SidebarStarredProjects />
+            </>
           ) : null}
           {!isItemHidden("calendar") && <SidebarNavItem to="/calendar" label="Calendar" icon={CalendarDays} />}
           {!isItemHidden("braindump") && <SidebarNavItem to="/braindump" label="Braindump" icon={BrainCircuit} />}
           {!isItemHidden("routines") && <SidebarNavItem to="/routines" label="Routines" icon={Repeat} />}
+          {!isItemHidden("artifacts") && <SidebarNavItem to="/artifacts" label="Artifacts" icon={Package} />}
+          {showCases && !isItemHidden("cases") ? (
+            <SidebarNavItem to="/cases" label="Cases" icon={Layers} textBadge="beta" />
+          ) : null}
           {showPipelines && !isItemHidden("pipelines") ? (
             <SidebarNavItem to="/pipelines" label="Pipelines" icon={GitBranch} />
           ) : null}
@@ -221,16 +222,8 @@ export function Sidebar() {
               aria-hidden="true"
             />
           ) : null}
-          {!isItemHidden("artifacts") && <SidebarNavItem to="/artifacts" label="Artifacts" icon={Package} />}
-          {!isItemHidden("skills") && <SidebarNavItem to="/skills" label="Skills" icon={Boxes} />}
           {showWorkspacesLink && !isItemHidden("workspaces") ? (
             <SidebarNavItem to="/workspaces" label="Workspaces" icon={GitBranch} />
-          ) : null}
-          {streamlined && !isItemHidden("projects") ? (
-            <>
-              <SidebarNavItem to="/projects" label="Projects" icon={FolderOpen} />
-              <SidebarStarredProjects />
-            </>
           ) : null}
           <PluginSlotOutlet
             slotTypes={["sidebar"]}
@@ -247,19 +240,42 @@ export function Sidebar() {
           />
         </SidebarSection>
 
-        {streamlined ? null : <SidebarProjects />}
+        {streamlinedUiEnabled ? (
+          <SidebarSection
+            label="Org"
+            collapsible={{ open: organizationOpen, onOpenChange: setOrganizationOpen }}
+          >
+            {!isItemHidden("agents") && <SidebarNavItem to="/agents" label="Agents" icon={Users} />}
+            {!isItemHidden("skills") && <SidebarNavItem to="/skills" label="Skills" icon={Boxes} />}
+            {!isItemHidden("apps") && <SidebarNavItem to="/apps" label="Connectors" icon={Unplug} />}
+            {!isItemHidden("revenue") && <SidebarNavItem to="/revenue" label="Revenue" icon={TrendingUp} />}
+            {!isItemHidden("activity") && <SidebarNavItem to="/activity" label="Audit" icon={History} />}
+          </SidebarSection>
+        ) : null}
 
-        {!isItemHidden("agents") && <SidebarAgents streamlined={streamlined} />}
+        {children}
+        {agentChatEnabled && !children && <SidebarAgentChats />}
 
-        <SidebarSection label="Company" collapsible={{ open: companyOpen, onOpenChange: setCompanyOpen }}>
-          {!isItemHidden("org") && <SidebarNavItem to="/org" label="Org" icon={Network} />}
-          {showApps && !isItemHidden("apps") ? <SidebarNavItem to="/apps" label="Apps" icon={AppWindow} /> : null}
-          {!isItemHidden("timeline") && <SidebarNavItem to="/timeline" label="Timeline" icon={GanttChartSquare} />}
-          {!isItemHidden("revenue") && <SidebarNavItem to="/revenue" label="Revenue" icon={TrendingUp} />}
-          {!isItemHidden("costs") && <SidebarNavItem to="/costs" label="Costs" icon={DollarSign} />}
-          {!isItemHidden("activity") && <SidebarNavItem to="/activity" label="Activity" icon={History} />}
-          {!isItemHidden("company-settings") && <SidebarNavItem to="/company/settings" label="Settings" icon={Settings} />}
-        </SidebarSection>
+        {streamlinedUiEnabled ? (
+          <SidebarRecentTasks companyId={selectedCompanyId} liveIssueIds={liveIssueIds} />
+        ) : (
+          <>
+            <SidebarProjects />
+            <SidebarAgents />
+            <SidebarSection
+              label="Organization"
+              collapsible={{ open: organizationOpen, onOpenChange: setOrganizationOpen }}
+            >
+              {!isItemHidden("org") && <SidebarNavItem to="/org" label="Org" icon={Network} />}
+              {!isItemHidden("apps") && <SidebarNavItem to="/apps" label="Connectors" icon={Unplug} />}
+              {!isItemHidden("timeline") && <SidebarNavItem to="/timeline" label="Timeline" icon={GanttChartSquare} />}
+              {!isItemHidden("revenue") && <SidebarNavItem to="/revenue" label="Revenue" icon={TrendingUp} />}
+              {!isItemHidden("costs") && <SidebarNavItem to="/costs" label="Costs" icon={DollarSign} />}
+              {!isItemHidden("activity") && <SidebarNavItem to="/activity" label="Activity" icon={History} />}
+              {!isItemHidden("company-settings") && <SidebarNavItem to="/company/settings" label="Settings" icon={Settings} />}
+            </SidebarSection>
+          </>
+        )}
 
         <PluginSlotOutlet
           slotTypes={["sidebarPanel"]}
