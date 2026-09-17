@@ -82,6 +82,83 @@ function parseSingleInlineCodeFileRef(node: MarkdownNode): ParsedWorkspaceFileRe
   return parseWorkspaceFileRef(child.value);
 }
 
+function parseLinkFileRef(node: MarkdownNode): ParsedWorkspaceFileRef | null {
+  const inline = parseSingleInlineCodeFileRef(node);
+  if (inline) return inline;
+
+  if (typeof node.url !== "string") return null;
+  const rawUrl = node.url.trim();
+  if (
+    !rawUrl ||
+    rawUrl.startsWith("http://") ||
+    rawUrl.startsWith("https://") ||
+    rawUrl.startsWith("mailto:") ||
+    rawUrl.startsWith("#") ||
+    rawUrl.startsWith("//") ||
+    rawUrl.startsWith("workspace-file:")
+  ) {
+    return null;
+  }
+
+  let cleanPath = rawUrl;
+  if (cleanPath.startsWith("file://")) {
+    cleanPath = cleanPath.replace(/^file:\/\//, "");
+  }
+  return parseWorkspaceFileRef(cleanPath);
+}
+
+const PLAIN_TEXT_FILE_REF_RE =
+  /(?:^|([\s("'<\[]))([A-Za-z0-9_.\-+]+\/[A-Za-z0-9_./\-+]*\.[A-Za-z0-9_+\-]{1,10}(?::[1-9]\d*(?::[1-9]\d*)?|#L[1-9]\d*(?:C[1-9]\d*)?)?)(?=[.,;:!?'")\]>]*(?:\s|$))/g;
+
+function splitTextNodeByWorkspaceFileRefs(
+  text: string,
+  resolve: WorkspaceFileRefResolver,
+): MarkdownNode[] | null {
+  PLAIN_TEXT_FILE_REF_RE.lastIndex = 0;
+  const result: MarkdownNode[] = [];
+  let lastIndex = 0;
+  let matchedAny = false;
+  let match: RegExpExecArray | null;
+
+  while ((match = PLAIN_TEXT_FILE_REF_RE.exec(text)) !== null) {
+    const prefix = match[1] ?? "";
+    const rawPath = match[2];
+    if (!rawPath) continue;
+
+    const pathStartIndex = match.index + prefix.length;
+    const pathEndIndex = pathStartIndex + rawPath.length;
+
+    const ref = parseWorkspaceFileRef(rawPath);
+    if (!ref) continue;
+
+    const resolved = openableRef(ref, resolve);
+    if (!resolved) continue;
+
+    matchedAny = true;
+
+    if (pathStartIndex > lastIndex) {
+      result.push({
+        type: "text",
+        value: text.slice(lastIndex, pathStartIndex),
+      });
+    }
+
+    result.push(createWorkspaceFileLinkNode(resolved));
+    lastIndex = pathEndIndex;
+  }
+
+  if (!matchedAny) return null;
+
+  if (lastIndex < text.length) {
+    result.push({
+      type: "text",
+      value: text.slice(lastIndex),
+    });
+  }
+
+  return result;
+}
+
 /**
  * Bind a parsed reference to the workspace that passed preflight so the click
  * reuses that exact target instead of re-running auto discovery.
@@ -110,18 +187,17 @@ function openableRef(
 
 function rewriteMarkdownTree(node: MarkdownNode, resolve: WorkspaceFileRefResolver) {
   if (!Array.isArray(node.children) || node.children.length === 0) return;
-  // Existing links whose whole label is a workspace-file code span become
-  // file-viewer links instead of issue/external links — but only when the
-  // viewer can actually open them. Otherwise the ordinary link is preserved.
+  // Existing links whose whole label is a workspace-file code span, or whose
+  // target URL points to a workspace file path, become file-viewer links.
   if (node.type === "link") {
-    const ref = parseSingleInlineCodeFileRef(node);
+    const ref = parseLinkFileRef(node);
     const resolved = ref ? openableRef(ref, resolve) : null;
     if (resolved) {
       node.url = buildWorkspaceFileHref(resolved);
     }
     return;
   }
-  // Don't descend into other link-like or code blocks; only rewrite inlineCode within flowing text.
+  // Don't descend into other link-like or code blocks; only rewrite inlineCode and text within flowing text.
   if (node.type === "linkReference" || node.type === "code" || node.type === "definition" || node.type === "html") {
     return;
   }
@@ -136,6 +212,15 @@ function rewriteMarkdownTree(node: MarkdownNode, resolve: WorkspaceFileRefResolv
         continue;
       }
     }
+
+    if (child.type === "text" && typeof child.value === "string") {
+      const splitNodes = splitTextNodeByWorkspaceFileRefs(child.value, resolve);
+      if (splitNodes) {
+        nextChildren.push(...splitNodes);
+        continue;
+      }
+    }
+
     rewriteMarkdownTree(child, resolve);
     nextChildren.push(child);
   }

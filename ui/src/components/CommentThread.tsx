@@ -15,6 +15,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Identity } from "./Identity";
 import { InlineEntitySelector, type InlineEntityOption } from "./InlineEntitySelector";
 import { MarkdownBody, type MarkdownExternalReferenceMap } from "./MarkdownBody";
+import { WorkspaceFileMarkdownBody } from "./WorkspaceFileMarkdownBody";
 import { MarkdownEditor, type MarkdownEditorRef, type MentionOption } from "./MarkdownEditor";
 import { OutputFeedbackButtons } from "./OutputFeedbackButtons";
 import { ApprovalCard } from "./ApprovalCard";
@@ -395,7 +396,7 @@ function CommentCard({
       {isDeleted ? (
         <div className="text-sm italic text-muted-foreground">Comment deleted</div>
       ) : (
-        <MarkdownBody className="text-sm" softBreaks externalReferences={externalReferences}>{comment.body}</MarkdownBody>
+        <WorkspaceFileMarkdownBody className="text-sm" softBreaks externalReferences={externalReferences}>{comment.body}</WorkspaceFileMarkdownBody>
       )}
       {companyId && !isPending && !isDeleted ? (
         <div className="mt-2 space-y-2">

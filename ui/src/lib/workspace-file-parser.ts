@@ -68,8 +68,9 @@ export function parseWorkspaceFileRef(input: string): ParsedWorkspaceFileRef | n
   if (typeof input !== "string") return null;
   const trimmed = input.trim();
   if (!trimmed) return null;
+  const normalized = trimmed.startsWith("./") ? trimmed.slice(2) : trimmed;
 
-  const directoryMatch = trimmed.match(WORKSPACE_DIRECTORY_REF_RE);
+  const directoryMatch = normalized.match(WORKSPACE_DIRECTORY_REF_RE);
   if (directoryMatch) {
     const [, rawPath] = directoryMatch;
     if (!rawPath || !looksLikeWorkspacePath(rawPath, { allowTrailingSlash: true })) return null;
@@ -83,7 +84,7 @@ export function parseWorkspaceFileRef(input: string): ParsedWorkspaceFileRef | n
     };
   }
 
-  const match = trimmed.match(WORKSPACE_FILE_REF_RE) ?? trimmed.match(BARE_NO_EXT_RE);
+  const match = normalized.match(WORKSPACE_FILE_REF_RE) ?? normalized.match(BARE_NO_EXT_RE);
   if (!match) return null;
   const [, rawPath, colonLine, colonCol, hashLine, hashCol] = match;
   if (!rawPath) return null;

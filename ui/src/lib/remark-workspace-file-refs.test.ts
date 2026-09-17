@@ -63,8 +63,57 @@ describe("remarkWorkspaceFileRefs", () => {
     expect(parsed?.line).toBe(42);
   });
 
-  it("does not linkify plain text path mentions outside inline code", () => {
+  it("converts plain text path mentions into workspace-file links when openable", () => {
     const tree = paragraph([textNode("see ui/src/pages/IssueDetail.tsx for details")]);
+    runPlugin(tree);
+    expect(tree.children).toHaveLength(3);
+    expect(tree.children![0]).toEqual(textNode("see "));
+    expect(tree.children![1].type).toBe("link");
+    expect(parseWorkspaceFileHref(tree.children![1].url)?.path).toBe("ui/src/pages/IssueDetail.tsx");
+    expect(tree.children![2]).toEqual(textNode(" for details"));
+  });
+
+  it("does not linkify plain text path mentions when not openable", () => {
+    const tree = paragraph([textNode("see ui/src/pages/IssueDetail.tsx for details")]);
+    runPlugin(tree, resolveNoneOpenable);
+    expect(tree.children).toHaveLength(1);
+    expect(tree.children![0].type).toBe("text");
+  });
+
+  it("converts markdown links with relative file paths into workspace-file links", () => {
+    const tree: MarkdownNode = {
+      type: "paragraph",
+      children: [
+        {
+          type: "link",
+          url: "docs/publication-scheduling.md",
+          children: [textNode("publication scheduling")],
+        },
+      ],
+    };
+    runPlugin(tree);
+    const link = tree.children![0];
+    expect(link.type).toBe("link");
+    expect(link.url?.startsWith("workspace-file:")).toBe(true);
+    expect(parseWorkspaceFileHref(link.url)?.path).toBe("docs/publication-scheduling.md");
+    expect(link.children![0]).toEqual(textNode("publication scheduling"));
+  });
+
+  it("handles trailing punctuation in plain text paths", () => {
+    const tree = paragraph([textNode("Check docs/rules.md:42, and (scripts/run.py).")]);
+    runPlugin(tree);
+    expect(tree.children).toHaveLength(5);
+    expect(tree.children![0]).toEqual(textNode("Check "));
+    expect(tree.children![1].type).toBe("link");
+    expect(parseWorkspaceFileHref(tree.children![1].url)).toMatchObject({ path: "docs/rules.md", line: 42 });
+    expect(tree.children![2]).toEqual(textNode(", and ("));
+    expect(tree.children![3].type).toBe("link");
+    expect(parseWorkspaceFileHref(tree.children![3].url)?.path).toBe("scripts/run.py");
+    expect(tree.children![4]).toEqual(textNode(")."));
+  });
+
+  it("does not linkify URLs in plain text", () => {
+    const tree = paragraph([textNode("see https://example.com/docs/file.md for details")]);
     runPlugin(tree);
     expect(tree.children).toHaveLength(1);
     expect(tree.children![0].type).toBe("text");

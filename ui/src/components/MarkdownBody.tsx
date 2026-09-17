@@ -28,6 +28,8 @@ import {
   WORKSPACE_FILE_HREF_PREFIX,
   type WorkspaceFileRefResolver,
 } from "../lib/remark-workspace-file-refs";
+import { workspaceFileAvailabilityRef } from "../lib/workspace-file-availability";
+import { useFileViewer } from "../context/FileViewerContext";
 import { remarkSoftBreaks } from "../lib/remark-soft-breaks";
 import { StatusIcon } from "./StatusIcon";
 import { WorkspaceFileLink } from "./WorkspaceFileLink";
@@ -722,6 +724,18 @@ function MarkdownBodyImpl({
   resolveWorkspaceFileRef,
 }: MarkdownBodyProps) {
   const { theme } = useTheme();
+  const viewer = useFileViewer();
+  const availability = viewer?.availability;
+  const autoResolveWorkspaceFileRef = useMemo<WorkspaceFileRefResolver | undefined>(() => {
+    if (!availability) return undefined;
+    return (ref) => {
+      const result = availability.check(workspaceFileAvailabilityRef(ref));
+      return result.state === "openable" ? result.target : null;
+    };
+  }, [availability]);
+
+  const effectiveResolveWorkspaceFileRef = resolveWorkspaceFileRef ?? autoResolveWorkspaceFileRef;
+
   // Read company prefixes non-throwingly: MarkdownBody renders in surfaces that
   // may lack a CompanyProvider. A null context (or no companies yet) leaves
   // knownPrefixes undefined, which keeps issue auto-linking permissive.
@@ -753,8 +767,8 @@ function MarkdownBodyImpl({
     if (enableWikiLinks) {
       plugins.push(createRemarkWikiLinks({ wikiLinkRoot, resolveWikiLinkHref }));
     }
-    if (resolveWorkspaceFileRef) {
-      plugins.push(createRemarkWorkspaceFileRefs(resolveWorkspaceFileRef));
+    if (effectiveResolveWorkspaceFileRef) {
+      plugins.push(createRemarkWorkspaceFileRefs(effectiveResolveWorkspaceFileRef));
     }
     if (linkIssueReferences) {
       plugins.push([remarkLinkIssueReferences, { knownPrefixes }]);
@@ -766,7 +780,7 @@ function MarkdownBodyImpl({
       plugins.push(remarkSoftBreaks);
     }
     return plugins;
-  }, [enableWikiLinks, wikiLinkRoot, resolveWikiLinkHref, resolveWorkspaceFileRef, linkIssueReferences, linkCaseReferences, knownPrefixes, softBreaks]);
+  }, [enableWikiLinks, wikiLinkRoot, resolveWikiLinkHref, effectiveResolveWorkspaceFileRef, linkIssueReferences, linkCaseReferences, knownPrefixes, softBreaks]);
   const components = useMemo<Components>(() => {
     const map: Components = {
     p: ({ node: _node, style: paragraphStyle, children: paragraphChildren, ...paragraphProps }) => (

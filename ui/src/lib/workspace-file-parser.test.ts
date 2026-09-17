@@ -13,6 +13,17 @@ describe("parseWorkspaceFileRef", () => {
     });
   });
 
+  it("parses a simple workspace-relative path with leading ./", () => {
+    const ref = parseWorkspaceFileRef("./ui/src/pages/IssueDetail.tsx");
+    expect(ref).toEqual({
+      path: "ui/src/pages/IssueDetail.tsx",
+      resourceKind: "file",
+      line: null,
+      column: null,
+      raw: "./ui/src/pages/IssueDetail.tsx",
+    });
+  });
+
   it("parses path:line suffixes", () => {
     const ref = parseWorkspaceFileRef("ui/src/pages/IssueDetail.tsx:42");
     expect(ref?.path).toBe("ui/src/pages/IssueDetail.tsx");
