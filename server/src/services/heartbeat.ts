@@ -4574,7 +4574,7 @@ export async function buildPaperclipRuntimeMcpServers(input: {
       runId: input.runId,
       permittedNotInstalledConnections,
     });
-    return { servers: [], permittedNotInstalledConnections };
+    return [];
   }
   const assignment = {
     version: 1,
