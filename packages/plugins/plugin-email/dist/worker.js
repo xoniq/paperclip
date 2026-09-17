@@ -587,7 +587,7 @@ var require_shared = __commonJS({
         return callback(null, []);
       }
       const resolver2 = dns2.Resolver ? new dns2.Resolver(options) : dns2;
-      resolver2["resolve" + family](hostname3, (err, addresses) => {
+      resolver2["resolve" + family](hostname3, (err, addresses2) => {
         if (err) {
           switch (err.code) {
             case dns2.NODATA:
@@ -601,7 +601,7 @@ var require_shared = __commonJS({
           }
           return callback(err);
         }
-        return callback(null, Array.isArray(addresses) ? addresses : [].concat(addresses || []));
+        return callback(null, Array.isArray(addresses2) ? addresses2 : [].concat(addresses2 || []));
       });
     };
     var dnsCache = module.exports.dnsCache = /* @__PURE__ */ new Map();
@@ -660,7 +660,7 @@ var require_shared = __commonJS({
           );
         }
       }
-      resolver(4, options.host, options, (err, addresses) => {
+      resolver(4, options.host, options, (err, addresses2) => {
         if (err) {
           if (cached2) {
             dnsCache.set(options.host, {
@@ -677,9 +677,9 @@ var require_shared = __commonJS({
           }
           return callback(err);
         }
-        if (addresses && addresses.length) {
+        if (addresses2 && addresses2.length) {
           let value = {
-            addresses,
+            addresses: addresses2,
             servername: options.servername || options.host
           };
           dnsCache.set(options.host, {
@@ -693,7 +693,7 @@ var require_shared = __commonJS({
             })
           );
         }
-        resolver(6, options.host, options, (err2, addresses2) => {
+        resolver(6, options.host, options, (err2, addresses3) => {
           if (err2) {
             if (cached2) {
               dnsCache.set(options.host, {
@@ -710,9 +710,9 @@ var require_shared = __commonJS({
             }
             return callback(err2);
           }
-          if (addresses2 && addresses2.length) {
+          if (addresses3 && addresses3.length) {
             let value = {
-              addresses: addresses2,
+              addresses: addresses3,
               servername: options.servername || options.host
             };
             dnsCache.set(options.host, {
@@ -727,7 +727,7 @@ var require_shared = __commonJS({
             );
           }
           try {
-            dns2.lookup(options.host, { all: true }, (err3, addresses3) => {
+            dns2.lookup(options.host, { all: true }, (err3, addresses4) => {
               if (err3) {
                 if (cached2) {
                   dnsCache.set(options.host, {
@@ -744,11 +744,11 @@ var require_shared = __commonJS({
                 }
                 return callback(err3);
               }
-              let address = addresses3 ? addresses3.filter((addr) => isFamilySupported(addr.family)).map((addr) => addr.address).shift() : false;
-              if (addresses3 && addresses3.length && !address) {
-                console.warn(`Failed to resolve IPv${addresses3[0].family} addresses with current network`);
+              let address2 = addresses4 ? addresses4.filter((addr) => isFamilySupported(addr.family)).map((addr) => addr.address).shift() : false;
+              if (addresses4 && addresses4.length && !address2) {
+                console.warn(`Failed to resolve IPv${addresses4[0].family} addresses with current network`);
               }
-              if (!address && cached2) {
+              if (!address2 && cached2) {
                 return callback(
                   null,
                   formatDNSValue(cached2.value, {
@@ -757,7 +757,7 @@ var require_shared = __commonJS({
                 );
               }
               let value = {
-                addresses: address ? [address] : [options.host],
+                addresses: address2 ? [address2] : [options.host],
                 servername: options.servername || options.host
               };
               dnsCache.set(options.host, {
@@ -794,7 +794,7 @@ var require_shared = __commonJS({
       str = str || "";
       let options = {};
       [urllib.parse(str, true)].forEach((url2) => {
-        let auth;
+        let auth2;
         switch (url2.protocol) {
           case "smtp:":
             options.secure = false;
@@ -813,12 +813,12 @@ var require_shared = __commonJS({
           options.host = url2.hostname;
         }
         if (url2.auth) {
-          auth = url2.auth.split(":");
+          auth2 = url2.auth.split(":");
           if (!options.auth) {
             options.auth = {};
           }
-          options.auth.user = auth.shift();
-          options.auth.pass = auth.join(":");
+          options.auth.user = auth2.shift();
+          options.auth.pass = auth2.join(":");
         }
         Object.keys(url2.query || {}).forEach((key) => {
           let obj = options;
@@ -4221,8 +4221,8 @@ var require_addressparser = __commonJS({
     function _handleAddress(tokens, depth) {
       let isGroup = false;
       let state = "text";
-      let address;
-      let addresses = [];
+      let address2;
+      let addresses2 = [];
       let data = {
         address: [],
         comment: [],
@@ -4295,8 +4295,8 @@ var require_addressparser = __commonJS({
             }
           });
         }
-        addresses.push({
-          name: data.text || address && address.name,
+        addresses2.push({
+          name: data.text || address2 && address2.name,
           group: groupMembers
         });
       } else {
@@ -4308,12 +4308,12 @@ var require_addressparser = __commonJS({
               break;
             }
           }
-          let _regexHandler = function(address2) {
+          let _regexHandler = function(address3) {
             if (!data.address.length) {
-              data.address = [address2.trim()];
+              data.address = [address3.trim()];
               return " ";
             } else {
-              return address2;
+              return address3;
             }
           };
           if (!data.address.length) {
@@ -4339,21 +4339,21 @@ var require_addressparser = __commonJS({
         if (!data.address && isGroup) {
           return [];
         } else {
-          address = {
+          address2 = {
             address: data.address || data.text || "",
             name: data.text || data.address || ""
           };
-          if (address.address === address.name) {
-            if ((address.address || "").match(/@/)) {
-              address.name = "";
+          if (address2.address === address2.name) {
+            if ((address2.address || "").match(/@/)) {
+              address2.name = "";
             } else {
-              address.address = "";
+              address2.address = "";
             }
           }
-          addresses.push(address);
+          addresses2.push(address2);
         }
       }
-      return addresses;
+      return addresses2;
     }
     var Tokenizer = class {
       constructor(str) {
@@ -4457,41 +4457,41 @@ var require_addressparser = __commonJS({
       }
       let tokenizer = new Tokenizer(str);
       let tokens = tokenizer.tokenize();
-      let addresses = [];
-      let address = [];
+      let addresses2 = [];
+      let address2 = [];
       let parsedAddresses = [];
       tokens.forEach((token) => {
         if (token.type === "operator" && (token.value === "," || token.value === ";")) {
-          if (address.length) {
-            addresses.push(address);
+          if (address2.length) {
+            addresses2.push(address2);
           }
-          address = [];
+          address2 = [];
         } else {
-          address.push(token);
+          address2.push(token);
         }
       });
-      if (address.length) {
-        addresses.push(address);
+      if (address2.length) {
+        addresses2.push(address2);
       }
-      addresses.forEach((address2) => {
-        address2 = _handleAddress(address2, depth);
-        if (address2.length) {
-          parsedAddresses = parsedAddresses.concat(address2);
+      addresses2.forEach((address3) => {
+        address3 = _handleAddress(address3, depth);
+        if (address3.length) {
+          parsedAddresses = parsedAddresses.concat(address3);
         }
       });
       if (options.flatten) {
-        let addresses2 = [];
+        let addresses3 = [];
         let walkAddressList = (list2) => {
-          list2.forEach((address2) => {
-            if (address2.group) {
-              return walkAddressList(address2.group);
+          list2.forEach((address3) => {
+            if (address3.group) {
+              return walkAddressList(address3.group);
             } else {
-              addresses2.push(address2);
+              addresses3.push(address3);
             }
           });
         };
         walkAddressList(parsedAddresses);
-        return addresses2;
+        return addresses3;
       }
       return parsedAddresses;
     }
@@ -5213,7 +5213,7 @@ var require_mime_node = __commonJS({
         if (envelope.from) {
           list2 = [];
           this._convertAddresses(this._parseAddresses(envelope.from), list2);
-          list2 = list2.filter((address) => address && address.address);
+          list2 = list2.filter((address2) => address2 && address2.address);
           if (list2.length && list2[0]) {
             this._envelope.from = list2[0].address;
           }
@@ -5223,7 +5223,7 @@ var require_mime_node = __commonJS({
             this._convertAddresses(this._parseAddresses(envelope[key]), this._envelope.to);
           }
         });
-        this._envelope.to = this._envelope.to.map((to) => to.address).filter((address) => address);
+        this._envelope.to = this._envelope.to.map((to) => to.address).filter((address2) => address2);
         let standardFields = ["to", "cc", "bcc", "from"];
         Object.keys(envelope).forEach((key) => {
           if (!standardFields.includes(key)) {
@@ -5238,17 +5238,17 @@ var require_mime_node = __commonJS({
        * @return {Object} Address object
        */
       getAddresses() {
-        let addresses = {};
+        let addresses2 = {};
         this._headers.forEach((header) => {
           let key = header.key.toLowerCase();
           if (["from", "sender", "reply-to", "to", "cc", "bcc"].includes(key)) {
-            if (!Array.isArray(addresses[key])) {
-              addresses[key] = [];
+            if (!Array.isArray(addresses2[key])) {
+              addresses2[key] = [];
             }
-            this._convertAddresses(this._parseAddresses(header.value), addresses[key]);
+            this._convertAddresses(this._parseAddresses(header.value), addresses2[key]);
           }
         });
-        return addresses;
+        return addresses2;
       }
       /**
        * Generates and returns SMTP envelope with the sender address and a list of recipients addresses
@@ -5360,16 +5360,16 @@ var require_mime_node = __commonJS({
        * @param {Mixed} addresses Addresses to be parsed
        * @return {Array} An array of address objects
        */
-      _parseAddresses(addresses) {
+      _parseAddresses(addresses2) {
         return [].concat.apply(
           [],
-          [].concat(addresses).map((address) => {
-            if (address && address.address) {
-              address.address = this._normalizeAddress(address.address);
-              address.name = address.name || "";
-              return [address];
+          [].concat(addresses2).map((address2) => {
+            if (address2 && address2.address) {
+              address2.address = this._normalizeAddress(address2.address);
+              address2.name = address2.name || "";
+              return [address2];
             }
-            return addressparser(address);
+            return addressparser(address2);
           })
         );
       }
@@ -5474,25 +5474,25 @@ var require_mime_node = __commonJS({
        * @param {Array} [uniqueList] An array to be populated with addresses
        * @return {String} address string
        */
-      _convertAddresses(addresses, uniqueList) {
+      _convertAddresses(addresses2, uniqueList) {
         let values = [];
         uniqueList = uniqueList || [];
-        [].concat(addresses || []).forEach((address) => {
-          if (address.address) {
-            address.address = this._normalizeAddress(address.address);
-            if (!address.name) {
-              values.push(address.address.indexOf(" ") >= 0 ? `<${address.address}>` : `${address.address}`);
-            } else if (address.name) {
-              values.push(`${this._encodeAddressName(address.name)} <${address.address}>`);
+        [].concat(addresses2 || []).forEach((address2) => {
+          if (address2.address) {
+            address2.address = this._normalizeAddress(address2.address);
+            if (!address2.name) {
+              values.push(address2.address.indexOf(" ") >= 0 ? `<${address2.address}>` : `${address2.address}`);
+            } else if (address2.name) {
+              values.push(`${this._encodeAddressName(address2.name)} <${address2.address}>`);
             }
-            if (address.address) {
-              if (!uniqueList.filter((a) => a.address === address.address).length) {
-                uniqueList.push(address);
+            if (address2.address) {
+              if (!uniqueList.filter((a) => a.address === address2.address).length) {
+                uniqueList.push(address2);
               }
             }
-          } else if (address.group) {
-            let groupListAddresses = (address.group.length ? this._convertAddresses(address.group, uniqueList) : "").trim();
-            values.push(`${this._encodeAddressName(address.name)}:${groupListAddresses};`);
+          } else if (address2.group) {
+            let groupListAddresses = (address2.group.length ? this._convertAddresses(address2.group, uniqueList) : "").trim();
+            values.push(`${this._encodeAddressName(address2.name)}:${groupListAddresses};`);
           }
         });
         return values.join(", ");
@@ -5503,14 +5503,14 @@ var require_mime_node = __commonJS({
        * @param {Array} address An array of address objects
        * @return {String} address string
        */
-      _normalizeAddress(address) {
-        address = (address || "").toString().replace(/[\x00-\x1F<>]+/g, " ").trim();
-        let lastAt = address.lastIndexOf("@");
+      _normalizeAddress(address2) {
+        address2 = (address2 || "").toString().replace(/[\x00-\x1F<>]+/g, " ").trim();
+        let lastAt = address2.lastIndexOf("@");
         if (lastAt < 0) {
-          return address;
+          return address2;
         }
-        let user = address.substr(0, lastAt);
-        let domain2 = address.substr(lastAt + 1);
+        let user = address2.substr(0, lastAt);
+        let domain2 = address2.substr(lastAt + 1);
         let encodedDomain;
         try {
           encodedDomain = punycode.toASCII(domain2.toLowerCase());
@@ -6747,23 +6747,23 @@ var require_mail_message = __commonJS({
         }
         let mimeNode = new MimeNode();
         let addressKeys = ["from", "to", "cc", "bcc", "sender", "replyTo"];
-        addressKeys.forEach((address) => {
+        addressKeys.forEach((address2) => {
           let value;
           if (this.message) {
-            value = [].concat(mimeNode._parseAddresses(this.message.getHeader(address === "replyTo" ? "reply-to" : address)) || []);
-          } else if (this.data[address]) {
-            value = [].concat(mimeNode._parseAddresses(this.data[address]) || []);
+            value = [].concat(mimeNode._parseAddresses(this.message.getHeader(address2 === "replyTo" ? "reply-to" : address2)) || []);
+          } else if (this.data[address2]) {
+            value = [].concat(mimeNode._parseAddresses(this.data[address2]) || []);
           }
           if (value && value.length) {
-            this.data[address] = value;
-          } else if (address in this.data) {
-            this.data[address] = null;
+            this.data[address2] = value;
+          } else if (address2 in this.data) {
+            this.data[address2] = null;
           }
         });
         let singleKeys = ["from", "sender"];
-        singleKeys.forEach((address) => {
-          if (this.data[address]) {
-            this.data[address] = this.data[address].shift();
+        singleKeys.forEach((address2) => {
+          if (this.data[address2]) {
+            this.data[address2] = this.data[address2].shift();
           }
         });
         let pos = 0;
@@ -7272,11 +7272,11 @@ var require_mailer = __commonJS({
               if (net3.isIP(proxy.hostname)) {
                 return connect(proxy.hostname);
               }
-              return dns2.resolve(proxy.hostname, (err, address) => {
+              return dns2.resolve(proxy.hostname, (err, address2) => {
                 if (err) {
                   return callback(err);
                 }
-                connect(Array.isArray(address) ? address[0] : address);
+                connect(Array.isArray(address2) ? address2[0] : address2);
               });
             }
           }
@@ -10459,7 +10459,7 @@ var require_smtp_pool = __commonJS({
             callback = shared.callbackPromise(resolve, reject);
           });
         }
-        let auth = new PoolResource(this).auth;
+        let auth2 = new PoolResource(this).auth;
         this.getSocket(this.options, (err, socketOptions) => {
           if (err) {
             return callback(err);
@@ -10515,8 +10515,8 @@ var require_smtp_pool = __commonJS({
             if (returned) {
               return;
             }
-            if (auth && (connection.allowsAuth || options.forceAuth)) {
-              connection.login(auth, (err2) => {
+            if (auth2 && (connection.allowsAuth || options.forceAuth)) {
+              connection.login(auth2, (err2) => {
                 if (returned) {
                   return;
                 }
@@ -10527,7 +10527,7 @@ var require_smtp_pool = __commonJS({
                 }
                 finalize2();
               });
-            } else if (!auth && connection.allowsAuth && options.forceAuth) {
+            } else if (!auth2 && connection.allowsAuth && options.forceAuth) {
               let err2 = new Error("Authentication info was not provided");
               err2.code = "NoAuth";
               returned = true;
@@ -10777,11 +10777,11 @@ var require_smtp_transport = __commonJS({
             if (returned) {
               return;
             }
-            let auth = this.getAuth(mail.data.auth);
-            if (auth && (connection.allowsAuth || options.forceAuth)) {
-              connection.login(auth, (err2) => {
-                if (auth && auth !== this.auth && auth.oauth2) {
-                  auth.oauth2.removeAllListeners();
+            let auth2 = this.getAuth(mail.data.auth);
+            if (auth2 && (connection.allowsAuth || options.forceAuth)) {
+              connection.login(auth2, (err2) => {
+                if (auth2 && auth2 !== this.auth && auth2.oauth2) {
+                  auth2.oauth2.removeAllListeners();
                 }
                 if (returned) {
                   return;
@@ -15385,9 +15385,9 @@ var require_lib = __commonJS({
   }
 });
 
-// ../../../node_modules/.pnpm/encoding-japanese@2.3.0/node_modules/encoding-japanese/src/util.js
+// ../../../node_modules/.pnpm/encoding-japanese@2.4.0/node_modules/encoding-japanese/src/util.js
 var require_util = __commonJS({
-  "../../../node_modules/.pnpm/encoding-japanese@2.3.0/node_modules/encoding-japanese/src/util.js"(exports) {
+  "../../../node_modules/.pnpm/encoding-japanese@2.4.0/node_modules/encoding-japanese/src/util.js"(exports) {
     var config2 = require_config();
     var fromCharCode = String.fromCharCode;
     var slice = Array.prototype.slice;
@@ -15840,9 +15840,9 @@ var require_util = __commonJS({
   }
 });
 
-// ../../../node_modules/.pnpm/encoding-japanese@2.3.0/node_modules/encoding-japanese/src/utf8-to-jis-table.js
+// ../../../node_modules/.pnpm/encoding-japanese@2.4.0/node_modules/encoding-japanese/src/utf8-to-jis-table.js
 var require_utf8_to_jis_table = __commonJS({
-  "../../../node_modules/.pnpm/encoding-japanese@2.3.0/node_modules/encoding-japanese/src/utf8-to-jis-table.js"(exports, module) {
+  "../../../node_modules/.pnpm/encoding-japanese@2.4.0/node_modules/encoding-japanese/src/utf8-to-jis-table.js"(exports, module) {
     module.exports = {
       15711649: 33,
       15711650: 34,
@@ -23233,17 +23233,35 @@ var require_utf8_to_jis_table = __commonJS({
       15712164: 31868,
       15711367: 31869,
       15711362: 31870,
-      //FIXME: mojibake
+      // Remaps Unicode characters that differ between CP932 and JIS X 0208 mappings
+      // (encode and decode) See also `utf8-to-jis-alias-table.js`
       14846117: 8514,
-      15712162: 8780,
-      14846098: 74077
+      // ∥ U+2225 PARALLEL TO        same cell as ‖ U+2016 (0xE28096) -> SJIS 0x8161
+      15712162: 8780
+      // ￢ U+FFE2 FULLWIDTH NOT SIGN same cell as ¬ U+00AC (0xC2AC)   -> SJIS 0x81CA
     };
   }
 });
 
-// ../../../node_modules/.pnpm/encoding-japanese@2.3.0/node_modules/encoding-japanese/src/utf8-to-jisx0212-table.js
+// ../../../node_modules/.pnpm/encoding-japanese@2.4.0/node_modules/encoding-japanese/src/utf8-to-jis-alias-table.js
+var require_utf8_to_jis_alias_table = __commonJS({
+  "../../../node_modules/.pnpm/encoding-japanese@2.4.0/node_modules/encoding-japanese/src/utf8-to-jis-alias-table.js"(exports, module) {
+    module.exports = {
+      14846098: 8541,
+      // − U+2212 MINUS SIGN same cell as － U+FF0D (0xEFBC8D) -> SJIS 0x817C
+      14909596: 8513,
+      // 〜 U+301C WAVE DASH same cell as ～ U+FF5E (0xEFBD9E) -> SJIS 0x8160
+      49826: 8561,
+      // ¢ U+00A2 CENT SIGN  same cell as ￠ U+FFE0 (0xEFBFA0) -> SJIS 0x8191
+      49827: 8562
+      // £ U+00A3 POUND SIGN same cell as ￡ U+FFE1 (0xEFBFA1) -> SJIS 0x8192
+    };
+  }
+});
+
+// ../../../node_modules/.pnpm/encoding-japanese@2.4.0/node_modules/encoding-japanese/src/utf8-to-jisx0212-table.js
 var require_utf8_to_jisx0212_table = __commonJS({
-  "../../../node_modules/.pnpm/encoding-japanese@2.3.0/node_modules/encoding-japanese/src/utf8-to-jisx0212-table.js"(exports, module) {
+  "../../../node_modules/.pnpm/encoding-japanese@2.4.0/node_modules/encoding-japanese/src/utf8-to-jisx0212-table.js"(exports, module) {
     module.exports = {
       52120: 8751,
       52103: 8752,
@@ -29311,42 +29329,41 @@ var require_utf8_to_jisx0212_table = __commonJS({
       15318689: 28e3,
       15318690: 28001,
       15318691: 28002,
-      15318693: 28003,
-      //FIXME: mojibake
-      14909596: 8513
+      15318693: 28003
     };
   }
 });
 
-// ../../../node_modules/.pnpm/encoding-japanese@2.3.0/node_modules/encoding-japanese/src/jis-to-utf8-table.js
+// ../../../node_modules/.pnpm/encoding-japanese@2.4.0/node_modules/encoding-japanese/src/jis-to-utf8-table.js
 var require_jis_to_utf8_table = __commonJS({
-  "../../../node_modules/.pnpm/encoding-japanese@2.3.0/node_modules/encoding-japanese/src/jis-to-utf8-table.js"(exports, module) {
+  "../../../node_modules/.pnpm/encoding-japanese@2.4.0/node_modules/encoding-japanese/src/jis-to-utf8-table.js"(exports, module) {
     var JIS_TO_UTF8_TABLE = null;
     module.exports = JIS_TO_UTF8_TABLE;
   }
 });
 
-// ../../../node_modules/.pnpm/encoding-japanese@2.3.0/node_modules/encoding-japanese/src/jisx0212-to-utf8-table.js
+// ../../../node_modules/.pnpm/encoding-japanese@2.4.0/node_modules/encoding-japanese/src/jisx0212-to-utf8-table.js
 var require_jisx0212_to_utf8_table = __commonJS({
-  "../../../node_modules/.pnpm/encoding-japanese@2.3.0/node_modules/encoding-japanese/src/jisx0212-to-utf8-table.js"(exports, module) {
+  "../../../node_modules/.pnpm/encoding-japanese@2.4.0/node_modules/encoding-japanese/src/jisx0212-to-utf8-table.js"(exports, module) {
     var JISX0212_TO_UTF8_TABLE = null;
     module.exports = JISX0212_TO_UTF8_TABLE;
   }
 });
 
-// ../../../node_modules/.pnpm/encoding-japanese@2.3.0/node_modules/encoding-japanese/src/encoding-table.js
+// ../../../node_modules/.pnpm/encoding-japanese@2.4.0/node_modules/encoding-japanese/src/encoding-table.js
 var require_encoding_table = __commonJS({
-  "../../../node_modules/.pnpm/encoding-japanese@2.3.0/node_modules/encoding-japanese/src/encoding-table.js"(exports) {
+  "../../../node_modules/.pnpm/encoding-japanese@2.4.0/node_modules/encoding-japanese/src/encoding-table.js"(exports) {
     exports.UTF8_TO_JIS_TABLE = require_utf8_to_jis_table();
+    exports.UTF8_TO_JIS_ALIAS_TABLE = require_utf8_to_jis_alias_table();
     exports.UTF8_TO_JISX0212_TABLE = require_utf8_to_jisx0212_table();
     exports.JIS_TO_UTF8_TABLE = require_jis_to_utf8_table();
     exports.JISX0212_TO_UTF8_TABLE = require_jisx0212_to_utf8_table();
   }
 });
 
-// ../../../node_modules/.pnpm/encoding-japanese@2.3.0/node_modules/encoding-japanese/src/config.js
+// ../../../node_modules/.pnpm/encoding-japanese@2.4.0/node_modules/encoding-japanese/src/config.js
 var require_config = __commonJS({
-  "../../../node_modules/.pnpm/encoding-japanese@2.3.0/node_modules/encoding-japanese/src/config.js"(exports) {
+  "../../../node_modules/.pnpm/encoding-japanese@2.4.0/node_modules/encoding-japanese/src/config.js"(exports) {
     var util = require_util();
     var EncodingTable = require_encoding_table();
     exports.FALLBACK_CHARACTER = 63;
@@ -29466,9 +29483,9 @@ var require_config = __commonJS({
   }
 });
 
-// ../../../node_modules/.pnpm/encoding-japanese@2.3.0/node_modules/encoding-japanese/src/encoding-detect.js
+// ../../../node_modules/.pnpm/encoding-japanese@2.4.0/node_modules/encoding-japanese/src/encoding-detect.js
 var require_encoding_detect = __commonJS({
-  "../../../node_modules/.pnpm/encoding-japanese@2.3.0/node_modules/encoding-japanese/src/encoding-detect.js"(exports) {
+  "../../../node_modules/.pnpm/encoding-japanese@2.4.0/node_modules/encoding-japanese/src/encoding-detect.js"(exports) {
     function isBINARY(data) {
       var i = 0;
       var len = data && data.length;
@@ -29835,9 +29852,9 @@ var require_encoding_detect = __commonJS({
   }
 });
 
-// ../../../node_modules/.pnpm/encoding-japanese@2.3.0/node_modules/encoding-japanese/src/sjis-ext.js
+// ../../../node_modules/.pnpm/encoding-japanese@2.4.0/node_modules/encoding-japanese/src/sjis-ext.js
 var require_sjis_ext = __commonJS({
-  "../../../node_modules/.pnpm/encoding-japanese@2.3.0/node_modules/encoding-japanese/src/sjis-ext.js"(exports) {
+  "../../../node_modules/.pnpm/encoding-japanese@2.4.0/node_modules/encoding-japanese/src/sjis-ext.js"(exports) {
     var CP932_IBM_EXT_SYMBOL_MAP = [
       // 0xFA40 - 0xFA49 [ⅰ-ⅹ]
       61167,
@@ -29937,9 +29954,9 @@ var require_sjis_ext = __commonJS({
   }
 });
 
-// ../../../node_modules/.pnpm/encoding-japanese@2.3.0/node_modules/encoding-japanese/src/encoding-convert.js
+// ../../../node_modules/.pnpm/encoding-japanese@2.4.0/node_modules/encoding-japanese/src/encoding-convert.js
 var require_encoding_convert = __commonJS({
-  "../../../node_modules/.pnpm/encoding-japanese@2.3.0/node_modules/encoding-japanese/src/encoding-convert.js"(exports) {
+  "../../../node_modules/.pnpm/encoding-japanese@2.4.0/node_modules/encoding-japanese/src/encoding-convert.js"(exports) {
     var config2 = require_config();
     var util = require_util();
     var EncodingDetect = require_encoding_detect();
@@ -30072,13 +30089,23 @@ var require_encoding_convert = __commonJS({
           }
           results[results.length] = b1 - 128 & 255;
         } else if (b1 >= 128) {
+          b2 = data[++i];
+          if (b2 === 127) {
+            if (index !== 0) {
+              index = 0;
+              results[results.length] = esc2[0];
+              results[results.length] = esc2[1];
+              results[results.length] = esc2[2];
+            }
+            results[results.length] = config2.FALLBACK_CHARACTER;
+            continue;
+          }
           if (index !== 1) {
             index = 1;
             results[results.length] = esc2[3];
             results[results.length] = esc2[4];
             results[results.length] = esc2[5];
           }
-          b2 = data[++i];
           if (sjisExt.hasCP932DuplicateCode(b1)) {
             remapped = sjisExt.remapCP932DuplicateCode(b1, b2);
             b1 = remapped >> 8;
@@ -30136,6 +30163,10 @@ var require_encoding_convert = __commonJS({
           results[results.length] = b1;
         } else if (b1 >= 129) {
           b2 = data[++i];
+          if (b2 === 127) {
+            results[results.length] = config2.FALLBACK_CHARACTER;
+            continue;
+          }
           if (sjisExt.hasCP932DuplicateCode(b1)) {
             remapped = sjisExt.remapCP932DuplicateCode(b1, b2);
             b1 = remapped >> 8;
@@ -30299,6 +30330,10 @@ var require_encoding_convert = __commonJS({
           results[results.length] = u3 & 255;
         } else if (b >= 128) {
           b2 = data[++i];
+          if (b2 === 127) {
+            results[results.length] = config2.FALLBACK_CHARACTER;
+            continue;
+          }
           if (sjisExt.hasCP932DuplicateCode(b)) {
             remapped = sjisExt.remapCP932DuplicateCode(b, b2);
             b = remapped >> 8;
@@ -30487,7 +30522,7 @@ var require_encoding_convert = __commonJS({
             bytes = [b, data[i + 1], data[i + 2], data[i + 3]];
             utf8 = (b << 24) + (data[++i] << 16) + (data[++i] << 8) + (data[++i] & 255);
           }
-          jis = EncodingTable.UTF8_TO_JIS_TABLE[utf8];
+          jis = EncodingTable.UTF8_TO_JIS_TABLE[utf8] || EncodingTable.UTF8_TO_JIS_ALIAS_TABLE[utf8];
           if (jis == null) {
             if (fallbackOption) {
               handleFallback(results, bytes, fallbackOption);
@@ -30498,9 +30533,6 @@ var require_encoding_convert = __commonJS({
             if (jis < 255) {
               results[results.length] = jis + 128;
             } else {
-              if (jis > 65536) {
-                jis -= 65536;
-              }
               b1 = jis >> 8;
               b2 = jis & 255;
               if (b1 & 1) {
@@ -30539,7 +30571,7 @@ var require_encoding_convert = __commonJS({
       var results = [];
       var i = 0;
       var len = data && data.length;
-      var b, bytes, utf8, jis;
+      var b, bytes, utf8, jis, isJISX0212;
       var fallbackOption = options && options.fallback;
       for (; i < len; i++) {
         b = data[i];
@@ -30554,31 +30586,25 @@ var require_encoding_convert = __commonJS({
             bytes = [b, data[i + 1], data[i + 2], data[i + 3]];
             utf8 = (b << 24) + (data[++i] << 16) + (data[++i] << 8) + (data[++i] & 255);
           }
-          jis = EncodingTable.UTF8_TO_JIS_TABLE[utf8];
-          if (jis != null && EncodingTable.UTF8_TO_JISX0212_TABLE[utf8] != null) {
-            jis = null;
+          jis = EncodingTable.UTF8_TO_JISX0212_TABLE[utf8];
+          isJISX0212 = jis != null;
+          if (jis == null) {
+            jis = EncodingTable.UTF8_TO_JIS_TABLE[utf8] || EncodingTable.UTF8_TO_JIS_ALIAS_TABLE[utf8];
           }
           if (jis == null) {
-            jis = EncodingTable.UTF8_TO_JISX0212_TABLE[utf8];
-            if (jis == null) {
-              if (fallbackOption) {
-                handleFallback(results, bytes, fallbackOption);
-              } else {
-                results[results.length] = config2.FALLBACK_CHARACTER;
-              }
+            if (fallbackOption) {
+              handleFallback(results, bytes, fallbackOption);
             } else {
-              results[results.length] = 143;
-              results[results.length] = (jis >> 8) - 128 & 255;
-              results[results.length] = (jis & 255) - 128 & 255;
+              results[results.length] = config2.FALLBACK_CHARACTER;
             }
           } else {
-            if (jis > 65536) {
-              jis -= 65536;
-            }
             if (jis < 255) {
               results[results.length] = 142;
               results[results.length] = jis - 128 & 255;
             } else {
+              if (isJISX0212) {
+                results[results.length] = 143;
+              }
               results[results.length] = (jis >> 8) - 128 & 255;
               results[results.length] = (jis & 255) - 128 & 255;
             }
@@ -30595,7 +30621,7 @@ var require_encoding_convert = __commonJS({
       var index = 0;
       var len = data && data.length;
       var i = 0;
-      var b, bytes, utf8, jis;
+      var b, bytes, utf8, jis, isJISX0212;
       var fallbackOption = options && options.fallback;
       var esc2 = [
         27,
@@ -30633,39 +30659,24 @@ var require_encoding_convert = __commonJS({
             bytes = [b, data[i + 1], data[i + 2], data[i + 3]];
             utf8 = (b << 24) + (data[++i] << 16) + (data[++i] << 8) + (data[++i] & 255);
           }
-          jis = EncodingTable.UTF8_TO_JIS_TABLE[utf8];
-          if (jis != null && EncodingTable.UTF8_TO_JISX0212_TABLE[utf8] != null) {
-            jis = null;
+          jis = EncodingTable.UTF8_TO_JISX0212_TABLE[utf8];
+          isJISX0212 = jis != null;
+          if (jis == null) {
+            jis = EncodingTable.UTF8_TO_JIS_TABLE[utf8] || EncodingTable.UTF8_TO_JIS_ALIAS_TABLE[utf8];
           }
           if (jis == null) {
-            jis = EncodingTable.UTF8_TO_JISX0212_TABLE[utf8];
-            if (jis == null) {
-              if (index !== 0) {
-                index = 0;
-                results[results.length] = esc2[0];
-                results[results.length] = esc2[1];
-                results[results.length] = esc2[2];
-              }
-              if (fallbackOption) {
-                handleFallback(results, bytes, fallbackOption);
-              } else {
-                results[results.length] = config2.FALLBACK_CHARACTER;
-              }
+            if (index !== 0) {
+              index = 0;
+              results[results.length] = esc2[0];
+              results[results.length] = esc2[1];
+              results[results.length] = esc2[2];
+            }
+            if (fallbackOption) {
+              handleFallback(results, bytes, fallbackOption);
             } else {
-              if (index !== 3) {
-                index = 3;
-                results[results.length] = esc2[9];
-                results[results.length] = esc2[10];
-                results[results.length] = esc2[11];
-                results[results.length] = esc2[12];
-              }
-              results[results.length] = jis >> 8 & 255;
-              results[results.length] = jis & 255;
+              results[results.length] = config2.FALLBACK_CHARACTER;
             }
           } else {
-            if (jis > 65536) {
-              jis -= 65536;
-            }
             if (jis < 255) {
               if (index !== 2) {
                 index = 2;
@@ -30675,7 +30686,15 @@ var require_encoding_convert = __commonJS({
               }
               results[results.length] = jis & 255;
             } else {
-              if (index !== 1) {
+              if (isJISX0212) {
+                if (index !== 3) {
+                  index = 3;
+                  results[results.length] = esc2[9];
+                  results[results.length] = esc2[10];
+                  results[results.length] = esc2[11];
+                  results[results.length] = esc2[12];
+                }
+              } else if (index !== 1) {
                 index = 1;
                 results[results.length] = esc2[3];
                 results[results.length] = esc2[4];
@@ -30733,7 +30752,7 @@ var require_encoding_convert = __commonJS({
       var i = 0;
       var len = data && data.length;
       var n, c, c2, c3, c4, code;
-      var ignoreSurrogatePair = options && options.ignoreSurrogatePair;
+      var asCodePoint = options && options.asCodePoint;
       while (i < len) {
         c = data[i++];
         n = c >> 4;
@@ -30752,7 +30771,7 @@ var require_encoding_convert = __commonJS({
           c4 = data[i++];
           code = (c & 7) << 18 | (c2 & 63) << 12 | (c3 & 63) << 6 | c4 & 63;
         }
-        if (code <= 65535 || ignoreSurrogatePair) {
+        if (code <= 65535 || asCodePoint) {
           results[results.length] = code;
         } else {
           code -= 65536;
@@ -31196,7 +31215,7 @@ var require_encoding_convert = __commonJS({
       switch (fallbackOption) {
         case "html-entity":
         case "html-entity-hex":
-          var unicode = UTF8ToUNICODE(bytes, { ignoreSurrogatePair: true })[0];
+          var unicode = UTF8ToUNICODE(bytes, { asCodePoint: true })[0];
           if (unicode) {
             results[results.length] = 38;
             results[results.length] = 35;
@@ -31220,9 +31239,9 @@ var require_encoding_convert = __commonJS({
   }
 });
 
-// ../../../node_modules/.pnpm/encoding-japanese@2.3.0/node_modules/encoding-japanese/src/kana-case-table.js
+// ../../../node_modules/.pnpm/encoding-japanese@2.4.0/node_modules/encoding-japanese/src/kana-case-table.js
 var require_kana_case_table = __commonJS({
-  "../../../node_modules/.pnpm/encoding-japanese@2.3.0/node_modules/encoding-japanese/src/kana-case-table.js"(exports) {
+  "../../../node_modules/.pnpm/encoding-japanese@2.4.0/node_modules/encoding-japanese/src/kana-case-table.js"(exports) {
     exports.HANKANA_TABLE = {
       12289: 65380,
       12290: 65377,
@@ -31362,24 +31381,28 @@ var require_kana_case_table = __commonJS({
   }
 });
 
-// ../../../node_modules/.pnpm/encoding-japanese@2.3.0/node_modules/encoding-japanese/package.json
+// ../../../node_modules/.pnpm/encoding-japanese@2.4.0/node_modules/encoding-japanese/package.json
 var require_package2 = __commonJS({
-  "../../../node_modules/.pnpm/encoding-japanese@2.3.0/node_modules/encoding-japanese/package.json"(exports, module) {
+  "../../../node_modules/.pnpm/encoding-japanese@2.4.0/node_modules/encoding-japanese/package.json"(exports, module) {
     module.exports = {
       name: "encoding-japanese",
-      version: "2.3.0",
-      description: "Convert and detect character encoding in JavaScript",
+      version: "2.4.0",
+      description: "Convert and detect character encodings in JavaScript",
       main: "src/index.js",
+      types: "index.d.ts",
       files: [
         "encoding.js",
         "encoding.min.js",
+        "index.d.ts",
         "src/*"
       ],
       scripts: {
         build: "npm run compile && npm run minify",
         compile: "browserify src/index.js -o encoding.js -s Encoding -p [ bannerify --file src/banner.js ] --no-bundle-external --bare",
         minify: "uglifyjs encoding.js -o encoding.min.js --comments -c -m -b ascii_only=true,beautify=false",
-        test: "eslint . && npm run build && mocha tests/test",
+        lint: "eslint .",
+        test: "npm run build && npm run test:types && mocha tests/test",
+        "test:types": "tsc --project tsconfig.types.json",
         watch: "watchify src/index.js -o encoding.js -s Encoding -p [ bannerify --file src/banner.js ] --no-bundle-external --bare --poll=300 -v"
       },
       engines: {
@@ -31396,33 +31419,38 @@ var require_package2 = __commonJS({
       },
       homepage: "https://github.com/polygonplanet/encoding.js",
       keywords: [
-        "base64",
+        "encoding",
         "charset",
         "convert",
         "detect",
-        "encoding",
-        "euc-jp",
-        "eucjp",
-        "iconv",
-        "iso-2022-jp",
         "japanese",
+        "iconv",
+        "shift-jis",
+        "cp932",
+        "euc-jp",
         "jis",
+        "utf-8",
+        "unicode",
+        "utf-16",
+        "base64",
+        "urlencode",
+        "urldecode",
+        "utf8",
         "shift_jis",
         "sjis",
-        "unicode",
-        "urldecode",
-        "urlencode",
-        "utf-16",
-        "utf-32",
-        "utf-8"
+        "eucjp"
       ],
-      dependencies: {},
       devDependencies: {
+        "@eslint/js": "^10.0.1",
+        "@stylistic/eslint-plugin": "^5.10.0",
+        "@types/node": "^26.5.0",
         bannerify: "^1.0.1",
         browserify: "^17.0.1",
-        eslint: "^8.57.0",
+        eslint: "^10.9.1",
+        globals: "^17.12.0",
         mocha: "^11.8.0",
         "package-json-versionify": "^1.0.4",
+        typescript: "^7.0.2",
         "uglify-js": "^3.19.3",
         watchify: "^4.0.0"
       },
@@ -31435,9 +31463,9 @@ var require_package2 = __commonJS({
   }
 });
 
-// ../../../node_modules/.pnpm/encoding-japanese@2.3.0/node_modules/encoding-japanese/src/index.js
+// ../../../node_modules/.pnpm/encoding-japanese@2.4.0/node_modules/encoding-japanese/src/index.js
 var require_src = __commonJS({
-  "../../../node_modules/.pnpm/encoding-japanese@2.3.0/node_modules/encoding-japanese/src/index.js"(exports, module) {
+  "../../../node_modules/.pnpm/encoding-japanese@2.4.0/node_modules/encoding-japanese/src/index.js"(exports, module) {
     var config2 = require_config();
     var util = require_util();
     var EncodingDetect = require_encoding_detect();
@@ -31867,7 +31895,7 @@ var require_src = __commonJS({
         var len = data && data.length;
         var i = 0;
         var c, code, next;
-        for (i = 0; i < len; i++) {
+        for (; i < len; i++) {
           c = data[i];
           if (c > 65376 && c < 65440) {
             code = KanaCaseTable.ZENKANA_TABLE[c - 65377];
@@ -31951,9 +31979,9 @@ var require_src = __commonJS({
   }
 });
 
-// ../../../node_modules/.pnpm/libmime@5.4.3/node_modules/libmime/lib/charsets.js
+// ../../../node_modules/.pnpm/libmime@5.4.4/node_modules/libmime/lib/charsets.js
 var require_charsets = __commonJS({
-  "../../../node_modules/.pnpm/libmime@5.4.3/node_modules/libmime/lib/charsets.js"(exports, module) {
+  "../../../node_modules/.pnpm/libmime@5.4.4/node_modules/libmime/lib/charsets.js"(exports, module) {
     "use strict";
     module.exports = {
       "866": "IBM866",
@@ -32166,9 +32194,9 @@ var require_charsets = __commonJS({
   }
 });
 
-// ../../../node_modules/.pnpm/libmime@5.4.3/node_modules/libmime/lib/charset.js
+// ../../../node_modules/.pnpm/libmime@5.4.4/node_modules/libmime/lib/charset.js
 var require_charset = __commonJS({
-  "../../../node_modules/.pnpm/libmime@5.4.3/node_modules/libmime/lib/charset.js"(exports, module) {
+  "../../../node_modules/.pnpm/libmime@5.4.4/node_modules/libmime/lib/charset.js"(exports, module) {
     "use strict";
     var { Buffer: Buffer2 } = __require("node:buffer");
     var iconv2 = require_lib();
@@ -32645,9 +32673,9 @@ var require_libqp = __commonJS({
   }
 });
 
-// ../../../node_modules/.pnpm/libmime@5.4.3/node_modules/libmime/lib/mimetypes.js
+// ../../../node_modules/.pnpm/libmime@5.4.4/node_modules/libmime/lib/mimetypes.js
 var require_mimetypes = __commonJS({
-  "../../../node_modules/.pnpm/libmime@5.4.3/node_modules/libmime/lib/mimetypes.js"(exports, module) {
+  "../../../node_modules/.pnpm/libmime@5.4.4/node_modules/libmime/lib/mimetypes.js"(exports, module) {
     "use strict";
     module.exports = {
       list: {
@@ -34696,9 +34724,9 @@ var require_mimetypes = __commonJS({
   }
 });
 
-// ../../../node_modules/.pnpm/libmime@5.4.3/node_modules/libmime/lib/libmime.js
+// ../../../node_modules/.pnpm/libmime@5.4.4/node_modules/libmime/lib/libmime.js
 var require_libmime = __commonJS({
-  "../../../node_modules/.pnpm/libmime@5.4.3/node_modules/libmime/lib/libmime.js"(exports, module) {
+  "../../../node_modules/.pnpm/libmime@5.4.4/node_modules/libmime/lib/libmime.js"(exports, module) {
     "use strict";
     var { Buffer: Buffer2 } = __require("node:buffer");
     var libcharset = require_charset();
@@ -35443,9 +35471,9 @@ var require_libmime = __commonJS({
   }
 });
 
-// ../../../node_modules/.pnpm/@zone-eu+mailsplit@5.4.16/node_modules/@zone-eu/mailsplit/lib/headers.js
+// ../../../node_modules/.pnpm/@zone-eu+mailsplit@5.4.17/node_modules/@zone-eu/mailsplit/lib/headers.js
 var require_headers = __commonJS({
-  "../../../node_modules/.pnpm/@zone-eu+mailsplit@5.4.16/node_modules/@zone-eu/mailsplit/lib/headers.js"(exports, module) {
+  "../../../node_modules/.pnpm/@zone-eu+mailsplit@5.4.17/node_modules/@zone-eu/mailsplit/lib/headers.js"(exports, module) {
     "use strict";
     var libmime3 = require_libmime();
     var Libmime = (
@@ -35802,9 +35830,9 @@ var require_headers = __commonJS({
   }
 });
 
-// ../../../node_modules/.pnpm/@zone-eu+mailsplit@5.4.16/node_modules/@zone-eu/mailsplit/lib/mime-node.js
+// ../../../node_modules/.pnpm/@zone-eu+mailsplit@5.4.17/node_modules/@zone-eu/mailsplit/lib/mime-node.js
 var require_mime_node2 = __commonJS({
-  "../../../node_modules/.pnpm/@zone-eu+mailsplit@5.4.16/node_modules/@zone-eu/mailsplit/lib/mime-node.js"(exports, module) {
+  "../../../node_modules/.pnpm/@zone-eu+mailsplit@5.4.17/node_modules/@zone-eu/mailsplit/lib/mime-node.js"(exports, module) {
     "use strict";
     var Headers3 = require_headers();
     var libmime3 = require_libmime();
@@ -36101,9 +36129,9 @@ var require_mime_node2 = __commonJS({
   }
 });
 
-// ../../../node_modules/.pnpm/@zone-eu+mailsplit@5.4.16/node_modules/@zone-eu/mailsplit/lib/message-splitter.js
+// ../../../node_modules/.pnpm/@zone-eu+mailsplit@5.4.17/node_modules/@zone-eu/mailsplit/lib/message-splitter.js
 var require_message_splitter = __commonJS({
-  "../../../node_modules/.pnpm/@zone-eu+mailsplit@5.4.16/node_modules/@zone-eu/mailsplit/lib/message-splitter.js"(exports, module) {
+  "../../../node_modules/.pnpm/@zone-eu+mailsplit@5.4.17/node_modules/@zone-eu/mailsplit/lib/message-splitter.js"(exports, module) {
     "use strict";
     var Transform4 = __require("stream").Transform;
     var MimeNode = require_mime_node2();
@@ -36578,9 +36606,9 @@ var require_message_splitter = __commonJS({
   }
 });
 
-// ../../../node_modules/.pnpm/@zone-eu+mailsplit@5.4.16/node_modules/@zone-eu/mailsplit/lib/message-joiner.js
+// ../../../node_modules/.pnpm/@zone-eu+mailsplit@5.4.17/node_modules/@zone-eu/mailsplit/lib/message-joiner.js
 var require_message_joiner = __commonJS({
-  "../../../node_modules/.pnpm/@zone-eu+mailsplit@5.4.16/node_modules/@zone-eu/mailsplit/lib/message-joiner.js"(exports, module) {
+  "../../../node_modules/.pnpm/@zone-eu+mailsplit@5.4.17/node_modules/@zone-eu/mailsplit/lib/message-joiner.js"(exports, module) {
     "use strict";
     var Transform4 = __require("stream").Transform;
     var MessageJoiner = class extends Transform4 {
@@ -36622,9 +36650,9 @@ var require_message_joiner = __commonJS({
   }
 });
 
-// ../../../node_modules/.pnpm/@zone-eu+mailsplit@5.4.16/node_modules/@zone-eu/mailsplit/lib/flowed-decoder.js
+// ../../../node_modules/.pnpm/@zone-eu+mailsplit@5.4.17/node_modules/@zone-eu/mailsplit/lib/flowed-decoder.js
 var require_flowed_decoder = __commonJS({
-  "../../../node_modules/.pnpm/@zone-eu+mailsplit@5.4.16/node_modules/@zone-eu/mailsplit/lib/flowed-decoder.js"(exports, module) {
+  "../../../node_modules/.pnpm/@zone-eu+mailsplit@5.4.17/node_modules/@zone-eu/mailsplit/lib/flowed-decoder.js"(exports, module) {
     "use strict";
     var Transform4 = __require("stream").Transform;
     var libmime3 = require_libmime();
@@ -36680,9 +36708,9 @@ var require_flowed_decoder = __commonJS({
   }
 });
 
-// ../../../node_modules/.pnpm/@zone-eu+mailsplit@5.4.16/node_modules/@zone-eu/mailsplit/lib/node-rewriter.js
+// ../../../node_modules/.pnpm/@zone-eu+mailsplit@5.4.17/node_modules/@zone-eu/mailsplit/lib/node-rewriter.js
 var require_node_rewriter = __commonJS({
-  "../../../node_modules/.pnpm/@zone-eu+mailsplit@5.4.16/node_modules/@zone-eu/mailsplit/lib/node-rewriter.js"(exports, module) {
+  "../../../node_modules/.pnpm/@zone-eu+mailsplit@5.4.17/node_modules/@zone-eu/mailsplit/lib/node-rewriter.js"(exports, module) {
     "use strict";
     var Transform4 = __require("stream").Transform;
     var FlowedDecoder2 = require_flowed_decoder();
@@ -36868,9 +36896,9 @@ var require_node_rewriter = __commonJS({
   }
 });
 
-// ../../../node_modules/.pnpm/@zone-eu+mailsplit@5.4.16/node_modules/@zone-eu/mailsplit/lib/node-streamer.js
+// ../../../node_modules/.pnpm/@zone-eu+mailsplit@5.4.17/node_modules/@zone-eu/mailsplit/lib/node-streamer.js
 var require_node_streamer = __commonJS({
-  "../../../node_modules/.pnpm/@zone-eu+mailsplit@5.4.16/node_modules/@zone-eu/mailsplit/lib/node-streamer.js"(exports, module) {
+  "../../../node_modules/.pnpm/@zone-eu+mailsplit@5.4.17/node_modules/@zone-eu/mailsplit/lib/node-streamer.js"(exports, module) {
     "use strict";
     var Transform4 = __require("stream").Transform;
     var FlowedDecoder2 = require_flowed_decoder();
@@ -37004,9 +37032,9 @@ var require_node_streamer = __commonJS({
   }
 });
 
-// ../../../node_modules/.pnpm/@zone-eu+mailsplit@5.4.16/node_modules/@zone-eu/mailsplit/lib/chunked-passthrough.js
+// ../../../node_modules/.pnpm/@zone-eu+mailsplit@5.4.17/node_modules/@zone-eu/mailsplit/lib/chunked-passthrough.js
 var require_chunked_passthrough = __commonJS({
-  "../../../node_modules/.pnpm/@zone-eu+mailsplit@5.4.16/node_modules/@zone-eu/mailsplit/lib/chunked-passthrough.js"(exports, module) {
+  "../../../node_modules/.pnpm/@zone-eu+mailsplit@5.4.17/node_modules/@zone-eu/mailsplit/lib/chunked-passthrough.js"(exports, module) {
     "use strict";
     var { Transform: Transform4 } = __require("stream");
     var ChunkedPassthrough = class extends Transform4 {
@@ -37052,9 +37080,9 @@ var require_chunked_passthrough = __commonJS({
   }
 });
 
-// ../../../node_modules/.pnpm/@zone-eu+mailsplit@5.4.16/node_modules/@zone-eu/mailsplit/index.js
+// ../../../node_modules/.pnpm/@zone-eu+mailsplit@5.4.17/node_modules/@zone-eu/mailsplit/index.js
 var require_mailsplit = __commonJS({
-  "../../../node_modules/.pnpm/@zone-eu+mailsplit@5.4.16/node_modules/@zone-eu/mailsplit/index.js"(exports, module) {
+  "../../../node_modules/.pnpm/@zone-eu+mailsplit@5.4.17/node_modules/@zone-eu/mailsplit/index.js"(exports, module) {
     "use strict";
     var MessageSplitter = require_message_splitter();
     var MessageJoiner = require_message_joiner();
@@ -40197,9 +40225,9 @@ var require_levels = __commonJS({
       const formatter = instance[formattersSym].level;
       const { labels } = instance.levels;
       const cache = {};
-      for (const label in labels) {
-        const level = formatter(labels[label], Number(label));
-        cache[label] = JSON.stringify(level).slice(0, -1);
+      for (const label2 in labels) {
+        const level = formatter(labels[label2], Number(label2));
+        cache[label2] = JSON.stringify(level).slice(0, -1);
       }
       instance[lsCacheSym] = cache;
       return instance;
@@ -41414,7 +41442,7 @@ var require_pino = __commonJS({
         bindings(bindings) {
           return bindings;
         },
-        level(label, number4) {
+        level(label2, number4) {
           return { level: number4 };
         }
       }),
@@ -42953,14 +42981,14 @@ var require_common = __commonJS({
     exports.stringToPaddedHex = stringToPaddedHex;
     exports.testBit = testBit;
     var address_error_1 = require_address_error();
-    function isInSubnet(address) {
-      if (this.subnetMask < address.subnetMask) {
+    function isInSubnet(address2) {
+      if (this.subnetMask < address2.subnetMask) {
         return false;
       }
-      return isHostInSubnet.call(this, address);
+      return isHostInSubnet.call(this, address2);
     }
-    function isHostInSubnet(address) {
-      return this.mask(address.subnetMask) === address.mask();
+    function isHostInSubnet(address2) {
+      return this.mask(address2.subnetMask) === address2.mask();
     }
     function isCorrect(defaultBits) {
       return function isCorrectForm() {
@@ -43065,7 +43093,7 @@ var require_ipv4 = __commonJS({
     var address_error_1 = require_address_error();
     var isCorrect4 = common.isCorrect(constants.BITS);
     var Address4 = class _Address4 {
-      constructor(address) {
+      constructor(address2) {
         this.addressMinusSuffix = "";
         this.groups = constants.GROUPS;
         this.parsedAddress = [];
@@ -43076,8 +43104,8 @@ var require_ipv4 = __commonJS({
         this.isCorrect = isCorrect4;
         this.isInSubnet = common.isInSubnet;
         this.isHostInSubnet = common.isHostInSubnet;
-        this.address = address;
-        const subnet = constants.RE_SUBNET_STRING.exec(address);
+        this.address = address2;
+        const subnet = constants.RE_SUBNET_STRING.exec(address2);
         if (subnet) {
           this.parsedSubnet = subnet[0].replace("/", "");
           this.subnetMask = parseInt(this.parsedSubnet, 10);
@@ -43085,10 +43113,10 @@ var require_ipv4 = __commonJS({
           if (this.subnetMask < 0 || this.subnetMask > constants.BITS) {
             throw new address_error_1.AddressError("Invalid subnet mask.");
           }
-          address = address.replace(constants.RE_SUBNET_STRING, "");
+          address2 = address2.replace(constants.RE_SUBNET_STRING, "");
         }
-        this.addressMinusSuffix = address;
-        this.parsedAddress = this.parse(address);
+        this.addressMinusSuffix = address2;
+        this.parsedAddress = this.parse(address2);
       }
       /**
        * Returns true if the given string is a valid IPv4 address (with optional
@@ -43097,9 +43125,9 @@ var require_ipv4 = __commonJS({
        * validation compare `correctForm()` to `startAddress().correctForm()`,
        * or use `networkForm()`.
        */
-      static isValid(address) {
+      static isValid(address2) {
         try {
-          new _Address4(address);
+          new _Address4(address2);
           return true;
         } catch {
           return false;
@@ -43111,12 +43139,12 @@ var require_ipv4 = __commonJS({
        * you typically don't need to call it directly. Throws `AddressError` if
        * the input is not a valid IPv4 address.
        */
-      parse(address) {
-        const groups = address.split(".");
+      parse(address2) {
+        const groups = address2.split(".");
         if (groups.some((group) => /^0\d/.test(group))) {
           throw new address_error_1.AddressError("IPv4 addresses can't have leading zeroes.");
         }
-        if (!address.match(constants.RE_ADDRESS)) {
+        if (!address2.match(constants.RE_ADDRESS)) {
           throw new address_error_1.AddressError("Invalid IPv4 address.");
         }
         return groups;
@@ -43138,9 +43166,9 @@ var require_ipv4 = __commonJS({
        * var address = Address4.fromAddressAndMask('192.168.1.1', '255.255.255.0');
        * address.subnetMask; // 24
        */
-      static fromAddressAndMask(address, mask) {
+      static fromAddressAndMask(address2, mask) {
         const bits = common.prefixLengthFromMask(new _Address4(mask).bigInt(), constants.BITS);
-        return new _Address4(`${address}/${bits}`);
+        return new _Address4(`${address2}/${bits}`);
       }
       /**
        * Construct an `Address4` from an address and a Cisco-style wildcard mask
@@ -43151,12 +43179,12 @@ var require_ipv4 = __commonJS({
        * var address = Address4.fromAddressAndWildcardMask('10.0.0.1', '0.0.0.255');
        * address.subnetMask; // 24
        */
-      static fromAddressAndWildcardMask(address, wildcardMask) {
+      static fromAddressAndWildcardMask(address2, wildcardMask) {
         const wildcard = new _Address4(wildcardMask).bigInt();
         const allOnes = (BigInt(1) << BigInt(constants.BITS)) - BigInt(1);
         const mask = wildcard ^ allOnes;
         const bits = common.prefixLengthFromMask(mask, constants.BITS);
-        return new _Address4(`${address}/${bits}`);
+        return new _Address4(`${address2}/${bits}`);
       }
       /**
        * Construct an `Address4` from a wildcard pattern with trailing `*`
@@ -43232,8 +43260,8 @@ var require_ipv4 = __commonJS({
        */
       static fromArpa(arpaFormAddress) {
         const leader = arpaFormAddress.replace(/(\.in-addr\.arpa)?\.$/, "");
-        const address = leader.split(".").reverse().join(".");
-        return new _Address4(address);
+        const address2 = leader.split(".").reverse().join(".");
+        return new _Address4(address2);
       }
       /**
        * Converts an IPv4 address object to a hex string
@@ -43384,8 +43412,8 @@ var require_ipv4 = __commonJS({
         if (bytes.length !== 4) {
           throw new address_error_1.AddressError("IPv4 addresses require exactly 4 bytes");
         }
-        const address = bytes.join(".");
-        return new _Address4(address);
+        const address2 = bytes.join(".");
+        return new _Address4(address2);
       }
       /**
        * Returns the first n bits of the address, defaulting to the
@@ -43590,8 +43618,8 @@ var require_helpers = __commonJS({
     function spanLeadingZeroesSimple(group) {
       return escapeHtml2(group).replace(/^(0+)/, '<span class="zero">$1</span>');
     }
-    function spanLeadingZeroes(address) {
-      const groups = address.split(":");
+    function spanLeadingZeroes(address2) {
+      const groups = address2.split(":");
       return groups.map((g) => spanLeadingZeroesSimple(g)).join(":");
     }
     function simpleGroup(addressString, offset = 0) {
@@ -43757,15 +43785,15 @@ var require_ipv6 = __commonJS({
       n = n.replace(/^(0{1,})(0)$/, '<span class="parse-error">$1</span>$2');
       return n;
     }
-    function compact(address, slice) {
+    function compact(address2, slice) {
       const s1 = [];
       const s2 = [];
       let i;
-      for (i = 0; i < address.length; i++) {
+      for (i = 0; i < address2.length; i++) {
         if (i < slice[0]) {
-          s1.push(address[i]);
+          s1.push(address2[i]);
         } else if (i > slice[1]) {
-          s2.push(address[i]);
+          s2.push(address2[i]);
         }
       }
       return s1.concat(["compact"]).concat(s2);
@@ -43777,7 +43805,7 @@ var require_ipv6 = __commonJS({
       return b & 255;
     }
     var Address6 = class _Address6 {
-      constructor(address, optionalGroups) {
+      constructor(address2, optionalGroups) {
         this.addressMinusSuffix = "";
         this.parsedSubnet = "";
         this.subnet = "/128";
@@ -43792,8 +43820,8 @@ var require_ipv6 = __commonJS({
         } else {
           this.groups = optionalGroups;
         }
-        this.address = address;
-        const subnet = constants6.RE_SUBNET_STRING.exec(address);
+        this.address = address2;
+        const subnet = constants6.RE_SUBNET_STRING.exec(address2);
         if (subnet) {
           this.parsedSubnet = subnet[0].replace("/", "");
           this.subnetMask = parseInt(this.parsedSubnet, 10);
@@ -43801,17 +43829,17 @@ var require_ipv6 = __commonJS({
           if (Number.isNaN(this.subnetMask) || this.subnetMask < 0 || this.subnetMask > constants6.BITS) {
             throw new address_error_1.AddressError("Invalid subnet mask.");
           }
-          address = address.replace(constants6.RE_SUBNET_STRING, "");
+          address2 = address2.replace(constants6.RE_SUBNET_STRING, "");
         }
-        if (/\//.test(address)) {
+        if (/\//.test(address2)) {
           throw new address_error_1.AddressError("Invalid subnet mask.");
         }
-        const zone = constants6.RE_ZONE_STRING.exec(address);
+        const zone = constants6.RE_ZONE_STRING.exec(address2);
         if (zone) {
           this.zone = zone[0];
-          address = address.replace(constants6.RE_ZONE_STRING, "");
+          address2 = address2.replace(constants6.RE_ZONE_STRING, "");
         }
-        this.addressMinusSuffix = address;
+        this.addressMinusSuffix = address2;
         this.parsedAddress = this.parse(this.addressMinusSuffix);
       }
       /**
@@ -43821,9 +43849,9 @@ var require_ipv6 = __commonJS({
        * network-address validation compare `correctForm()` to
        * `startAddress().correctForm()`, or use `networkForm()`.
        */
-      static isValid(address) {
+      static isValid(address2) {
         try {
-          new _Address6(address);
+          new _Address6(address2);
           return true;
         } catch {
           return false;
@@ -43891,13 +43919,13 @@ var require_ipv6 = __commonJS({
         } else {
           port = null;
         }
-        let address;
+        let address2;
         try {
-          address = new _Address6(host);
+          address2 = new _Address6(host);
         } catch {
           return { error: error51, address: null, port: null };
         }
-        return { address, port };
+        return { address: address2, port };
       }
       /**
        * Construct an `Address6` from an address and a hex subnet mask given as
@@ -43908,9 +43936,9 @@ var require_ipv6 = __commonJS({
        * var address = Address6.fromAddressAndMask('fe80::1', 'ffff:ffff:ffff:ffff::');
        * address.subnetMask; // 64
        */
-      static fromAddressAndMask(address, mask) {
+      static fromAddressAndMask(address2, mask) {
         const bits = common.prefixLengthFromMask(new _Address6(mask).bigInt(), constants6.BITS);
-        return new _Address6(`${address}/${bits}`);
+        return new _Address6(`${address2}/${bits}`);
       }
       /**
        * Construct an `Address6` from an address and a Cisco-style wildcard mask
@@ -43921,12 +43949,12 @@ var require_ipv6 = __commonJS({
        * var address = Address6.fromAddressAndWildcardMask('fe80::1', '::ffff:ffff:ffff:ffff');
        * address.subnetMask; // 64
        */
-      static fromAddressAndWildcardMask(address, wildcardMask) {
+      static fromAddressAndWildcardMask(address2, wildcardMask) {
         const wildcard = new _Address6(wildcardMask).bigInt();
         const allOnes = (BigInt(1) << BigInt(constants6.BITS)) - BigInt(1);
         const mask = wildcard ^ allOnes;
         const bits = common.prefixLengthFromMask(mask, constants6.BITS);
-        return new _Address6(`${address}/${bits}`);
+        return new _Address6(`${address2}/${bits}`);
       }
       /**
        * Construct an `Address6` from a wildcard pattern with trailing `*`
@@ -43989,8 +44017,8 @@ var require_ipv6 = __commonJS({
        * address.correctForm(); // '::ffff:c0a8:1'
        * address.to4in6(); // '::ffff:192.168.0.1'
        */
-      static fromAddress4(address) {
-        const address4 = new ipv4_1.Address4(address);
+      static fromAddress4(address2) {
+        const address4 = new ipv4_1.Address4(address2);
         const mask6 = constants6.BITS - (constants4.BITS - address4.subnetMask);
         return new _Address6(`::ffff:${address4.correctForm()}/${mask6}`);
       }
@@ -44003,18 +44031,18 @@ var require_ipv6 = __commonJS({
        * address.correctForm(); // '2001:0:ce49:7601:e866:efff:62c3:fffe'
        */
       static fromArpa(arpaFormAddress) {
-        let address = arpaFormAddress.replace(/(\.ip6\.arpa)?\.$/, "");
+        let address2 = arpaFormAddress.replace(/(\.ip6\.arpa)?\.$/, "");
         const semicolonAmount = 7;
-        if (address.length !== 63) {
+        if (address2.length !== 63) {
           throw new address_error_1.AddressError("Invalid 'ip6.arpa' form.");
         }
-        const parts = address.split(".").reverse();
+        const parts = address2.split(".").reverse();
         for (let i = semicolonAmount; i > 0; i--) {
           const insertIndex = i * 4;
           parts.splice(insertIndex, 0, ":");
         }
-        address = parts.join("");
-        return new _Address6(address);
+        address2 = parts.join("");
+        return new _Address6(address2);
       }
       /**
        * Return the Microsoft UNC transcription of the address
@@ -44277,11 +44305,11 @@ var require_ipv6 = __commonJS({
        * Used internally by `parse()`.
        */
       // TODO: Improve the semantics of this helper function
-      parse4in6(address) {
-        if (address.indexOf(".") === -1) {
-          return address;
+      parse4in6(address2) {
+        if (address2.indexOf(".") === -1) {
+          return address2;
         }
-        const groups = address.split(":");
+        const groups = address2.split(":");
         const lastGroup = groups.slice(-1)[0];
         const v4Octets = lastGroup.split(".");
         if (v4Octets.length === constants4.GROUPS && v4Octets.every((octet) => /^\d{1,3}$/.test(octet))) {
@@ -44299,9 +44327,9 @@ var require_ipv6 = __commonJS({
           this.address4 = new ipv4_1.Address4(`${this.parsedAddress4}${v4Suffix}`);
           this.v4 = true;
           groups[groups.length - 1] = this.address4.toGroup6();
-          address = groups.join(":");
+          address2 = groups.join(":");
         }
-        return address;
+        return address2;
       }
       /**
        * Parses an IPv6 address string into its 8 hexadecimal groups (expanding
@@ -44311,18 +44339,18 @@ var require_ipv6 = __commonJS({
        * input is malformed.
        */
       // TODO: Make private?
-      parse(address) {
-        address = this.parse4in6(address);
-        const badCharacters = address.match(constants6.RE_BAD_CHARACTERS);
+      parse(address2) {
+        address2 = this.parse4in6(address2);
+        const badCharacters = address2.match(constants6.RE_BAD_CHARACTERS);
         if (badCharacters) {
-          throw new address_error_1.AddressError(`Bad character${badCharacters.length > 1 ? "s" : ""} detected in address: ${badCharacters.join("")}`, address.replace(constants6.RE_BAD_CHARACTERS, '<span class="parse-error">$1</span>'));
+          throw new address_error_1.AddressError(`Bad character${badCharacters.length > 1 ? "s" : ""} detected in address: ${badCharacters.join("")}`, address2.replace(constants6.RE_BAD_CHARACTERS, '<span class="parse-error">$1</span>'));
         }
-        const badAddress = address.match(constants6.RE_BAD_ADDRESS);
+        const badAddress = address2.match(constants6.RE_BAD_ADDRESS);
         if (badAddress) {
-          throw new address_error_1.AddressError(`Address failed regex: ${badAddress.join("")}`, address.replace(constants6.RE_BAD_ADDRESS, '<span class="parse-error">$1</span>'));
+          throw new address_error_1.AddressError(`Address failed regex: ${badAddress.join("")}`, address2.replace(constants6.RE_BAD_ADDRESS, '<span class="parse-error">$1</span>'));
         }
         let groups = [];
-        const halves = address.split("::");
+        const halves = address2.split("::");
         if (halves.length === 2) {
           let first = halves[0].split(":");
           let last = halves[1].split(":");
@@ -44345,7 +44373,7 @@ var require_ipv6 = __commonJS({
           }
           groups = groups.concat(last);
         } else if (halves.length === 1) {
-          groups = address.split(":");
+          groups = address2.split(":");
           this.elidedGroups = 0;
         } else {
           throw new address_error_1.AddressError("Too many :: groups found");
@@ -44491,8 +44519,8 @@ var require_ipv6 = __commonJS({
        * Address6.fromAddress4Nat64('192.0.2.33').correctForm(); // '64:ff9b::c000:221'
        * Address6.fromAddress4Nat64('192.0.2.33', '2001:db8::/32').correctForm(); // '2001:db8:c000:221::'
        */
-      static fromAddress4Nat64(address, prefix = "64:ff9b::/96") {
-        const v4 = new ipv4_1.Address4(address);
+      static fromAddress4Nat64(address2, prefix = "64:ff9b::/96") {
+        const v4 = new ipv4_1.Address4(address2);
         const prefix6 = new _Address6(prefix);
         const pl = prefix6.subnetMask;
         if (pl !== 32 && pl !== 40 && pl !== 48 && pl !== 56 && pl !== 64 && pl !== 96) {
@@ -45067,8 +45095,8 @@ var require_helpers2 = __commonJS({
       return typeof value === "number" && value > 0;
     }
     function ipv4ToInt32(ip) {
-      const address = new ip_address_1.Address4(ip);
-      return address.toArray().reduce((acc, part) => (acc << 8) + part, 0) >>> 0;
+      const address2 = new ip_address_1.Address4(ip);
+      return address2.toArray().reduce((acc, part) => (acc << 8) + part, 0) >>> 0;
     }
     function int32ToIpv4(int322) {
       const octet1 = int322 >>> 24 & 255;
@@ -45079,11 +45107,11 @@ var require_helpers2 = __commonJS({
     }
     function ipToBuffer(ip) {
       if (net3.isIPv4(ip)) {
-        const address = new ip_address_1.Address4(ip);
-        return Buffer.from(address.toArray());
+        const address2 = new ip_address_1.Address4(ip);
+        return Buffer.from(address2.toArray());
       } else if (net3.isIPv6(ip)) {
-        const address = new ip_address_1.Address6(ip);
-        return Buffer.from(address.canonicalForm().split(":").map((segment) => segment.padStart(4, "0")).join(""), "hex");
+        const address2 = new ip_address_1.Address6(ip);
+        return Buffer.from(address2.canonicalForm().split(":").map((segment) => segment.padStart(4, "0")).join(""), "hex");
       } else {
         throw new Error("Invalid IP address format");
       }
@@ -46377,11 +46405,11 @@ var NEVER = /* @__PURE__ */ Object.freeze({
 });
 // @__NO_SIDE_EFFECTS__
 function $constructor(name2, initializer3, params) {
-  function init(inst, def) {
+  function init(inst, def2) {
     if (!inst._zod) {
       Object.defineProperty(inst, "_zod", {
         value: {
-          def,
+          def: def2,
           constr: _,
           traits: /* @__PURE__ */ new Set()
         },
@@ -46392,7 +46420,7 @@ function $constructor(name2, initializer3, params) {
       return;
     }
     inst._zod.traits.add(name2);
-    initializer3(inst, def);
+    initializer3(inst, def2);
     const proto = _.prototype;
     const keys = Object.keys(proto);
     for (let i = 0; i < keys.length; i++) {
@@ -46406,10 +46434,10 @@ function $constructor(name2, initializer3, params) {
   class Definition extends Parent {
   }
   Object.defineProperty(Definition, "name", { value: name2 });
-  function _(def) {
+  function _(def2) {
     var _a3;
     const inst = params?.Parent ? new Definition() : this;
-    init(inst, def);
+    init(inst, def2);
     (_a3 = inst._zod).deferred ?? (_a3.deferred = []);
     for (const fn of inst._zod.deferred) {
       fn();
@@ -46605,8 +46633,8 @@ function assignProp(target, prop, value) {
 }
 function mergeDefs(...defs) {
   const mergedDescriptors = {};
-  for (const def of defs) {
-    const descriptors = Object.getOwnPropertyDescriptors(def);
+  for (const def2 of defs) {
+    const descriptors = Object.getOwnPropertyDescriptors(def2);
     Object.assign(mergedDescriptors, descriptors);
   }
   return Object.defineProperties({}, mergedDescriptors);
@@ -46756,9 +46784,9 @@ var primitiveTypes = /* @__PURE__ */ new Set([
 function escapeRegex(str) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
-function clone(inst, def, params) {
-  const cl = new inst._zod.constr(def ?? inst._zod.def);
-  if (!def || params?.parent)
+function clone(inst, def2, params) {
+  const cl = new inst._zod.constr(def2 ?? inst._zod.def);
+  if (!def2 || params?.parent)
     cl._zod.parent = inst;
   return cl;
 }
@@ -46841,7 +46869,7 @@ function pick(schema, mask) {
   if (hasChecks) {
     throw new Error(".pick() cannot be used on object schemas containing refinements");
   }
-  const def = mergeDefs(schema._zod.def, {
+  const def2 = mergeDefs(schema._zod.def, {
     get shape() {
       const newShape = {};
       for (const key in mask) {
@@ -46857,7 +46885,7 @@ function pick(schema, mask) {
     },
     checks: []
   });
-  return clone(schema, def);
+  return clone(schema, def2);
 }
 function omit(schema, mask) {
   const currDef = schema._zod.def;
@@ -46866,7 +46894,7 @@ function omit(schema, mask) {
   if (hasChecks) {
     throw new Error(".omit() cannot be used on object schemas containing refinements");
   }
-  const def = mergeDefs(schema._zod.def, {
+  const def2 = mergeDefs(schema._zod.def, {
     get shape() {
       const newShape = { ...schema._zod.def.shape };
       for (const key in mask) {
@@ -46882,7 +46910,7 @@ function omit(schema, mask) {
     },
     checks: []
   });
-  return clone(schema, def);
+  return clone(schema, def2);
 }
 function extend(schema, shape) {
   if (!isPlainObject(shape)) {
@@ -46898,33 +46926,33 @@ function extend(schema, shape) {
       }
     }
   }
-  const def = mergeDefs(schema._zod.def, {
+  const def2 = mergeDefs(schema._zod.def, {
     get shape() {
       const _shape = { ...schema._zod.def.shape, ...shape };
       assignProp(this, "shape", _shape);
       return _shape;
     }
   });
-  return clone(schema, def);
+  return clone(schema, def2);
 }
 function safeExtend(schema, shape) {
   if (!isPlainObject(shape)) {
     throw new Error("Invalid input to safeExtend: expected a plain object");
   }
-  const def = mergeDefs(schema._zod.def, {
+  const def2 = mergeDefs(schema._zod.def, {
     get shape() {
       const _shape = { ...schema._zod.def.shape, ...shape };
       assignProp(this, "shape", _shape);
       return _shape;
     }
   });
-  return clone(schema, def);
+  return clone(schema, def2);
 }
 function merge(a, b) {
   if (a._zod.def.checks?.length) {
     throw new Error(".merge() cannot be used on object schemas containing refinements. Use .safeExtend() instead.");
   }
-  const def = mergeDefs(a._zod.def, {
+  const def2 = mergeDefs(a._zod.def, {
     get shape() {
       const _shape = { ...a._zod.def.shape, ...b._zod.def.shape };
       assignProp(this, "shape", _shape);
@@ -46935,7 +46963,7 @@ function merge(a, b) {
     },
     checks: b._zod.def.checks ?? []
   });
-  return clone(a, def);
+  return clone(a, def2);
 }
 function partial(Class2, schema, mask) {
   const currDef = schema._zod.def;
@@ -46944,7 +46972,7 @@ function partial(Class2, schema, mask) {
   if (hasChecks) {
     throw new Error(".partial() cannot be used on object schemas containing refinements");
   }
-  const def = mergeDefs(schema._zod.def, {
+  const def2 = mergeDefs(schema._zod.def, {
     get shape() {
       const oldShape = schema._zod.def.shape;
       const shape = { ...oldShape };
@@ -46973,10 +47001,10 @@ function partial(Class2, schema, mask) {
     },
     checks: []
   });
-  return clone(schema, def);
+  return clone(schema, def2);
 }
 function required(Class2, schema, mask) {
-  const def = mergeDefs(schema._zod.def, {
+  const def2 = mergeDefs(schema._zod.def, {
     get shape() {
       const oldShape = schema._zod.def.shape;
       const shape = { ...oldShape };
@@ -47004,7 +47032,7 @@ function required(Class2, schema, mask) {
       return shape;
     }
   });
-  return clone(schema, def);
+  return clone(schema, def2);
 }
 function aborted(x, startIndex = 0) {
   if (x.aborted === true)
@@ -47144,17 +47172,17 @@ var Class = class {
 };
 
 // ../../../node_modules/.pnpm/zod@4.4.3/node_modules/zod/v4/core/errors.js
-var initializer = (inst, def) => {
+var initializer = (inst, def2) => {
   inst.name = "$ZodError";
   Object.defineProperty(inst, "_zod", {
     value: inst._zod,
     enumerable: false
   });
   Object.defineProperty(inst, "issues", {
-    value: def,
+    value: def2,
     enumerable: false
   });
-  inst.message = JSON.stringify(def, jsonStringifyReplacer, 2);
+  inst.message = JSON.stringify(def2, jsonStringifyReplacer, 2);
   Object.defineProperty(inst, "toString", {
     value: () => inst.message,
     enumerable: false
@@ -47530,10 +47558,10 @@ var sha512_base64 = /* @__PURE__ */ fixedBase64(86, "==");
 var sha512_base64url = /* @__PURE__ */ fixedBase64url(86);
 
 // ../../../node_modules/.pnpm/zod@4.4.3/node_modules/zod/v4/core/checks.js
-var $ZodCheck = /* @__PURE__ */ $constructor("$ZodCheck", (inst, def) => {
+var $ZodCheck = /* @__PURE__ */ $constructor("$ZodCheck", (inst, def2) => {
   var _a3;
   inst._zod ?? (inst._zod = {});
-  inst._zod.def = def;
+  inst._zod.def = def2;
   (_a3 = inst._zod).onattach ?? (_a3.onattach = []);
 });
 var numericOriginMap = {
@@ -47541,93 +47569,93 @@ var numericOriginMap = {
   bigint: "bigint",
   object: "date"
 };
-var $ZodCheckLessThan = /* @__PURE__ */ $constructor("$ZodCheckLessThan", (inst, def) => {
-  $ZodCheck.init(inst, def);
-  const origin = numericOriginMap[typeof def.value];
+var $ZodCheckLessThan = /* @__PURE__ */ $constructor("$ZodCheckLessThan", (inst, def2) => {
+  $ZodCheck.init(inst, def2);
+  const origin = numericOriginMap[typeof def2.value];
   inst._zod.onattach.push((inst2) => {
     const bag = inst2._zod.bag;
-    const curr = (def.inclusive ? bag.maximum : bag.exclusiveMaximum) ?? Number.POSITIVE_INFINITY;
-    if (def.value < curr) {
-      if (def.inclusive)
-        bag.maximum = def.value;
+    const curr = (def2.inclusive ? bag.maximum : bag.exclusiveMaximum) ?? Number.POSITIVE_INFINITY;
+    if (def2.value < curr) {
+      if (def2.inclusive)
+        bag.maximum = def2.value;
       else
-        bag.exclusiveMaximum = def.value;
+        bag.exclusiveMaximum = def2.value;
     }
   });
   inst._zod.check = (payload) => {
-    if (def.inclusive ? payload.value <= def.value : payload.value < def.value) {
+    if (def2.inclusive ? payload.value <= def2.value : payload.value < def2.value) {
       return;
     }
     payload.issues.push({
       origin,
       code: "too_big",
-      maximum: typeof def.value === "object" ? def.value.getTime() : def.value,
+      maximum: typeof def2.value === "object" ? def2.value.getTime() : def2.value,
       input: payload.value,
-      inclusive: def.inclusive,
+      inclusive: def2.inclusive,
       inst,
-      continue: !def.abort
+      continue: !def2.abort
     });
   };
 });
-var $ZodCheckGreaterThan = /* @__PURE__ */ $constructor("$ZodCheckGreaterThan", (inst, def) => {
-  $ZodCheck.init(inst, def);
-  const origin = numericOriginMap[typeof def.value];
+var $ZodCheckGreaterThan = /* @__PURE__ */ $constructor("$ZodCheckGreaterThan", (inst, def2) => {
+  $ZodCheck.init(inst, def2);
+  const origin = numericOriginMap[typeof def2.value];
   inst._zod.onattach.push((inst2) => {
     const bag = inst2._zod.bag;
-    const curr = (def.inclusive ? bag.minimum : bag.exclusiveMinimum) ?? Number.NEGATIVE_INFINITY;
-    if (def.value > curr) {
-      if (def.inclusive)
-        bag.minimum = def.value;
+    const curr = (def2.inclusive ? bag.minimum : bag.exclusiveMinimum) ?? Number.NEGATIVE_INFINITY;
+    if (def2.value > curr) {
+      if (def2.inclusive)
+        bag.minimum = def2.value;
       else
-        bag.exclusiveMinimum = def.value;
+        bag.exclusiveMinimum = def2.value;
     }
   });
   inst._zod.check = (payload) => {
-    if (def.inclusive ? payload.value >= def.value : payload.value > def.value) {
+    if (def2.inclusive ? payload.value >= def2.value : payload.value > def2.value) {
       return;
     }
     payload.issues.push({
       origin,
       code: "too_small",
-      minimum: typeof def.value === "object" ? def.value.getTime() : def.value,
+      minimum: typeof def2.value === "object" ? def2.value.getTime() : def2.value,
       input: payload.value,
-      inclusive: def.inclusive,
+      inclusive: def2.inclusive,
       inst,
-      continue: !def.abort
+      continue: !def2.abort
     });
   };
 });
-var $ZodCheckMultipleOf = /* @__PURE__ */ $constructor("$ZodCheckMultipleOf", (inst, def) => {
-  $ZodCheck.init(inst, def);
+var $ZodCheckMultipleOf = /* @__PURE__ */ $constructor("$ZodCheckMultipleOf", (inst, def2) => {
+  $ZodCheck.init(inst, def2);
   inst._zod.onattach.push((inst2) => {
     var _a3;
-    (_a3 = inst2._zod.bag).multipleOf ?? (_a3.multipleOf = def.value);
+    (_a3 = inst2._zod.bag).multipleOf ?? (_a3.multipleOf = def2.value);
   });
   inst._zod.check = (payload) => {
-    if (typeof payload.value !== typeof def.value)
+    if (typeof payload.value !== typeof def2.value)
       throw new Error("Cannot mix number and bigint in multiple_of check.");
-    const isMultiple = typeof payload.value === "bigint" ? payload.value % def.value === BigInt(0) : floatSafeRemainder(payload.value, def.value) === 0;
+    const isMultiple = typeof payload.value === "bigint" ? payload.value % def2.value === BigInt(0) : floatSafeRemainder(payload.value, def2.value) === 0;
     if (isMultiple)
       return;
     payload.issues.push({
       origin: typeof payload.value,
       code: "not_multiple_of",
-      divisor: def.value,
+      divisor: def2.value,
       input: payload.value,
       inst,
-      continue: !def.abort
+      continue: !def2.abort
     });
   };
 });
-var $ZodCheckNumberFormat = /* @__PURE__ */ $constructor("$ZodCheckNumberFormat", (inst, def) => {
-  $ZodCheck.init(inst, def);
-  def.format = def.format || "float64";
-  const isInt = def.format?.includes("int");
+var $ZodCheckNumberFormat = /* @__PURE__ */ $constructor("$ZodCheckNumberFormat", (inst, def2) => {
+  $ZodCheck.init(inst, def2);
+  def2.format = def2.format || "float64";
+  const isInt = def2.format?.includes("int");
   const origin = isInt ? "int" : "number";
-  const [minimum, maximum] = NUMBER_FORMAT_RANGES[def.format];
+  const [minimum, maximum] = NUMBER_FORMAT_RANGES[def2.format];
   inst._zod.onattach.push((inst2) => {
     const bag = inst2._zod.bag;
-    bag.format = def.format;
+    bag.format = def2.format;
     bag.minimum = minimum;
     bag.maximum = maximum;
     if (isInt)
@@ -47639,7 +47667,7 @@ var $ZodCheckNumberFormat = /* @__PURE__ */ $constructor("$ZodCheckNumberFormat"
       if (!Number.isInteger(input)) {
         payload.issues.push({
           expected: origin,
-          format: def.format,
+          format: def2.format,
           code: "invalid_type",
           continue: false,
           input,
@@ -47657,7 +47685,7 @@ var $ZodCheckNumberFormat = /* @__PURE__ */ $constructor("$ZodCheckNumberFormat"
             inst,
             origin,
             inclusive: true,
-            continue: !def.abort
+            continue: !def2.abort
           });
         } else {
           payload.issues.push({
@@ -47668,7 +47696,7 @@ var $ZodCheckNumberFormat = /* @__PURE__ */ $constructor("$ZodCheckNumberFormat"
             inst,
             origin,
             inclusive: true,
-            continue: !def.abort
+            continue: !def2.abort
           });
         }
         return;
@@ -47682,7 +47710,7 @@ var $ZodCheckNumberFormat = /* @__PURE__ */ $constructor("$ZodCheckNumberFormat"
         minimum,
         inclusive: true,
         inst,
-        continue: !def.abort
+        continue: !def2.abort
       });
     }
     if (input > maximum) {
@@ -47693,17 +47721,17 @@ var $ZodCheckNumberFormat = /* @__PURE__ */ $constructor("$ZodCheckNumberFormat"
         maximum,
         inclusive: true,
         inst,
-        continue: !def.abort
+        continue: !def2.abort
       });
     }
   };
 });
-var $ZodCheckBigIntFormat = /* @__PURE__ */ $constructor("$ZodCheckBigIntFormat", (inst, def) => {
-  $ZodCheck.init(inst, def);
-  const [minimum, maximum] = BIGINT_FORMAT_RANGES[def.format];
+var $ZodCheckBigIntFormat = /* @__PURE__ */ $constructor("$ZodCheckBigIntFormat", (inst, def2) => {
+  $ZodCheck.init(inst, def2);
+  const [minimum, maximum] = BIGINT_FORMAT_RANGES[def2.format];
   inst._zod.onattach.push((inst2) => {
     const bag = inst2._zod.bag;
-    bag.format = def.format;
+    bag.format = def2.format;
     bag.minimum = minimum;
     bag.maximum = maximum;
   });
@@ -47717,7 +47745,7 @@ var $ZodCheckBigIntFormat = /* @__PURE__ */ $constructor("$ZodCheckBigIntFormat"
         minimum,
         inclusive: true,
         inst,
-        continue: !def.abort
+        continue: !def2.abort
       });
     }
     if (input > maximum) {
@@ -47728,308 +47756,308 @@ var $ZodCheckBigIntFormat = /* @__PURE__ */ $constructor("$ZodCheckBigIntFormat"
         maximum,
         inclusive: true,
         inst,
-        continue: !def.abort
+        continue: !def2.abort
       });
     }
   };
 });
-var $ZodCheckMaxSize = /* @__PURE__ */ $constructor("$ZodCheckMaxSize", (inst, def) => {
+var $ZodCheckMaxSize = /* @__PURE__ */ $constructor("$ZodCheckMaxSize", (inst, def2) => {
   var _a3;
-  $ZodCheck.init(inst, def);
+  $ZodCheck.init(inst, def2);
   (_a3 = inst._zod.def).when ?? (_a3.when = (payload) => {
     const val = payload.value;
     return !nullish(val) && val.size !== void 0;
   });
   inst._zod.onattach.push((inst2) => {
     const curr = inst2._zod.bag.maximum ?? Number.POSITIVE_INFINITY;
-    if (def.maximum < curr)
-      inst2._zod.bag.maximum = def.maximum;
+    if (def2.maximum < curr)
+      inst2._zod.bag.maximum = def2.maximum;
   });
   inst._zod.check = (payload) => {
     const input = payload.value;
     const size = input.size;
-    if (size <= def.maximum)
+    if (size <= def2.maximum)
       return;
     payload.issues.push({
       origin: getSizableOrigin(input),
       code: "too_big",
-      maximum: def.maximum,
+      maximum: def2.maximum,
       inclusive: true,
       input,
       inst,
-      continue: !def.abort
+      continue: !def2.abort
     });
   };
 });
-var $ZodCheckMinSize = /* @__PURE__ */ $constructor("$ZodCheckMinSize", (inst, def) => {
+var $ZodCheckMinSize = /* @__PURE__ */ $constructor("$ZodCheckMinSize", (inst, def2) => {
   var _a3;
-  $ZodCheck.init(inst, def);
+  $ZodCheck.init(inst, def2);
   (_a3 = inst._zod.def).when ?? (_a3.when = (payload) => {
     const val = payload.value;
     return !nullish(val) && val.size !== void 0;
   });
   inst._zod.onattach.push((inst2) => {
     const curr = inst2._zod.bag.minimum ?? Number.NEGATIVE_INFINITY;
-    if (def.minimum > curr)
-      inst2._zod.bag.minimum = def.minimum;
+    if (def2.minimum > curr)
+      inst2._zod.bag.minimum = def2.minimum;
   });
   inst._zod.check = (payload) => {
     const input = payload.value;
     const size = input.size;
-    if (size >= def.minimum)
+    if (size >= def2.minimum)
       return;
     payload.issues.push({
       origin: getSizableOrigin(input),
       code: "too_small",
-      minimum: def.minimum,
+      minimum: def2.minimum,
       inclusive: true,
       input,
       inst,
-      continue: !def.abort
+      continue: !def2.abort
     });
   };
 });
-var $ZodCheckSizeEquals = /* @__PURE__ */ $constructor("$ZodCheckSizeEquals", (inst, def) => {
+var $ZodCheckSizeEquals = /* @__PURE__ */ $constructor("$ZodCheckSizeEquals", (inst, def2) => {
   var _a3;
-  $ZodCheck.init(inst, def);
+  $ZodCheck.init(inst, def2);
   (_a3 = inst._zod.def).when ?? (_a3.when = (payload) => {
     const val = payload.value;
     return !nullish(val) && val.size !== void 0;
   });
   inst._zod.onattach.push((inst2) => {
     const bag = inst2._zod.bag;
-    bag.minimum = def.size;
-    bag.maximum = def.size;
-    bag.size = def.size;
+    bag.minimum = def2.size;
+    bag.maximum = def2.size;
+    bag.size = def2.size;
   });
   inst._zod.check = (payload) => {
     const input = payload.value;
     const size = input.size;
-    if (size === def.size)
+    if (size === def2.size)
       return;
-    const tooBig = size > def.size;
+    const tooBig = size > def2.size;
     payload.issues.push({
       origin: getSizableOrigin(input),
-      ...tooBig ? { code: "too_big", maximum: def.size } : { code: "too_small", minimum: def.size },
+      ...tooBig ? { code: "too_big", maximum: def2.size } : { code: "too_small", minimum: def2.size },
       inclusive: true,
       exact: true,
       input: payload.value,
       inst,
-      continue: !def.abort
+      continue: !def2.abort
     });
   };
 });
-var $ZodCheckMaxLength = /* @__PURE__ */ $constructor("$ZodCheckMaxLength", (inst, def) => {
+var $ZodCheckMaxLength = /* @__PURE__ */ $constructor("$ZodCheckMaxLength", (inst, def2) => {
   var _a3;
-  $ZodCheck.init(inst, def);
+  $ZodCheck.init(inst, def2);
   (_a3 = inst._zod.def).when ?? (_a3.when = (payload) => {
     const val = payload.value;
     return !nullish(val) && val.length !== void 0;
   });
   inst._zod.onattach.push((inst2) => {
     const curr = inst2._zod.bag.maximum ?? Number.POSITIVE_INFINITY;
-    if (def.maximum < curr)
-      inst2._zod.bag.maximum = def.maximum;
+    if (def2.maximum < curr)
+      inst2._zod.bag.maximum = def2.maximum;
   });
   inst._zod.check = (payload) => {
     const input = payload.value;
     const length = input.length;
-    if (length <= def.maximum)
+    if (length <= def2.maximum)
       return;
     const origin = getLengthableOrigin(input);
     payload.issues.push({
       origin,
       code: "too_big",
-      maximum: def.maximum,
+      maximum: def2.maximum,
       inclusive: true,
       input,
       inst,
-      continue: !def.abort
+      continue: !def2.abort
     });
   };
 });
-var $ZodCheckMinLength = /* @__PURE__ */ $constructor("$ZodCheckMinLength", (inst, def) => {
+var $ZodCheckMinLength = /* @__PURE__ */ $constructor("$ZodCheckMinLength", (inst, def2) => {
   var _a3;
-  $ZodCheck.init(inst, def);
+  $ZodCheck.init(inst, def2);
   (_a3 = inst._zod.def).when ?? (_a3.when = (payload) => {
     const val = payload.value;
     return !nullish(val) && val.length !== void 0;
   });
   inst._zod.onattach.push((inst2) => {
     const curr = inst2._zod.bag.minimum ?? Number.NEGATIVE_INFINITY;
-    if (def.minimum > curr)
-      inst2._zod.bag.minimum = def.minimum;
+    if (def2.minimum > curr)
+      inst2._zod.bag.minimum = def2.minimum;
   });
   inst._zod.check = (payload) => {
     const input = payload.value;
     const length = input.length;
-    if (length >= def.minimum)
+    if (length >= def2.minimum)
       return;
     const origin = getLengthableOrigin(input);
     payload.issues.push({
       origin,
       code: "too_small",
-      minimum: def.minimum,
+      minimum: def2.minimum,
       inclusive: true,
       input,
       inst,
-      continue: !def.abort
+      continue: !def2.abort
     });
   };
 });
-var $ZodCheckLengthEquals = /* @__PURE__ */ $constructor("$ZodCheckLengthEquals", (inst, def) => {
+var $ZodCheckLengthEquals = /* @__PURE__ */ $constructor("$ZodCheckLengthEquals", (inst, def2) => {
   var _a3;
-  $ZodCheck.init(inst, def);
+  $ZodCheck.init(inst, def2);
   (_a3 = inst._zod.def).when ?? (_a3.when = (payload) => {
     const val = payload.value;
     return !nullish(val) && val.length !== void 0;
   });
   inst._zod.onattach.push((inst2) => {
     const bag = inst2._zod.bag;
-    bag.minimum = def.length;
-    bag.maximum = def.length;
-    bag.length = def.length;
+    bag.minimum = def2.length;
+    bag.maximum = def2.length;
+    bag.length = def2.length;
   });
   inst._zod.check = (payload) => {
     const input = payload.value;
     const length = input.length;
-    if (length === def.length)
+    if (length === def2.length)
       return;
     const origin = getLengthableOrigin(input);
-    const tooBig = length > def.length;
+    const tooBig = length > def2.length;
     payload.issues.push({
       origin,
-      ...tooBig ? { code: "too_big", maximum: def.length } : { code: "too_small", minimum: def.length },
+      ...tooBig ? { code: "too_big", maximum: def2.length } : { code: "too_small", minimum: def2.length },
       inclusive: true,
       exact: true,
       input: payload.value,
       inst,
-      continue: !def.abort
+      continue: !def2.abort
     });
   };
 });
-var $ZodCheckStringFormat = /* @__PURE__ */ $constructor("$ZodCheckStringFormat", (inst, def) => {
+var $ZodCheckStringFormat = /* @__PURE__ */ $constructor("$ZodCheckStringFormat", (inst, def2) => {
   var _a3, _b;
-  $ZodCheck.init(inst, def);
+  $ZodCheck.init(inst, def2);
   inst._zod.onattach.push((inst2) => {
     const bag = inst2._zod.bag;
-    bag.format = def.format;
-    if (def.pattern) {
+    bag.format = def2.format;
+    if (def2.pattern) {
       bag.patterns ?? (bag.patterns = /* @__PURE__ */ new Set());
-      bag.patterns.add(def.pattern);
+      bag.patterns.add(def2.pattern);
     }
   });
-  if (def.pattern)
+  if (def2.pattern)
     (_a3 = inst._zod).check ?? (_a3.check = (payload) => {
-      def.pattern.lastIndex = 0;
-      if (def.pattern.test(payload.value))
+      def2.pattern.lastIndex = 0;
+      if (def2.pattern.test(payload.value))
         return;
       payload.issues.push({
         origin: "string",
         code: "invalid_format",
-        format: def.format,
+        format: def2.format,
         input: payload.value,
-        ...def.pattern ? { pattern: def.pattern.toString() } : {},
+        ...def2.pattern ? { pattern: def2.pattern.toString() } : {},
         inst,
-        continue: !def.abort
+        continue: !def2.abort
       });
     });
   else
     (_b = inst._zod).check ?? (_b.check = () => {
     });
 });
-var $ZodCheckRegex = /* @__PURE__ */ $constructor("$ZodCheckRegex", (inst, def) => {
-  $ZodCheckStringFormat.init(inst, def);
+var $ZodCheckRegex = /* @__PURE__ */ $constructor("$ZodCheckRegex", (inst, def2) => {
+  $ZodCheckStringFormat.init(inst, def2);
   inst._zod.check = (payload) => {
-    def.pattern.lastIndex = 0;
-    if (def.pattern.test(payload.value))
+    def2.pattern.lastIndex = 0;
+    if (def2.pattern.test(payload.value))
       return;
     payload.issues.push({
       origin: "string",
       code: "invalid_format",
       format: "regex",
       input: payload.value,
-      pattern: def.pattern.toString(),
+      pattern: def2.pattern.toString(),
       inst,
-      continue: !def.abort
+      continue: !def2.abort
     });
   };
 });
-var $ZodCheckLowerCase = /* @__PURE__ */ $constructor("$ZodCheckLowerCase", (inst, def) => {
-  def.pattern ?? (def.pattern = lowercase);
-  $ZodCheckStringFormat.init(inst, def);
+var $ZodCheckLowerCase = /* @__PURE__ */ $constructor("$ZodCheckLowerCase", (inst, def2) => {
+  def2.pattern ?? (def2.pattern = lowercase);
+  $ZodCheckStringFormat.init(inst, def2);
 });
-var $ZodCheckUpperCase = /* @__PURE__ */ $constructor("$ZodCheckUpperCase", (inst, def) => {
-  def.pattern ?? (def.pattern = uppercase);
-  $ZodCheckStringFormat.init(inst, def);
+var $ZodCheckUpperCase = /* @__PURE__ */ $constructor("$ZodCheckUpperCase", (inst, def2) => {
+  def2.pattern ?? (def2.pattern = uppercase);
+  $ZodCheckStringFormat.init(inst, def2);
 });
-var $ZodCheckIncludes = /* @__PURE__ */ $constructor("$ZodCheckIncludes", (inst, def) => {
-  $ZodCheck.init(inst, def);
-  const escapedRegex = escapeRegex(def.includes);
-  const pattern = new RegExp(typeof def.position === "number" ? `^.{${def.position}}${escapedRegex}` : escapedRegex);
-  def.pattern = pattern;
+var $ZodCheckIncludes = /* @__PURE__ */ $constructor("$ZodCheckIncludes", (inst, def2) => {
+  $ZodCheck.init(inst, def2);
+  const escapedRegex = escapeRegex(def2.includes);
+  const pattern = new RegExp(typeof def2.position === "number" ? `^.{${def2.position}}${escapedRegex}` : escapedRegex);
+  def2.pattern = pattern;
   inst._zod.onattach.push((inst2) => {
     const bag = inst2._zod.bag;
     bag.patterns ?? (bag.patterns = /* @__PURE__ */ new Set());
     bag.patterns.add(pattern);
   });
   inst._zod.check = (payload) => {
-    if (payload.value.includes(def.includes, def.position))
+    if (payload.value.includes(def2.includes, def2.position))
       return;
     payload.issues.push({
       origin: "string",
       code: "invalid_format",
       format: "includes",
-      includes: def.includes,
+      includes: def2.includes,
       input: payload.value,
       inst,
-      continue: !def.abort
+      continue: !def2.abort
     });
   };
 });
-var $ZodCheckStartsWith = /* @__PURE__ */ $constructor("$ZodCheckStartsWith", (inst, def) => {
-  $ZodCheck.init(inst, def);
-  const pattern = new RegExp(`^${escapeRegex(def.prefix)}.*`);
-  def.pattern ?? (def.pattern = pattern);
+var $ZodCheckStartsWith = /* @__PURE__ */ $constructor("$ZodCheckStartsWith", (inst, def2) => {
+  $ZodCheck.init(inst, def2);
+  const pattern = new RegExp(`^${escapeRegex(def2.prefix)}.*`);
+  def2.pattern ?? (def2.pattern = pattern);
   inst._zod.onattach.push((inst2) => {
     const bag = inst2._zod.bag;
     bag.patterns ?? (bag.patterns = /* @__PURE__ */ new Set());
     bag.patterns.add(pattern);
   });
   inst._zod.check = (payload) => {
-    if (payload.value.startsWith(def.prefix))
+    if (payload.value.startsWith(def2.prefix))
       return;
     payload.issues.push({
       origin: "string",
       code: "invalid_format",
       format: "starts_with",
-      prefix: def.prefix,
+      prefix: def2.prefix,
       input: payload.value,
       inst,
-      continue: !def.abort
+      continue: !def2.abort
     });
   };
 });
-var $ZodCheckEndsWith = /* @__PURE__ */ $constructor("$ZodCheckEndsWith", (inst, def) => {
-  $ZodCheck.init(inst, def);
-  const pattern = new RegExp(`.*${escapeRegex(def.suffix)}$`);
-  def.pattern ?? (def.pattern = pattern);
+var $ZodCheckEndsWith = /* @__PURE__ */ $constructor("$ZodCheckEndsWith", (inst, def2) => {
+  $ZodCheck.init(inst, def2);
+  const pattern = new RegExp(`.*${escapeRegex(def2.suffix)}$`);
+  def2.pattern ?? (def2.pattern = pattern);
   inst._zod.onattach.push((inst2) => {
     const bag = inst2._zod.bag;
     bag.patterns ?? (bag.patterns = /* @__PURE__ */ new Set());
     bag.patterns.add(pattern);
   });
   inst._zod.check = (payload) => {
-    if (payload.value.endsWith(def.suffix))
+    if (payload.value.endsWith(def2.suffix))
       return;
     payload.issues.push({
       origin: "string",
       code: "invalid_format",
       format: "ends_with",
-      suffix: def.suffix,
+      suffix: def2.suffix,
       input: payload.value,
       inst,
-      continue: !def.abort
+      continue: !def2.abort
     });
   };
 });
@@ -48038,42 +48066,42 @@ function handleCheckPropertyResult(result, payload, property) {
     payload.issues.push(...prefixIssues(property, result.issues));
   }
 }
-var $ZodCheckProperty = /* @__PURE__ */ $constructor("$ZodCheckProperty", (inst, def) => {
-  $ZodCheck.init(inst, def);
+var $ZodCheckProperty = /* @__PURE__ */ $constructor("$ZodCheckProperty", (inst, def2) => {
+  $ZodCheck.init(inst, def2);
   inst._zod.check = (payload) => {
-    const result = def.schema._zod.run({
-      value: payload.value[def.property],
+    const result = def2.schema._zod.run({
+      value: payload.value[def2.property],
       issues: []
     }, {});
     if (result instanceof Promise) {
-      return result.then((result2) => handleCheckPropertyResult(result2, payload, def.property));
+      return result.then((result2) => handleCheckPropertyResult(result2, payload, def2.property));
     }
-    handleCheckPropertyResult(result, payload, def.property);
+    handleCheckPropertyResult(result, payload, def2.property);
     return;
   };
 });
-var $ZodCheckMimeType = /* @__PURE__ */ $constructor("$ZodCheckMimeType", (inst, def) => {
-  $ZodCheck.init(inst, def);
-  const mimeSet = new Set(def.mime);
+var $ZodCheckMimeType = /* @__PURE__ */ $constructor("$ZodCheckMimeType", (inst, def2) => {
+  $ZodCheck.init(inst, def2);
+  const mimeSet = new Set(def2.mime);
   inst._zod.onattach.push((inst2) => {
-    inst2._zod.bag.mime = def.mime;
+    inst2._zod.bag.mime = def2.mime;
   });
   inst._zod.check = (payload) => {
     if (mimeSet.has(payload.value.type))
       return;
     payload.issues.push({
       code: "invalid_value",
-      values: def.mime,
+      values: def2.mime,
       input: payload.value.type,
       inst,
-      continue: !def.abort
+      continue: !def2.abort
     });
   };
 });
-var $ZodCheckOverwrite = /* @__PURE__ */ $constructor("$ZodCheckOverwrite", (inst, def) => {
-  $ZodCheck.init(inst, def);
+var $ZodCheckOverwrite = /* @__PURE__ */ $constructor("$ZodCheckOverwrite", (inst, def2) => {
+  $ZodCheck.init(inst, def2);
   inst._zod.check = (payload) => {
-    payload.value = def.tx(payload.value);
+    payload.value = def2.tx(payload.value);
   };
 });
 
@@ -48121,10 +48149,10 @@ var version = {
 };
 
 // ../../../node_modules/.pnpm/zod@4.4.3/node_modules/zod/v4/core/schemas.js
-var $ZodType = /* @__PURE__ */ $constructor("$ZodType", (inst, def) => {
+var $ZodType = /* @__PURE__ */ $constructor("$ZodType", (inst, def2) => {
   var _a3;
   inst ?? (inst = {});
-  inst._zod.def = def;
+  inst._zod.def = def2;
   inst._zod.bag = inst._zod.bag || {};
   inst._zod.version = version;
   const checks = [...inst._zod.def.checks ?? []];
@@ -48232,11 +48260,11 @@ var $ZodType = /* @__PURE__ */ $constructor("$ZodType", (inst, def) => {
     version: 1
   }));
 });
-var $ZodString = /* @__PURE__ */ $constructor("$ZodString", (inst, def) => {
-  $ZodType.init(inst, def);
+var $ZodString = /* @__PURE__ */ $constructor("$ZodString", (inst, def2) => {
+  $ZodType.init(inst, def2);
   inst._zod.pattern = [...inst?._zod.bag?.patterns ?? []].pop() ?? string(inst._zod.bag);
   inst._zod.parse = (payload, _) => {
-    if (def.coerce)
+    if (def2.coerce)
       try {
         payload.value = String(payload.value);
       } catch (_2) {
@@ -48252,16 +48280,16 @@ var $ZodString = /* @__PURE__ */ $constructor("$ZodString", (inst, def) => {
     return payload;
   };
 });
-var $ZodStringFormat = /* @__PURE__ */ $constructor("$ZodStringFormat", (inst, def) => {
-  $ZodCheckStringFormat.init(inst, def);
-  $ZodString.init(inst, def);
+var $ZodStringFormat = /* @__PURE__ */ $constructor("$ZodStringFormat", (inst, def2) => {
+  $ZodCheckStringFormat.init(inst, def2);
+  $ZodString.init(inst, def2);
 });
-var $ZodGUID = /* @__PURE__ */ $constructor("$ZodGUID", (inst, def) => {
-  def.pattern ?? (def.pattern = guid);
-  $ZodStringFormat.init(inst, def);
+var $ZodGUID = /* @__PURE__ */ $constructor("$ZodGUID", (inst, def2) => {
+  def2.pattern ?? (def2.pattern = guid);
+  $ZodStringFormat.init(inst, def2);
 });
-var $ZodUUID = /* @__PURE__ */ $constructor("$ZodUUID", (inst, def) => {
-  if (def.version) {
+var $ZodUUID = /* @__PURE__ */ $constructor("$ZodUUID", (inst, def2) => {
+  if (def2.version) {
     const versionMap = {
       v1: 1,
       v2: 2,
@@ -48272,24 +48300,24 @@ var $ZodUUID = /* @__PURE__ */ $constructor("$ZodUUID", (inst, def) => {
       v7: 7,
       v8: 8
     };
-    const v = versionMap[def.version];
+    const v = versionMap[def2.version];
     if (v === void 0)
-      throw new Error(`Invalid UUID version: "${def.version}"`);
-    def.pattern ?? (def.pattern = uuid(v));
+      throw new Error(`Invalid UUID version: "${def2.version}"`);
+    def2.pattern ?? (def2.pattern = uuid(v));
   } else
-    def.pattern ?? (def.pattern = uuid());
-  $ZodStringFormat.init(inst, def);
+    def2.pattern ?? (def2.pattern = uuid());
+  $ZodStringFormat.init(inst, def2);
 });
-var $ZodEmail = /* @__PURE__ */ $constructor("$ZodEmail", (inst, def) => {
-  def.pattern ?? (def.pattern = email);
-  $ZodStringFormat.init(inst, def);
+var $ZodEmail = /* @__PURE__ */ $constructor("$ZodEmail", (inst, def2) => {
+  def2.pattern ?? (def2.pattern = email);
+  $ZodStringFormat.init(inst, def2);
 });
-var $ZodURL = /* @__PURE__ */ $constructor("$ZodURL", (inst, def) => {
-  $ZodStringFormat.init(inst, def);
+var $ZodURL = /* @__PURE__ */ $constructor("$ZodURL", (inst, def2) => {
+  $ZodStringFormat.init(inst, def2);
   inst._zod.check = (payload) => {
     try {
       const trimmed = payload.value.trim();
-      if (!def.normalize && def.protocol?.source === httpProtocol.source) {
+      if (!def2.normalize && def2.protocol?.source === httpProtocol.source) {
         if (!/^https?:\/\//i.test(trimmed)) {
           payload.issues.push({
             code: "invalid_format",
@@ -48297,41 +48325,41 @@ var $ZodURL = /* @__PURE__ */ $constructor("$ZodURL", (inst, def) => {
             note: "Invalid URL format",
             input: payload.value,
             inst,
-            continue: !def.abort
+            continue: !def2.abort
           });
           return;
         }
       }
       const url2 = new URL(trimmed);
-      if (def.hostname) {
-        def.hostname.lastIndex = 0;
-        if (!def.hostname.test(url2.hostname)) {
+      if (def2.hostname) {
+        def2.hostname.lastIndex = 0;
+        if (!def2.hostname.test(url2.hostname)) {
           payload.issues.push({
             code: "invalid_format",
             format: "url",
             note: "Invalid hostname",
-            pattern: def.hostname.source,
+            pattern: def2.hostname.source,
             input: payload.value,
             inst,
-            continue: !def.abort
+            continue: !def2.abort
           });
         }
       }
-      if (def.protocol) {
-        def.protocol.lastIndex = 0;
-        if (!def.protocol.test(url2.protocol.endsWith(":") ? url2.protocol.slice(0, -1) : url2.protocol)) {
+      if (def2.protocol) {
+        def2.protocol.lastIndex = 0;
+        if (!def2.protocol.test(url2.protocol.endsWith(":") ? url2.protocol.slice(0, -1) : url2.protocol)) {
           payload.issues.push({
             code: "invalid_format",
             format: "url",
             note: "Invalid protocol",
-            pattern: def.protocol.source,
+            pattern: def2.protocol.source,
             input: payload.value,
             inst,
-            continue: !def.abort
+            continue: !def2.abort
           });
         }
       }
-      if (def.normalize) {
+      if (def2.normalize) {
         payload.value = url2.href;
       } else {
         payload.value = trimmed;
@@ -48343,63 +48371,63 @@ var $ZodURL = /* @__PURE__ */ $constructor("$ZodURL", (inst, def) => {
         format: "url",
         input: payload.value,
         inst,
-        continue: !def.abort
+        continue: !def2.abort
       });
     }
   };
 });
-var $ZodEmoji = /* @__PURE__ */ $constructor("$ZodEmoji", (inst, def) => {
-  def.pattern ?? (def.pattern = emoji());
-  $ZodStringFormat.init(inst, def);
+var $ZodEmoji = /* @__PURE__ */ $constructor("$ZodEmoji", (inst, def2) => {
+  def2.pattern ?? (def2.pattern = emoji());
+  $ZodStringFormat.init(inst, def2);
 });
-var $ZodNanoID = /* @__PURE__ */ $constructor("$ZodNanoID", (inst, def) => {
-  def.pattern ?? (def.pattern = nanoid);
-  $ZodStringFormat.init(inst, def);
+var $ZodNanoID = /* @__PURE__ */ $constructor("$ZodNanoID", (inst, def2) => {
+  def2.pattern ?? (def2.pattern = nanoid);
+  $ZodStringFormat.init(inst, def2);
 });
-var $ZodCUID = /* @__PURE__ */ $constructor("$ZodCUID", (inst, def) => {
-  def.pattern ?? (def.pattern = cuid);
-  $ZodStringFormat.init(inst, def);
+var $ZodCUID = /* @__PURE__ */ $constructor("$ZodCUID", (inst, def2) => {
+  def2.pattern ?? (def2.pattern = cuid);
+  $ZodStringFormat.init(inst, def2);
 });
-var $ZodCUID2 = /* @__PURE__ */ $constructor("$ZodCUID2", (inst, def) => {
-  def.pattern ?? (def.pattern = cuid2);
-  $ZodStringFormat.init(inst, def);
+var $ZodCUID2 = /* @__PURE__ */ $constructor("$ZodCUID2", (inst, def2) => {
+  def2.pattern ?? (def2.pattern = cuid2);
+  $ZodStringFormat.init(inst, def2);
 });
-var $ZodULID = /* @__PURE__ */ $constructor("$ZodULID", (inst, def) => {
-  def.pattern ?? (def.pattern = ulid);
-  $ZodStringFormat.init(inst, def);
+var $ZodULID = /* @__PURE__ */ $constructor("$ZodULID", (inst, def2) => {
+  def2.pattern ?? (def2.pattern = ulid);
+  $ZodStringFormat.init(inst, def2);
 });
-var $ZodXID = /* @__PURE__ */ $constructor("$ZodXID", (inst, def) => {
-  def.pattern ?? (def.pattern = xid);
-  $ZodStringFormat.init(inst, def);
+var $ZodXID = /* @__PURE__ */ $constructor("$ZodXID", (inst, def2) => {
+  def2.pattern ?? (def2.pattern = xid);
+  $ZodStringFormat.init(inst, def2);
 });
-var $ZodKSUID = /* @__PURE__ */ $constructor("$ZodKSUID", (inst, def) => {
-  def.pattern ?? (def.pattern = ksuid);
-  $ZodStringFormat.init(inst, def);
+var $ZodKSUID = /* @__PURE__ */ $constructor("$ZodKSUID", (inst, def2) => {
+  def2.pattern ?? (def2.pattern = ksuid);
+  $ZodStringFormat.init(inst, def2);
 });
-var $ZodISODateTime = /* @__PURE__ */ $constructor("$ZodISODateTime", (inst, def) => {
-  def.pattern ?? (def.pattern = datetime(def));
-  $ZodStringFormat.init(inst, def);
+var $ZodISODateTime = /* @__PURE__ */ $constructor("$ZodISODateTime", (inst, def2) => {
+  def2.pattern ?? (def2.pattern = datetime(def2));
+  $ZodStringFormat.init(inst, def2);
 });
-var $ZodISODate = /* @__PURE__ */ $constructor("$ZodISODate", (inst, def) => {
-  def.pattern ?? (def.pattern = date);
-  $ZodStringFormat.init(inst, def);
+var $ZodISODate = /* @__PURE__ */ $constructor("$ZodISODate", (inst, def2) => {
+  def2.pattern ?? (def2.pattern = date);
+  $ZodStringFormat.init(inst, def2);
 });
-var $ZodISOTime = /* @__PURE__ */ $constructor("$ZodISOTime", (inst, def) => {
-  def.pattern ?? (def.pattern = time(def));
-  $ZodStringFormat.init(inst, def);
+var $ZodISOTime = /* @__PURE__ */ $constructor("$ZodISOTime", (inst, def2) => {
+  def2.pattern ?? (def2.pattern = time(def2));
+  $ZodStringFormat.init(inst, def2);
 });
-var $ZodISODuration = /* @__PURE__ */ $constructor("$ZodISODuration", (inst, def) => {
-  def.pattern ?? (def.pattern = duration);
-  $ZodStringFormat.init(inst, def);
+var $ZodISODuration = /* @__PURE__ */ $constructor("$ZodISODuration", (inst, def2) => {
+  def2.pattern ?? (def2.pattern = duration);
+  $ZodStringFormat.init(inst, def2);
 });
-var $ZodIPv4 = /* @__PURE__ */ $constructor("$ZodIPv4", (inst, def) => {
-  def.pattern ?? (def.pattern = ipv4);
-  $ZodStringFormat.init(inst, def);
+var $ZodIPv4 = /* @__PURE__ */ $constructor("$ZodIPv4", (inst, def2) => {
+  def2.pattern ?? (def2.pattern = ipv4);
+  $ZodStringFormat.init(inst, def2);
   inst._zod.bag.format = `ipv4`;
 });
-var $ZodIPv6 = /* @__PURE__ */ $constructor("$ZodIPv6", (inst, def) => {
-  def.pattern ?? (def.pattern = ipv6);
-  $ZodStringFormat.init(inst, def);
+var $ZodIPv6 = /* @__PURE__ */ $constructor("$ZodIPv6", (inst, def2) => {
+  def2.pattern ?? (def2.pattern = ipv6);
+  $ZodStringFormat.init(inst, def2);
   inst._zod.bag.format = `ipv6`;
   inst._zod.check = (payload) => {
     try {
@@ -48410,29 +48438,29 @@ var $ZodIPv6 = /* @__PURE__ */ $constructor("$ZodIPv6", (inst, def) => {
         format: "ipv6",
         input: payload.value,
         inst,
-        continue: !def.abort
+        continue: !def2.abort
       });
     }
   };
 });
-var $ZodMAC = /* @__PURE__ */ $constructor("$ZodMAC", (inst, def) => {
-  def.pattern ?? (def.pattern = mac(def.delimiter));
-  $ZodStringFormat.init(inst, def);
+var $ZodMAC = /* @__PURE__ */ $constructor("$ZodMAC", (inst, def2) => {
+  def2.pattern ?? (def2.pattern = mac(def2.delimiter));
+  $ZodStringFormat.init(inst, def2);
   inst._zod.bag.format = `mac`;
 });
-var $ZodCIDRv4 = /* @__PURE__ */ $constructor("$ZodCIDRv4", (inst, def) => {
-  def.pattern ?? (def.pattern = cidrv4);
-  $ZodStringFormat.init(inst, def);
+var $ZodCIDRv4 = /* @__PURE__ */ $constructor("$ZodCIDRv4", (inst, def2) => {
+  def2.pattern ?? (def2.pattern = cidrv4);
+  $ZodStringFormat.init(inst, def2);
 });
-var $ZodCIDRv6 = /* @__PURE__ */ $constructor("$ZodCIDRv6", (inst, def) => {
-  def.pattern ?? (def.pattern = cidrv6);
-  $ZodStringFormat.init(inst, def);
+var $ZodCIDRv6 = /* @__PURE__ */ $constructor("$ZodCIDRv6", (inst, def2) => {
+  def2.pattern ?? (def2.pattern = cidrv6);
+  $ZodStringFormat.init(inst, def2);
   inst._zod.check = (payload) => {
     const parts = payload.value.split("/");
     try {
       if (parts.length !== 2)
         throw new Error();
-      const [address, prefix] = parts;
+      const [address2, prefix] = parts;
       if (!prefix)
         throw new Error();
       const prefixNum = Number(prefix);
@@ -48440,14 +48468,14 @@ var $ZodCIDRv6 = /* @__PURE__ */ $constructor("$ZodCIDRv6", (inst, def) => {
         throw new Error();
       if (prefixNum < 0 || prefixNum > 128)
         throw new Error();
-      new URL(`http://[${address}]`);
+      new URL(`http://[${address2}]`);
     } catch {
       payload.issues.push({
         code: "invalid_format",
         format: "cidrv6",
         input: payload.value,
         inst,
-        continue: !def.abort
+        continue: !def2.abort
       });
     }
   };
@@ -48466,9 +48494,9 @@ function isValidBase64(data) {
     return false;
   }
 }
-var $ZodBase64 = /* @__PURE__ */ $constructor("$ZodBase64", (inst, def) => {
-  def.pattern ?? (def.pattern = base64);
-  $ZodStringFormat.init(inst, def);
+var $ZodBase64 = /* @__PURE__ */ $constructor("$ZodBase64", (inst, def2) => {
+  def2.pattern ?? (def2.pattern = base64);
+  $ZodStringFormat.init(inst, def2);
   inst._zod.bag.contentEncoding = "base64";
   inst._zod.check = (payload) => {
     if (isValidBase64(payload.value))
@@ -48478,7 +48506,7 @@ var $ZodBase64 = /* @__PURE__ */ $constructor("$ZodBase64", (inst, def) => {
       format: "base64",
       input: payload.value,
       inst,
-      continue: !def.abort
+      continue: !def2.abort
     });
   };
 });
@@ -48489,9 +48517,9 @@ function isValidBase64URL(data) {
   const padded = base643.padEnd(Math.ceil(base643.length / 4) * 4, "=");
   return isValidBase64(padded);
 }
-var $ZodBase64URL = /* @__PURE__ */ $constructor("$ZodBase64URL", (inst, def) => {
-  def.pattern ?? (def.pattern = base64url);
-  $ZodStringFormat.init(inst, def);
+var $ZodBase64URL = /* @__PURE__ */ $constructor("$ZodBase64URL", (inst, def2) => {
+  def2.pattern ?? (def2.pattern = base64url);
+  $ZodStringFormat.init(inst, def2);
   inst._zod.bag.contentEncoding = "base64url";
   inst._zod.check = (payload) => {
     if (isValidBase64URL(payload.value))
@@ -48501,13 +48529,13 @@ var $ZodBase64URL = /* @__PURE__ */ $constructor("$ZodBase64URL", (inst, def) =>
       format: "base64url",
       input: payload.value,
       inst,
-      continue: !def.abort
+      continue: !def2.abort
     });
   };
 });
-var $ZodE164 = /* @__PURE__ */ $constructor("$ZodE164", (inst, def) => {
-  def.pattern ?? (def.pattern = e164);
-  $ZodStringFormat.init(inst, def);
+var $ZodE164 = /* @__PURE__ */ $constructor("$ZodE164", (inst, def2) => {
+  def2.pattern ?? (def2.pattern = e164);
+  $ZodStringFormat.init(inst, def2);
 });
 function isValidJWT(token, algorithm = null) {
   try {
@@ -48529,39 +48557,39 @@ function isValidJWT(token, algorithm = null) {
     return false;
   }
 }
-var $ZodJWT = /* @__PURE__ */ $constructor("$ZodJWT", (inst, def) => {
-  $ZodStringFormat.init(inst, def);
+var $ZodJWT = /* @__PURE__ */ $constructor("$ZodJWT", (inst, def2) => {
+  $ZodStringFormat.init(inst, def2);
   inst._zod.check = (payload) => {
-    if (isValidJWT(payload.value, def.alg))
+    if (isValidJWT(payload.value, def2.alg))
       return;
     payload.issues.push({
       code: "invalid_format",
       format: "jwt",
       input: payload.value,
       inst,
-      continue: !def.abort
+      continue: !def2.abort
     });
   };
 });
-var $ZodCustomStringFormat = /* @__PURE__ */ $constructor("$ZodCustomStringFormat", (inst, def) => {
-  $ZodStringFormat.init(inst, def);
+var $ZodCustomStringFormat = /* @__PURE__ */ $constructor("$ZodCustomStringFormat", (inst, def2) => {
+  $ZodStringFormat.init(inst, def2);
   inst._zod.check = (payload) => {
-    if (def.fn(payload.value))
+    if (def2.fn(payload.value))
       return;
     payload.issues.push({
       code: "invalid_format",
-      format: def.format,
+      format: def2.format,
       input: payload.value,
       inst,
-      continue: !def.abort
+      continue: !def2.abort
     });
   };
 });
-var $ZodNumber = /* @__PURE__ */ $constructor("$ZodNumber", (inst, def) => {
-  $ZodType.init(inst, def);
+var $ZodNumber = /* @__PURE__ */ $constructor("$ZodNumber", (inst, def2) => {
+  $ZodType.init(inst, def2);
   inst._zod.pattern = inst._zod.bag.pattern ?? number;
   inst._zod.parse = (payload, _ctx) => {
-    if (def.coerce)
+    if (def2.coerce)
       try {
         payload.value = Number(payload.value);
       } catch (_) {
@@ -48581,15 +48609,15 @@ var $ZodNumber = /* @__PURE__ */ $constructor("$ZodNumber", (inst, def) => {
     return payload;
   };
 });
-var $ZodNumberFormat = /* @__PURE__ */ $constructor("$ZodNumberFormat", (inst, def) => {
-  $ZodCheckNumberFormat.init(inst, def);
-  $ZodNumber.init(inst, def);
+var $ZodNumberFormat = /* @__PURE__ */ $constructor("$ZodNumberFormat", (inst, def2) => {
+  $ZodCheckNumberFormat.init(inst, def2);
+  $ZodNumber.init(inst, def2);
 });
-var $ZodBoolean = /* @__PURE__ */ $constructor("$ZodBoolean", (inst, def) => {
-  $ZodType.init(inst, def);
+var $ZodBoolean = /* @__PURE__ */ $constructor("$ZodBoolean", (inst, def2) => {
+  $ZodType.init(inst, def2);
   inst._zod.pattern = boolean;
   inst._zod.parse = (payload, _ctx) => {
-    if (def.coerce)
+    if (def2.coerce)
       try {
         payload.value = Boolean(payload.value);
       } catch (_) {
@@ -48606,11 +48634,11 @@ var $ZodBoolean = /* @__PURE__ */ $constructor("$ZodBoolean", (inst, def) => {
     return payload;
   };
 });
-var $ZodBigInt = /* @__PURE__ */ $constructor("$ZodBigInt", (inst, def) => {
-  $ZodType.init(inst, def);
+var $ZodBigInt = /* @__PURE__ */ $constructor("$ZodBigInt", (inst, def2) => {
+  $ZodType.init(inst, def2);
   inst._zod.pattern = bigint;
   inst._zod.parse = (payload, _ctx) => {
-    if (def.coerce)
+    if (def2.coerce)
       try {
         payload.value = BigInt(payload.value);
       } catch (_) {
@@ -48626,12 +48654,12 @@ var $ZodBigInt = /* @__PURE__ */ $constructor("$ZodBigInt", (inst, def) => {
     return payload;
   };
 });
-var $ZodBigIntFormat = /* @__PURE__ */ $constructor("$ZodBigIntFormat", (inst, def) => {
-  $ZodCheckBigIntFormat.init(inst, def);
-  $ZodBigInt.init(inst, def);
+var $ZodBigIntFormat = /* @__PURE__ */ $constructor("$ZodBigIntFormat", (inst, def2) => {
+  $ZodCheckBigIntFormat.init(inst, def2);
+  $ZodBigInt.init(inst, def2);
 });
-var $ZodSymbol = /* @__PURE__ */ $constructor("$ZodSymbol", (inst, def) => {
-  $ZodType.init(inst, def);
+var $ZodSymbol = /* @__PURE__ */ $constructor("$ZodSymbol", (inst, def2) => {
+  $ZodType.init(inst, def2);
   inst._zod.parse = (payload, _ctx) => {
     const input = payload.value;
     if (typeof input === "symbol")
@@ -48645,8 +48673,8 @@ var $ZodSymbol = /* @__PURE__ */ $constructor("$ZodSymbol", (inst, def) => {
     return payload;
   };
 });
-var $ZodUndefined = /* @__PURE__ */ $constructor("$ZodUndefined", (inst, def) => {
-  $ZodType.init(inst, def);
+var $ZodUndefined = /* @__PURE__ */ $constructor("$ZodUndefined", (inst, def2) => {
+  $ZodType.init(inst, def2);
   inst._zod.pattern = _undefined;
   inst._zod.values = /* @__PURE__ */ new Set([void 0]);
   inst._zod.parse = (payload, _ctx) => {
@@ -48662,8 +48690,8 @@ var $ZodUndefined = /* @__PURE__ */ $constructor("$ZodUndefined", (inst, def) =>
     return payload;
   };
 });
-var $ZodNull = /* @__PURE__ */ $constructor("$ZodNull", (inst, def) => {
-  $ZodType.init(inst, def);
+var $ZodNull = /* @__PURE__ */ $constructor("$ZodNull", (inst, def2) => {
+  $ZodType.init(inst, def2);
   inst._zod.pattern = _null;
   inst._zod.values = /* @__PURE__ */ new Set([null]);
   inst._zod.parse = (payload, _ctx) => {
@@ -48679,16 +48707,16 @@ var $ZodNull = /* @__PURE__ */ $constructor("$ZodNull", (inst, def) => {
     return payload;
   };
 });
-var $ZodAny = /* @__PURE__ */ $constructor("$ZodAny", (inst, def) => {
-  $ZodType.init(inst, def);
+var $ZodAny = /* @__PURE__ */ $constructor("$ZodAny", (inst, def2) => {
+  $ZodType.init(inst, def2);
   inst._zod.parse = (payload) => payload;
 });
-var $ZodUnknown = /* @__PURE__ */ $constructor("$ZodUnknown", (inst, def) => {
-  $ZodType.init(inst, def);
+var $ZodUnknown = /* @__PURE__ */ $constructor("$ZodUnknown", (inst, def2) => {
+  $ZodType.init(inst, def2);
   inst._zod.parse = (payload) => payload;
 });
-var $ZodNever = /* @__PURE__ */ $constructor("$ZodNever", (inst, def) => {
-  $ZodType.init(inst, def);
+var $ZodNever = /* @__PURE__ */ $constructor("$ZodNever", (inst, def2) => {
+  $ZodType.init(inst, def2);
   inst._zod.parse = (payload, _ctx) => {
     payload.issues.push({
       expected: "never",
@@ -48699,8 +48727,8 @@ var $ZodNever = /* @__PURE__ */ $constructor("$ZodNever", (inst, def) => {
     return payload;
   };
 });
-var $ZodVoid = /* @__PURE__ */ $constructor("$ZodVoid", (inst, def) => {
-  $ZodType.init(inst, def);
+var $ZodVoid = /* @__PURE__ */ $constructor("$ZodVoid", (inst, def2) => {
+  $ZodType.init(inst, def2);
   inst._zod.parse = (payload, _ctx) => {
     const input = payload.value;
     if (typeof input === "undefined")
@@ -48714,10 +48742,10 @@ var $ZodVoid = /* @__PURE__ */ $constructor("$ZodVoid", (inst, def) => {
     return payload;
   };
 });
-var $ZodDate = /* @__PURE__ */ $constructor("$ZodDate", (inst, def) => {
-  $ZodType.init(inst, def);
+var $ZodDate = /* @__PURE__ */ $constructor("$ZodDate", (inst, def2) => {
+  $ZodType.init(inst, def2);
   inst._zod.parse = (payload, _ctx) => {
-    if (def.coerce) {
+    if (def2.coerce) {
       try {
         payload.value = new Date(payload.value);
       } catch (_err) {
@@ -48744,8 +48772,8 @@ function handleArrayResult(result, final, index) {
   }
   final.value[index] = result.value;
 }
-var $ZodArray = /* @__PURE__ */ $constructor("$ZodArray", (inst, def) => {
-  $ZodType.init(inst, def);
+var $ZodArray = /* @__PURE__ */ $constructor("$ZodArray", (inst, def2) => {
+  $ZodType.init(inst, def2);
   inst._zod.parse = (payload, ctx) => {
     const input = payload.value;
     if (!Array.isArray(input)) {
@@ -48761,7 +48789,7 @@ var $ZodArray = /* @__PURE__ */ $constructor("$ZodArray", (inst, def) => {
     const proms = [];
     for (let i = 0; i < input.length; i++) {
       const item = input[i];
-      const result = def.element._zod.run({
+      const result = def2.element._zod.run({
         value: item,
         issues: []
       }, ctx);
@@ -48804,26 +48832,26 @@ function handlePropertyResult(result, final, key, input, isOptionalIn, isOptiona
     final.value[key] = result.value;
   }
 }
-function normalizeDef(def) {
-  const keys = Object.keys(def.shape);
+function normalizeDef(def2) {
+  const keys = Object.keys(def2.shape);
   for (const k of keys) {
-    if (!def.shape?.[k]?._zod?.traits?.has("$ZodType")) {
+    if (!def2.shape?.[k]?._zod?.traits?.has("$ZodType")) {
       throw new Error(`Invalid element at key "${k}": expected a Zod schema`);
     }
   }
-  const okeys = optionalKeys(def.shape);
+  const okeys = optionalKeys(def2.shape);
   return {
-    ...def,
+    ...def2,
     keys,
     keySet: new Set(keys),
     numKeys: keys.length,
     optionalKeys: new Set(okeys)
   };
 }
-function handleCatchall(proms, input, payload, ctx, def, inst) {
+function handleCatchall(proms, input, payload, ctx, def2, inst) {
   const unrecognized = [];
-  const keySet = def.keySet;
-  const _catchall = def.catchall._zod;
+  const keySet = def2.keySet;
+  const _catchall = def2.catchall._zod;
   const t = _catchall.def.type;
   const isOptionalIn = _catchall.optin === "optional";
   const isOptionalOut = _catchall.optout === "optional";
@@ -48857,24 +48885,24 @@ function handleCatchall(proms, input, payload, ctx, def, inst) {
     return payload;
   });
 }
-var $ZodObject = /* @__PURE__ */ $constructor("$ZodObject", (inst, def) => {
-  $ZodType.init(inst, def);
-  const desc = Object.getOwnPropertyDescriptor(def, "shape");
+var $ZodObject = /* @__PURE__ */ $constructor("$ZodObject", (inst, def2) => {
+  $ZodType.init(inst, def2);
+  const desc = Object.getOwnPropertyDescriptor(def2, "shape");
   if (!desc?.get) {
-    const sh = def.shape;
-    Object.defineProperty(def, "shape", {
+    const sh = def2.shape;
+    Object.defineProperty(def2, "shape", {
       get: () => {
         const newSh = { ...sh };
-        Object.defineProperty(def, "shape", {
+        Object.defineProperty(def2, "shape", {
           value: newSh
         });
         return newSh;
       }
     });
   }
-  const _normalized = cached(() => normalizeDef(def));
+  const _normalized = cached(() => normalizeDef(def2));
   defineLazy(inst._zod, "propValues", () => {
-    const shape = def.shape;
+    const shape = def2.shape;
     const propValues = {};
     for (const key in shape) {
       const field2 = shape[key]._zod;
@@ -48887,7 +48915,7 @@ var $ZodObject = /* @__PURE__ */ $constructor("$ZodObject", (inst, def) => {
     return propValues;
   });
   const isObject2 = isObject;
-  const catchall = def.catchall;
+  const catchall = def2.catchall;
   let value;
   inst._zod.parse = (payload, ctx) => {
     value ?? (value = _normalized.value);
@@ -48921,10 +48949,10 @@ var $ZodObject = /* @__PURE__ */ $constructor("$ZodObject", (inst, def) => {
     return handleCatchall(proms, input, payload, ctx, _normalized.value, inst);
   };
 });
-var $ZodObjectJIT = /* @__PURE__ */ $constructor("$ZodObjectJIT", (inst, def) => {
-  $ZodObject.init(inst, def);
+var $ZodObjectJIT = /* @__PURE__ */ $constructor("$ZodObjectJIT", (inst, def2) => {
+  $ZodObject.init(inst, def2);
   const superParse = inst._zod.parse;
-  const _normalized = cached(() => normalizeDef(def));
+  const _normalized = cached(() => normalizeDef(def2));
   const generateFastpass = (shape) => {
     const doc = new Doc(["shape", "payload", "ctx"]);
     const normalized = _normalized.value;
@@ -49023,7 +49051,7 @@ var $ZodObjectJIT = /* @__PURE__ */ $constructor("$ZodObjectJIT", (inst, def) =>
   const jit = !globalConfig.jitless;
   const allowsEval2 = allowsEval;
   const fastEnabled = jit && allowsEval2.value;
-  const catchall = def.catchall;
+  const catchall = def2.catchall;
   let value;
   inst._zod.parse = (payload, ctx) => {
     value ?? (value = _normalized.value);
@@ -49039,7 +49067,7 @@ var $ZodObjectJIT = /* @__PURE__ */ $constructor("$ZodObjectJIT", (inst, def) =>
     }
     if (jit && fastEnabled && ctx?.async === false && ctx.jitless !== true) {
       if (!fastpass)
-        fastpass = generateFastpass(def.shape);
+        fastpass = generateFastpass(def2.shape);
       payload = fastpass(payload, ctx);
       if (!catchall)
         return payload;
@@ -49068,31 +49096,31 @@ function handleUnionResults(results, final, inst, ctx) {
   });
   return final;
 }
-var $ZodUnion = /* @__PURE__ */ $constructor("$ZodUnion", (inst, def) => {
-  $ZodType.init(inst, def);
-  defineLazy(inst._zod, "optin", () => def.options.some((o) => o._zod.optin === "optional") ? "optional" : void 0);
-  defineLazy(inst._zod, "optout", () => def.options.some((o) => o._zod.optout === "optional") ? "optional" : void 0);
+var $ZodUnion = /* @__PURE__ */ $constructor("$ZodUnion", (inst, def2) => {
+  $ZodType.init(inst, def2);
+  defineLazy(inst._zod, "optin", () => def2.options.some((o) => o._zod.optin === "optional") ? "optional" : void 0);
+  defineLazy(inst._zod, "optout", () => def2.options.some((o) => o._zod.optout === "optional") ? "optional" : void 0);
   defineLazy(inst._zod, "values", () => {
-    if (def.options.every((o) => o._zod.values)) {
-      return new Set(def.options.flatMap((option) => Array.from(option._zod.values)));
+    if (def2.options.every((o) => o._zod.values)) {
+      return new Set(def2.options.flatMap((option) => Array.from(option._zod.values)));
     }
     return void 0;
   });
   defineLazy(inst._zod, "pattern", () => {
-    if (def.options.every((o) => o._zod.pattern)) {
-      const patterns = def.options.map((o) => o._zod.pattern);
+    if (def2.options.every((o) => o._zod.pattern)) {
+      const patterns = def2.options.map((o) => o._zod.pattern);
       return new RegExp(`^(${patterns.map((p) => cleanRegex(p.source)).join("|")})$`);
     }
     return void 0;
   });
-  const first = def.options.length === 1 ? def.options[0]._zod.run : null;
+  const first = def2.options.length === 1 ? def2.options[0]._zod.run : null;
   inst._zod.parse = (payload, ctx) => {
     if (first) {
       return first(payload, ctx);
     }
     let async = false;
     const results = [];
-    for (const option of def.options) {
+    for (const option of def2.options) {
       const result = option._zod.run({
         value: payload.value,
         issues: []
@@ -49137,17 +49165,17 @@ function handleExclusiveUnionResults(results, final, inst, ctx) {
   }
   return final;
 }
-var $ZodXor = /* @__PURE__ */ $constructor("$ZodXor", (inst, def) => {
-  $ZodUnion.init(inst, def);
-  def.inclusive = false;
-  const first = def.options.length === 1 ? def.options[0]._zod.run : null;
+var $ZodXor = /* @__PURE__ */ $constructor("$ZodXor", (inst, def2) => {
+  $ZodUnion.init(inst, def2);
+  def2.inclusive = false;
+  const first = def2.options.length === 1 ? def2.options[0]._zod.run : null;
   inst._zod.parse = (payload, ctx) => {
     if (first) {
       return first(payload, ctx);
     }
     let async = false;
     const results = [];
-    for (const option of def.options) {
+    for (const option of def2.options) {
       const result = option._zod.run({
         value: payload.value,
         issues: []
@@ -49166,16 +49194,16 @@ var $ZodXor = /* @__PURE__ */ $constructor("$ZodXor", (inst, def) => {
     });
   };
 });
-var $ZodDiscriminatedUnion = /* @__PURE__ */ $constructor("$ZodDiscriminatedUnion", (inst, def) => {
-  def.inclusive = false;
-  $ZodUnion.init(inst, def);
+var $ZodDiscriminatedUnion = /* @__PURE__ */ $constructor("$ZodDiscriminatedUnion", (inst, def2) => {
+  def2.inclusive = false;
+  $ZodUnion.init(inst, def2);
   const _super = inst._zod.parse;
   defineLazy(inst._zod, "propValues", () => {
     const propValues = {};
-    for (const option of def.options) {
+    for (const option of def2.options) {
       const pv = option._zod.propValues;
       if (!pv || Object.keys(pv).length === 0)
-        throw new Error(`Invalid discriminated union option at index "${def.options.indexOf(option)}"`);
+        throw new Error(`Invalid discriminated union option at index "${def2.options.indexOf(option)}"`);
       for (const [k, v] of Object.entries(pv)) {
         if (!propValues[k])
           propValues[k] = /* @__PURE__ */ new Set();
@@ -49187,12 +49215,12 @@ var $ZodDiscriminatedUnion = /* @__PURE__ */ $constructor("$ZodDiscriminatedUnio
     return propValues;
   });
   const disc = cached(() => {
-    const opts = def.options;
+    const opts = def2.options;
     const map2 = /* @__PURE__ */ new Map();
     for (const o of opts) {
-      const values = o._zod.propValues?.[def.discriminator];
+      const values = o._zod.propValues?.[def2.discriminator];
       if (!values || values.size === 0)
-        throw new Error(`Invalid discriminated union option at index "${def.options.indexOf(o)}"`);
+        throw new Error(`Invalid discriminated union option at index "${def2.options.indexOf(o)}"`);
       for (const v of values) {
         if (map2.has(v)) {
           throw new Error(`Duplicate discriminator value "${String(v)}"`);
@@ -49213,32 +49241,32 @@ var $ZodDiscriminatedUnion = /* @__PURE__ */ $constructor("$ZodDiscriminatedUnio
       });
       return payload;
     }
-    const opt = disc.value.get(input?.[def.discriminator]);
+    const opt = disc.value.get(input?.[def2.discriminator]);
     if (opt) {
       return opt._zod.run(payload, ctx);
     }
-    if (def.unionFallback || ctx.direction === "backward") {
+    if (def2.unionFallback || ctx.direction === "backward") {
       return _super(payload, ctx);
     }
     payload.issues.push({
       code: "invalid_union",
       errors: [],
       note: "No matching discriminator",
-      discriminator: def.discriminator,
+      discriminator: def2.discriminator,
       options: Array.from(disc.value.keys()),
       input,
-      path: [def.discriminator],
+      path: [def2.discriminator],
       inst
     });
     return payload;
   };
 });
-var $ZodIntersection = /* @__PURE__ */ $constructor("$ZodIntersection", (inst, def) => {
-  $ZodType.init(inst, def);
+var $ZodIntersection = /* @__PURE__ */ $constructor("$ZodIntersection", (inst, def2) => {
+  $ZodType.init(inst, def2);
   inst._zod.parse = (payload, ctx) => {
     const input = payload.value;
-    const left = def.left._zod.run({ value: input, issues: [] }, ctx);
-    const right = def.right._zod.run({ value: input, issues: [] }, ctx);
+    const left = def2.left._zod.run({ value: input, issues: [] }, ctx);
+    const right = def2.right._zod.run({ value: input, issues: [] }, ctx);
     const async = left instanceof Promise || right instanceof Promise;
     if (async) {
       return Promise.all([left, right]).then(([left2, right2]) => {
@@ -49331,9 +49359,9 @@ function handleIntersectionResults(result, left, right) {
   result.value = merged.data;
   return result;
 }
-var $ZodTuple = /* @__PURE__ */ $constructor("$ZodTuple", (inst, def) => {
-  $ZodType.init(inst, def);
-  const items = def.items;
+var $ZodTuple = /* @__PURE__ */ $constructor("$ZodTuple", (inst, def2) => {
+  $ZodType.init(inst, def2);
+  const items = def2.items;
   inst._zod.parse = (payload, ctx) => {
     const input = payload.value;
     if (!Array.isArray(input)) {
@@ -49349,7 +49377,7 @@ var $ZodTuple = /* @__PURE__ */ $constructor("$ZodTuple", (inst, def) => {
     const proms = [];
     const optinStart = getTupleOptStart(items, "optin");
     const optoutStart = getTupleOptStart(items, "optout");
-    if (!def.rest) {
+    if (!def2.rest) {
       if (input.length < optinStart) {
         payload.issues.push({
           code: "too_small",
@@ -49383,12 +49411,12 @@ var $ZodTuple = /* @__PURE__ */ $constructor("$ZodTuple", (inst, def) => {
         itemResults[i] = r;
       }
     }
-    if (def.rest) {
+    if (def2.rest) {
       let i = items.length - 1;
       const rest = input.slice(items.length);
       for (const el of rest) {
         i++;
-        const result = def.rest._zod.run({ value: el, issues: [] }, ctx);
+        const result = def2.rest._zod.run({ value: el, issues: [] }, ctx);
         if (result instanceof Promise) {
           proms.push(result.then((r) => handleTupleResult(r, payload, i)));
         } else {
@@ -49437,8 +49465,8 @@ function handleTupleResults(itemResults, final, items, input, optoutStart) {
   }
   return final;
 }
-var $ZodRecord = /* @__PURE__ */ $constructor("$ZodRecord", (inst, def) => {
-  $ZodType.init(inst, def);
+var $ZodRecord = /* @__PURE__ */ $constructor("$ZodRecord", (inst, def2) => {
+  $ZodType.init(inst, def2);
   inst._zod.parse = (payload, ctx) => {
     const input = payload.value;
     if (!isPlainObject(input)) {
@@ -49451,14 +49479,14 @@ var $ZodRecord = /* @__PURE__ */ $constructor("$ZodRecord", (inst, def) => {
       return payload;
     }
     const proms = [];
-    const values = def.keyType._zod.values;
+    const values = def2.keyType._zod.values;
     if (values) {
       payload.value = {};
       const recordKeys = /* @__PURE__ */ new Set();
       for (const key of values) {
         if (typeof key === "string" || typeof key === "number" || typeof key === "symbol") {
           recordKeys.add(typeof key === "number" ? key.toString() : key);
-          const keyResult = def.keyType._zod.run({ value: key, issues: [] }, ctx);
+          const keyResult = def2.keyType._zod.run({ value: key, issues: [] }, ctx);
           if (keyResult instanceof Promise) {
             throw new Error("Async schemas not supported in object keys currently");
           }
@@ -49474,7 +49502,7 @@ var $ZodRecord = /* @__PURE__ */ $constructor("$ZodRecord", (inst, def) => {
             continue;
           }
           const outKey = keyResult.value;
-          const result = def.valueType._zod.run({ value: input[key], issues: [] }, ctx);
+          const result = def2.valueType._zod.run({ value: input[key], issues: [] }, ctx);
           if (result instanceof Promise) {
             proms.push(result.then((result2) => {
               if (result2.issues.length) {
@@ -49512,13 +49540,13 @@ var $ZodRecord = /* @__PURE__ */ $constructor("$ZodRecord", (inst, def) => {
           continue;
         if (!Object.prototype.propertyIsEnumerable.call(input, key))
           continue;
-        let keyResult = def.keyType._zod.run({ value: key, issues: [] }, ctx);
+        let keyResult = def2.keyType._zod.run({ value: key, issues: [] }, ctx);
         if (keyResult instanceof Promise) {
           throw new Error("Async schemas not supported in object keys currently");
         }
         const checkNumericKey = typeof key === "string" && number.test(key) && keyResult.issues.length;
         if (checkNumericKey) {
-          const retryResult = def.keyType._zod.run({ value: Number(key), issues: [] }, ctx);
+          const retryResult = def2.keyType._zod.run({ value: Number(key), issues: [] }, ctx);
           if (retryResult instanceof Promise) {
             throw new Error("Async schemas not supported in object keys currently");
           }
@@ -49527,7 +49555,7 @@ var $ZodRecord = /* @__PURE__ */ $constructor("$ZodRecord", (inst, def) => {
           }
         }
         if (keyResult.issues.length) {
-          if (def.mode === "loose") {
+          if (def2.mode === "loose") {
             payload.value[key] = input[key];
           } else {
             payload.issues.push({
@@ -49541,7 +49569,7 @@ var $ZodRecord = /* @__PURE__ */ $constructor("$ZodRecord", (inst, def) => {
           }
           continue;
         }
-        const result = def.valueType._zod.run({ value: input[key], issues: [] }, ctx);
+        const result = def2.valueType._zod.run({ value: input[key], issues: [] }, ctx);
         if (result instanceof Promise) {
           proms.push(result.then((result2) => {
             if (result2.issues.length) {
@@ -49563,8 +49591,8 @@ var $ZodRecord = /* @__PURE__ */ $constructor("$ZodRecord", (inst, def) => {
     return payload;
   };
 });
-var $ZodMap = /* @__PURE__ */ $constructor("$ZodMap", (inst, def) => {
-  $ZodType.init(inst, def);
+var $ZodMap = /* @__PURE__ */ $constructor("$ZodMap", (inst, def2) => {
+  $ZodType.init(inst, def2);
   inst._zod.parse = (payload, ctx) => {
     const input = payload.value;
     if (!(input instanceof Map)) {
@@ -49579,8 +49607,8 @@ var $ZodMap = /* @__PURE__ */ $constructor("$ZodMap", (inst, def) => {
     const proms = [];
     payload.value = /* @__PURE__ */ new Map();
     for (const [key, value] of input) {
-      const keyResult = def.keyType._zod.run({ value: key, issues: [] }, ctx);
-      const valueResult = def.valueType._zod.run({ value, issues: [] }, ctx);
+      const keyResult = def2.keyType._zod.run({ value: key, issues: [] }, ctx);
+      const valueResult = def2.valueType._zod.run({ value, issues: [] }, ctx);
       if (keyResult instanceof Promise || valueResult instanceof Promise) {
         proms.push(Promise.all([keyResult, valueResult]).then(([keyResult2, valueResult2]) => {
           handleMapResult(keyResult2, valueResult2, payload, key, input, inst, ctx);
@@ -49624,8 +49652,8 @@ function handleMapResult(keyResult, valueResult, final, key, input, inst, ctx) {
   }
   final.value.set(keyResult.value, valueResult.value);
 }
-var $ZodSet = /* @__PURE__ */ $constructor("$ZodSet", (inst, def) => {
-  $ZodType.init(inst, def);
+var $ZodSet = /* @__PURE__ */ $constructor("$ZodSet", (inst, def2) => {
+  $ZodType.init(inst, def2);
   inst._zod.parse = (payload, ctx) => {
     const input = payload.value;
     if (!(input instanceof Set)) {
@@ -49640,7 +49668,7 @@ var $ZodSet = /* @__PURE__ */ $constructor("$ZodSet", (inst, def) => {
     const proms = [];
     payload.value = /* @__PURE__ */ new Set();
     for (const item of input) {
-      const result = def.valueType._zod.run({ value: item, issues: [] }, ctx);
+      const result = def2.valueType._zod.run({ value: item, issues: [] }, ctx);
       if (result instanceof Promise) {
         proms.push(result.then((result2) => handleSetResult(result2, payload)));
       } else
@@ -49657,9 +49685,9 @@ function handleSetResult(result, final) {
   }
   final.value.add(result.value);
 }
-var $ZodEnum = /* @__PURE__ */ $constructor("$ZodEnum", (inst, def) => {
-  $ZodType.init(inst, def);
-  const values = getEnumValues(def.entries);
+var $ZodEnum = /* @__PURE__ */ $constructor("$ZodEnum", (inst, def2) => {
+  $ZodType.init(inst, def2);
+  const values = getEnumValues(def2.entries);
   const valuesSet = new Set(values);
   inst._zod.values = valuesSet;
   inst._zod.pattern = new RegExp(`^(${values.filter((k) => propertyKeyTypes.has(typeof k)).map((o) => typeof o === "string" ? escapeRegex(o) : o.toString()).join("|")})$`);
@@ -49677,14 +49705,14 @@ var $ZodEnum = /* @__PURE__ */ $constructor("$ZodEnum", (inst, def) => {
     return payload;
   };
 });
-var $ZodLiteral = /* @__PURE__ */ $constructor("$ZodLiteral", (inst, def) => {
-  $ZodType.init(inst, def);
-  if (def.values.length === 0) {
+var $ZodLiteral = /* @__PURE__ */ $constructor("$ZodLiteral", (inst, def2) => {
+  $ZodType.init(inst, def2);
+  if (def2.values.length === 0) {
     throw new Error("Cannot create literal schema with no valid values");
   }
-  const values = new Set(def.values);
+  const values = new Set(def2.values);
   inst._zod.values = values;
-  inst._zod.pattern = new RegExp(`^(${def.values.map((o) => typeof o === "string" ? escapeRegex(o) : o ? escapeRegex(o.toString()) : String(o)).join("|")})$`);
+  inst._zod.pattern = new RegExp(`^(${def2.values.map((o) => typeof o === "string" ? escapeRegex(o) : o ? escapeRegex(o.toString()) : String(o)).join("|")})$`);
   inst._zod.parse = (payload, _ctx) => {
     const input = payload.value;
     if (values.has(input)) {
@@ -49692,15 +49720,15 @@ var $ZodLiteral = /* @__PURE__ */ $constructor("$ZodLiteral", (inst, def) => {
     }
     payload.issues.push({
       code: "invalid_value",
-      values: def.values,
+      values: def2.values,
       input,
       inst
     });
     return payload;
   };
 });
-var $ZodFile = /* @__PURE__ */ $constructor("$ZodFile", (inst, def) => {
-  $ZodType.init(inst, def);
+var $ZodFile = /* @__PURE__ */ $constructor("$ZodFile", (inst, def2) => {
+  $ZodType.init(inst, def2);
   inst._zod.parse = (payload, _ctx) => {
     const input = payload.value;
     if (input instanceof File)
@@ -49714,14 +49742,14 @@ var $ZodFile = /* @__PURE__ */ $constructor("$ZodFile", (inst, def) => {
     return payload;
   };
 });
-var $ZodTransform = /* @__PURE__ */ $constructor("$ZodTransform", (inst, def) => {
-  $ZodType.init(inst, def);
+var $ZodTransform = /* @__PURE__ */ $constructor("$ZodTransform", (inst, def2) => {
+  $ZodType.init(inst, def2);
   inst._zod.optin = "optional";
   inst._zod.parse = (payload, ctx) => {
     if (ctx.direction === "backward") {
       throw new $ZodEncodeError(inst.constructor.name);
     }
-    const _out = def.transform(payload.value, payload);
+    const _out = def2.transform(payload.value, payload);
     if (ctx.async) {
       const output = _out instanceof Promise ? _out : Promise.resolve(_out);
       return output.then((output2) => {
@@ -49744,21 +49772,21 @@ function handleOptionalResult(result, input) {
   }
   return result;
 }
-var $ZodOptional = /* @__PURE__ */ $constructor("$ZodOptional", (inst, def) => {
-  $ZodType.init(inst, def);
+var $ZodOptional = /* @__PURE__ */ $constructor("$ZodOptional", (inst, def2) => {
+  $ZodType.init(inst, def2);
   inst._zod.optin = "optional";
   inst._zod.optout = "optional";
   defineLazy(inst._zod, "values", () => {
-    return def.innerType._zod.values ? /* @__PURE__ */ new Set([...def.innerType._zod.values, void 0]) : void 0;
+    return def2.innerType._zod.values ? /* @__PURE__ */ new Set([...def2.innerType._zod.values, void 0]) : void 0;
   });
   defineLazy(inst._zod, "pattern", () => {
-    const pattern = def.innerType._zod.pattern;
+    const pattern = def2.innerType._zod.pattern;
     return pattern ? new RegExp(`^(${cleanRegex(pattern.source)})?$`) : void 0;
   });
   inst._zod.parse = (payload, ctx) => {
-    if (def.innerType._zod.optin === "optional") {
+    if (def2.innerType._zod.optin === "optional") {
       const input = payload.value;
-      const result = def.innerType._zod.run(payload, ctx);
+      const result = def2.innerType._zod.run(payload, ctx);
       if (result instanceof Promise)
         return result.then((r) => handleOptionalResult(r, input));
       return handleOptionalResult(result, input);
@@ -49766,81 +49794,81 @@ var $ZodOptional = /* @__PURE__ */ $constructor("$ZodOptional", (inst, def) => {
     if (payload.value === void 0) {
       return payload;
     }
-    return def.innerType._zod.run(payload, ctx);
+    return def2.innerType._zod.run(payload, ctx);
   };
 });
-var $ZodExactOptional = /* @__PURE__ */ $constructor("$ZodExactOptional", (inst, def) => {
-  $ZodOptional.init(inst, def);
-  defineLazy(inst._zod, "values", () => def.innerType._zod.values);
-  defineLazy(inst._zod, "pattern", () => def.innerType._zod.pattern);
+var $ZodExactOptional = /* @__PURE__ */ $constructor("$ZodExactOptional", (inst, def2) => {
+  $ZodOptional.init(inst, def2);
+  defineLazy(inst._zod, "values", () => def2.innerType._zod.values);
+  defineLazy(inst._zod, "pattern", () => def2.innerType._zod.pattern);
   inst._zod.parse = (payload, ctx) => {
-    return def.innerType._zod.run(payload, ctx);
+    return def2.innerType._zod.run(payload, ctx);
   };
 });
-var $ZodNullable = /* @__PURE__ */ $constructor("$ZodNullable", (inst, def) => {
-  $ZodType.init(inst, def);
-  defineLazy(inst._zod, "optin", () => def.innerType._zod.optin);
-  defineLazy(inst._zod, "optout", () => def.innerType._zod.optout);
+var $ZodNullable = /* @__PURE__ */ $constructor("$ZodNullable", (inst, def2) => {
+  $ZodType.init(inst, def2);
+  defineLazy(inst._zod, "optin", () => def2.innerType._zod.optin);
+  defineLazy(inst._zod, "optout", () => def2.innerType._zod.optout);
   defineLazy(inst._zod, "pattern", () => {
-    const pattern = def.innerType._zod.pattern;
+    const pattern = def2.innerType._zod.pattern;
     return pattern ? new RegExp(`^(${cleanRegex(pattern.source)}|null)$`) : void 0;
   });
   defineLazy(inst._zod, "values", () => {
-    return def.innerType._zod.values ? /* @__PURE__ */ new Set([...def.innerType._zod.values, null]) : void 0;
+    return def2.innerType._zod.values ? /* @__PURE__ */ new Set([...def2.innerType._zod.values, null]) : void 0;
   });
   inst._zod.parse = (payload, ctx) => {
     if (payload.value === null)
       return payload;
-    return def.innerType._zod.run(payload, ctx);
+    return def2.innerType._zod.run(payload, ctx);
   };
 });
-var $ZodDefault = /* @__PURE__ */ $constructor("$ZodDefault", (inst, def) => {
-  $ZodType.init(inst, def);
+var $ZodDefault = /* @__PURE__ */ $constructor("$ZodDefault", (inst, def2) => {
+  $ZodType.init(inst, def2);
   inst._zod.optin = "optional";
-  defineLazy(inst._zod, "values", () => def.innerType._zod.values);
+  defineLazy(inst._zod, "values", () => def2.innerType._zod.values);
   inst._zod.parse = (payload, ctx) => {
     if (ctx.direction === "backward") {
-      return def.innerType._zod.run(payload, ctx);
+      return def2.innerType._zod.run(payload, ctx);
     }
     if (payload.value === void 0) {
-      payload.value = def.defaultValue;
+      payload.value = def2.defaultValue;
       return payload;
     }
-    const result = def.innerType._zod.run(payload, ctx);
+    const result = def2.innerType._zod.run(payload, ctx);
     if (result instanceof Promise) {
-      return result.then((result2) => handleDefaultResult(result2, def));
+      return result.then((result2) => handleDefaultResult(result2, def2));
     }
-    return handleDefaultResult(result, def);
+    return handleDefaultResult(result, def2);
   };
 });
-function handleDefaultResult(payload, def) {
+function handleDefaultResult(payload, def2) {
   if (payload.value === void 0) {
-    payload.value = def.defaultValue;
+    payload.value = def2.defaultValue;
   }
   return payload;
 }
-var $ZodPrefault = /* @__PURE__ */ $constructor("$ZodPrefault", (inst, def) => {
-  $ZodType.init(inst, def);
+var $ZodPrefault = /* @__PURE__ */ $constructor("$ZodPrefault", (inst, def2) => {
+  $ZodType.init(inst, def2);
   inst._zod.optin = "optional";
-  defineLazy(inst._zod, "values", () => def.innerType._zod.values);
+  defineLazy(inst._zod, "values", () => def2.innerType._zod.values);
   inst._zod.parse = (payload, ctx) => {
     if (ctx.direction === "backward") {
-      return def.innerType._zod.run(payload, ctx);
+      return def2.innerType._zod.run(payload, ctx);
     }
     if (payload.value === void 0) {
-      payload.value = def.defaultValue;
+      payload.value = def2.defaultValue;
     }
-    return def.innerType._zod.run(payload, ctx);
+    return def2.innerType._zod.run(payload, ctx);
   };
 });
-var $ZodNonOptional = /* @__PURE__ */ $constructor("$ZodNonOptional", (inst, def) => {
-  $ZodType.init(inst, def);
+var $ZodNonOptional = /* @__PURE__ */ $constructor("$ZodNonOptional", (inst, def2) => {
+  $ZodType.init(inst, def2);
   defineLazy(inst._zod, "values", () => {
-    const v = def.innerType._zod.values;
+    const v = def2.innerType._zod.values;
     return v ? new Set([...v].filter((x) => x !== void 0)) : void 0;
   });
   inst._zod.parse = (payload, ctx) => {
-    const result = def.innerType._zod.run(payload, ctx);
+    const result = def2.innerType._zod.run(payload, ctx);
     if (result instanceof Promise) {
       return result.then((result2) => handleNonOptionalResult(result2, inst));
     }
@@ -49858,13 +49886,13 @@ function handleNonOptionalResult(payload, inst) {
   }
   return payload;
 }
-var $ZodSuccess = /* @__PURE__ */ $constructor("$ZodSuccess", (inst, def) => {
-  $ZodType.init(inst, def);
+var $ZodSuccess = /* @__PURE__ */ $constructor("$ZodSuccess", (inst, def2) => {
+  $ZodType.init(inst, def2);
   inst._zod.parse = (payload, ctx) => {
     if (ctx.direction === "backward") {
       throw new $ZodEncodeError("ZodSuccess");
     }
-    const result = def.innerType._zod.run(payload, ctx);
+    const result = def2.innerType._zod.run(payload, ctx);
     if (result instanceof Promise) {
       return result.then((result2) => {
         payload.value = result2.issues.length === 0;
@@ -49875,21 +49903,21 @@ var $ZodSuccess = /* @__PURE__ */ $constructor("$ZodSuccess", (inst, def) => {
     return payload;
   };
 });
-var $ZodCatch = /* @__PURE__ */ $constructor("$ZodCatch", (inst, def) => {
-  $ZodType.init(inst, def);
+var $ZodCatch = /* @__PURE__ */ $constructor("$ZodCatch", (inst, def2) => {
+  $ZodType.init(inst, def2);
   inst._zod.optin = "optional";
-  defineLazy(inst._zod, "optout", () => def.innerType._zod.optout);
-  defineLazy(inst._zod, "values", () => def.innerType._zod.values);
+  defineLazy(inst._zod, "optout", () => def2.innerType._zod.optout);
+  defineLazy(inst._zod, "values", () => def2.innerType._zod.values);
   inst._zod.parse = (payload, ctx) => {
     if (ctx.direction === "backward") {
-      return def.innerType._zod.run(payload, ctx);
+      return def2.innerType._zod.run(payload, ctx);
     }
-    const result = def.innerType._zod.run(payload, ctx);
+    const result = def2.innerType._zod.run(payload, ctx);
     if (result instanceof Promise) {
       return result.then((result2) => {
         payload.value = result2.value;
         if (result2.issues.length) {
-          payload.value = def.catchValue({
+          payload.value = def2.catchValue({
             ...payload,
             error: {
               issues: result2.issues.map((iss) => finalizeIssue(iss, ctx, config()))
@@ -49904,7 +49932,7 @@ var $ZodCatch = /* @__PURE__ */ $constructor("$ZodCatch", (inst, def) => {
     }
     payload.value = result.value;
     if (result.issues.length) {
-      payload.value = def.catchValue({
+      payload.value = def2.catchValue({
         ...payload,
         error: {
           issues: result.issues.map((iss) => finalizeIssue(iss, ctx, config()))
@@ -49917,8 +49945,8 @@ var $ZodCatch = /* @__PURE__ */ $constructor("$ZodCatch", (inst, def) => {
     return payload;
   };
 });
-var $ZodNaN = /* @__PURE__ */ $constructor("$ZodNaN", (inst, def) => {
-  $ZodType.init(inst, def);
+var $ZodNaN = /* @__PURE__ */ $constructor("$ZodNaN", (inst, def2) => {
+  $ZodType.init(inst, def2);
   inst._zod.parse = (payload, _ctx) => {
     if (typeof payload.value !== "number" || !Number.isNaN(payload.value)) {
       payload.issues.push({
@@ -49932,25 +49960,25 @@ var $ZodNaN = /* @__PURE__ */ $constructor("$ZodNaN", (inst, def) => {
     return payload;
   };
 });
-var $ZodPipe = /* @__PURE__ */ $constructor("$ZodPipe", (inst, def) => {
-  $ZodType.init(inst, def);
-  defineLazy(inst._zod, "values", () => def.in._zod.values);
-  defineLazy(inst._zod, "optin", () => def.in._zod.optin);
-  defineLazy(inst._zod, "optout", () => def.out._zod.optout);
-  defineLazy(inst._zod, "propValues", () => def.in._zod.propValues);
+var $ZodPipe = /* @__PURE__ */ $constructor("$ZodPipe", (inst, def2) => {
+  $ZodType.init(inst, def2);
+  defineLazy(inst._zod, "values", () => def2.in._zod.values);
+  defineLazy(inst._zod, "optin", () => def2.in._zod.optin);
+  defineLazy(inst._zod, "optout", () => def2.out._zod.optout);
+  defineLazy(inst._zod, "propValues", () => def2.in._zod.propValues);
   inst._zod.parse = (payload, ctx) => {
     if (ctx.direction === "backward") {
-      const right = def.out._zod.run(payload, ctx);
+      const right = def2.out._zod.run(payload, ctx);
       if (right instanceof Promise) {
-        return right.then((right2) => handlePipeResult(right2, def.in, ctx));
+        return right.then((right2) => handlePipeResult(right2, def2.in, ctx));
       }
-      return handlePipeResult(right, def.in, ctx);
+      return handlePipeResult(right, def2.in, ctx);
     }
-    const left = def.in._zod.run(payload, ctx);
+    const left = def2.in._zod.run(payload, ctx);
     if (left instanceof Promise) {
-      return left.then((left2) => handlePipeResult(left2, def.out, ctx));
+      return left.then((left2) => handlePipeResult(left2, def2.out, ctx));
     }
-    return handlePipeResult(left, def.out, ctx);
+    return handlePipeResult(left, def2.out, ctx);
   };
 });
 function handlePipeResult(left, next, ctx) {
@@ -49960,47 +49988,47 @@ function handlePipeResult(left, next, ctx) {
   }
   return next._zod.run({ value: left.value, issues: left.issues, fallback: left.fallback }, ctx);
 }
-var $ZodCodec = /* @__PURE__ */ $constructor("$ZodCodec", (inst, def) => {
-  $ZodType.init(inst, def);
-  defineLazy(inst._zod, "values", () => def.in._zod.values);
-  defineLazy(inst._zod, "optin", () => def.in._zod.optin);
-  defineLazy(inst._zod, "optout", () => def.out._zod.optout);
-  defineLazy(inst._zod, "propValues", () => def.in._zod.propValues);
+var $ZodCodec = /* @__PURE__ */ $constructor("$ZodCodec", (inst, def2) => {
+  $ZodType.init(inst, def2);
+  defineLazy(inst._zod, "values", () => def2.in._zod.values);
+  defineLazy(inst._zod, "optin", () => def2.in._zod.optin);
+  defineLazy(inst._zod, "optout", () => def2.out._zod.optout);
+  defineLazy(inst._zod, "propValues", () => def2.in._zod.propValues);
   inst._zod.parse = (payload, ctx) => {
     const direction = ctx.direction || "forward";
     if (direction === "forward") {
-      const left = def.in._zod.run(payload, ctx);
+      const left = def2.in._zod.run(payload, ctx);
       if (left instanceof Promise) {
-        return left.then((left2) => handleCodecAResult(left2, def, ctx));
+        return left.then((left2) => handleCodecAResult(left2, def2, ctx));
       }
-      return handleCodecAResult(left, def, ctx);
+      return handleCodecAResult(left, def2, ctx);
     } else {
-      const right = def.out._zod.run(payload, ctx);
+      const right = def2.out._zod.run(payload, ctx);
       if (right instanceof Promise) {
-        return right.then((right2) => handleCodecAResult(right2, def, ctx));
+        return right.then((right2) => handleCodecAResult(right2, def2, ctx));
       }
-      return handleCodecAResult(right, def, ctx);
+      return handleCodecAResult(right, def2, ctx);
     }
   };
 });
-function handleCodecAResult(result, def, ctx) {
+function handleCodecAResult(result, def2, ctx) {
   if (result.issues.length) {
     result.aborted = true;
     return result;
   }
   const direction = ctx.direction || "forward";
   if (direction === "forward") {
-    const transformed = def.transform(result.value, result);
+    const transformed = def2.transform(result.value, result);
     if (transformed instanceof Promise) {
-      return transformed.then((value) => handleCodecTxResult(result, value, def.out, ctx));
+      return transformed.then((value) => handleCodecTxResult(result, value, def2.out, ctx));
     }
-    return handleCodecTxResult(result, transformed, def.out, ctx);
+    return handleCodecTxResult(result, transformed, def2.out, ctx);
   } else {
-    const transformed = def.reverseTransform(result.value, result);
+    const transformed = def2.reverseTransform(result.value, result);
     if (transformed instanceof Promise) {
-      return transformed.then((value) => handleCodecTxResult(result, value, def.in, ctx));
+      return transformed.then((value) => handleCodecTxResult(result, value, def2.in, ctx));
     }
-    return handleCodecTxResult(result, transformed, def.in, ctx);
+    return handleCodecTxResult(result, transformed, def2.in, ctx);
   }
 }
 function handleCodecTxResult(left, value, nextSchema, ctx) {
@@ -50010,20 +50038,20 @@ function handleCodecTxResult(left, value, nextSchema, ctx) {
   }
   return nextSchema._zod.run({ value, issues: left.issues }, ctx);
 }
-var $ZodPreprocess = /* @__PURE__ */ $constructor("$ZodPreprocess", (inst, def) => {
-  $ZodPipe.init(inst, def);
+var $ZodPreprocess = /* @__PURE__ */ $constructor("$ZodPreprocess", (inst, def2) => {
+  $ZodPipe.init(inst, def2);
 });
-var $ZodReadonly = /* @__PURE__ */ $constructor("$ZodReadonly", (inst, def) => {
-  $ZodType.init(inst, def);
-  defineLazy(inst._zod, "propValues", () => def.innerType._zod.propValues);
-  defineLazy(inst._zod, "values", () => def.innerType._zod.values);
-  defineLazy(inst._zod, "optin", () => def.innerType?._zod?.optin);
-  defineLazy(inst._zod, "optout", () => def.innerType?._zod?.optout);
+var $ZodReadonly = /* @__PURE__ */ $constructor("$ZodReadonly", (inst, def2) => {
+  $ZodType.init(inst, def2);
+  defineLazy(inst._zod, "propValues", () => def2.innerType._zod.propValues);
+  defineLazy(inst._zod, "values", () => def2.innerType._zod.values);
+  defineLazy(inst._zod, "optin", () => def2.innerType?._zod?.optin);
+  defineLazy(inst._zod, "optout", () => def2.innerType?._zod?.optout);
   inst._zod.parse = (payload, ctx) => {
     if (ctx.direction === "backward") {
-      return def.innerType._zod.run(payload, ctx);
+      return def2.innerType._zod.run(payload, ctx);
     }
-    const result = def.innerType._zod.run(payload, ctx);
+    const result = def2.innerType._zod.run(payload, ctx);
     if (result instanceof Promise) {
       return result.then(handleReadonlyResult);
     }
@@ -50034,10 +50062,10 @@ function handleReadonlyResult(payload) {
   payload.value = Object.freeze(payload.value);
   return payload;
 }
-var $ZodTemplateLiteral = /* @__PURE__ */ $constructor("$ZodTemplateLiteral", (inst, def) => {
-  $ZodType.init(inst, def);
+var $ZodTemplateLiteral = /* @__PURE__ */ $constructor("$ZodTemplateLiteral", (inst, def2) => {
+  $ZodType.init(inst, def2);
   const regexParts = [];
-  for (const part of def.parts) {
+  for (const part of def2.parts) {
     if (typeof part === "object" && part !== null) {
       if (!part._zod.pattern) {
         throw new Error(`Invalid template literal part, no pattern found: ${[...part._zod.traits].shift()}`);
@@ -50071,7 +50099,7 @@ var $ZodTemplateLiteral = /* @__PURE__ */ $constructor("$ZodTemplateLiteral", (i
         input: payload.value,
         inst,
         code: "invalid_format",
-        format: def.format ?? "template_literal",
+        format: def2.format ?? "template_literal",
         pattern: inst._zod.pattern.source
       });
       return payload;
@@ -50079,10 +50107,10 @@ var $ZodTemplateLiteral = /* @__PURE__ */ $constructor("$ZodTemplateLiteral", (i
     return payload;
   };
 });
-var $ZodFunction = /* @__PURE__ */ $constructor("$ZodFunction", (inst, def) => {
-  $ZodType.init(inst, def);
-  inst._def = def;
-  inst._zod.def = def;
+var $ZodFunction = /* @__PURE__ */ $constructor("$ZodFunction", (inst, def2) => {
+  $ZodType.init(inst, def2);
+  inst._def = def2;
+  inst._zod.def = def2;
   inst.implement = (func) => {
     if (typeof func !== "function") {
       throw new Error("implement() must be called with a function");
@@ -50156,18 +50184,18 @@ var $ZodFunction = /* @__PURE__ */ $constructor("$ZodFunction", (inst, def) => {
   };
   return inst;
 });
-var $ZodPromise = /* @__PURE__ */ $constructor("$ZodPromise", (inst, def) => {
-  $ZodType.init(inst, def);
+var $ZodPromise = /* @__PURE__ */ $constructor("$ZodPromise", (inst, def2) => {
+  $ZodType.init(inst, def2);
   inst._zod.parse = (payload, ctx) => {
-    return Promise.resolve(payload.value).then((inner) => def.innerType._zod.run({ value: inner, issues: [] }, ctx));
+    return Promise.resolve(payload.value).then((inner) => def2.innerType._zod.run({ value: inner, issues: [] }, ctx));
   };
 });
-var $ZodLazy = /* @__PURE__ */ $constructor("$ZodLazy", (inst, def) => {
-  $ZodType.init(inst, def);
+var $ZodLazy = /* @__PURE__ */ $constructor("$ZodLazy", (inst, def2) => {
+  $ZodType.init(inst, def2);
   defineLazy(inst._zod, "innerType", () => {
-    const d = def;
+    const d = def2;
     if (!d._cachedInner)
-      d._cachedInner = def.getter();
+      d._cachedInner = def2.getter();
     return d._cachedInner;
   });
   defineLazy(inst._zod, "pattern", () => inst._zod.innerType?._zod?.pattern);
@@ -50179,15 +50207,15 @@ var $ZodLazy = /* @__PURE__ */ $constructor("$ZodLazy", (inst, def) => {
     return inner._zod.run(payload, ctx);
   };
 });
-var $ZodCustom = /* @__PURE__ */ $constructor("$ZodCustom", (inst, def) => {
-  $ZodCheck.init(inst, def);
-  $ZodType.init(inst, def);
+var $ZodCustom = /* @__PURE__ */ $constructor("$ZodCustom", (inst, def2) => {
+  $ZodCheck.init(inst, def2);
+  $ZodType.init(inst, def2);
   inst._zod.parse = (payload, _) => {
     return payload;
   };
   inst._zod.check = (payload) => {
     const input = payload.value;
-    const r = def.fn(input);
+    const r = def2.fn(input);
     if (r instanceof Promise) {
       return r.then((r2) => handleRefineResult(r2, payload, input, inst));
     }
@@ -57242,7 +57270,7 @@ function _stringbool(Classes, _params) {
 // @__NO_SIDE_EFFECTS__
 function _stringFormat(Class2, format, fnOrRegex, _params = {}) {
   const params = normalizeParams(_params);
-  const def = {
+  const def2 = {
     ...normalizeParams(_params),
     check: "string_format",
     type: "string",
@@ -57251,9 +57279,9 @@ function _stringFormat(Class2, format, fnOrRegex, _params = {}) {
     ...params
   };
   if (fnOrRegex instanceof RegExp) {
-    def.pattern = fnOrRegex;
+    def2.pattern = fnOrRegex;
   }
-  const inst = new Class2(def);
+  const inst = new Class2(def2);
   return inst;
 }
 
@@ -57281,7 +57309,7 @@ function initializeContext(params) {
 }
 function process2(schema, ctx, _params = { path: [], schemaPath: [] }) {
   var _a3;
-  const def = schema._zod.def;
+  const def2 = schema._zod.def;
   const seen = ctx.seen.get(schema);
   if (seen) {
     seen.count++;
@@ -57306,9 +57334,9 @@ function process2(schema, ctx, _params = { path: [], schemaPath: [] }) {
       schema._zod.processJSONSchema(ctx, result.schema, params);
     } else {
       const _json = result.schema;
-      const processor = ctx.processors[def.type];
+      const processor = ctx.processors[def2.type];
       if (!processor) {
-        throw new Error(`[toJSONSchema]: Non-representable type encountered: ${def.type}`);
+        throw new Error(`[toJSONSchema]: Non-representable type encountered: ${def2.type}`);
       }
       processor(schema, ctx, _json, params);
     }
@@ -57554,49 +57582,49 @@ function isTransforming(_schema, _ctx) {
   if (ctx.seen.has(_schema))
     return false;
   ctx.seen.add(_schema);
-  const def = _schema._zod.def;
-  if (def.type === "transform")
+  const def2 = _schema._zod.def;
+  if (def2.type === "transform")
     return true;
-  if (def.type === "array")
-    return isTransforming(def.element, ctx);
-  if (def.type === "set")
-    return isTransforming(def.valueType, ctx);
-  if (def.type === "lazy")
-    return isTransforming(def.getter(), ctx);
-  if (def.type === "promise" || def.type === "optional" || def.type === "nonoptional" || def.type === "nullable" || def.type === "readonly" || def.type === "default" || def.type === "prefault") {
-    return isTransforming(def.innerType, ctx);
+  if (def2.type === "array")
+    return isTransforming(def2.element, ctx);
+  if (def2.type === "set")
+    return isTransforming(def2.valueType, ctx);
+  if (def2.type === "lazy")
+    return isTransforming(def2.getter(), ctx);
+  if (def2.type === "promise" || def2.type === "optional" || def2.type === "nonoptional" || def2.type === "nullable" || def2.type === "readonly" || def2.type === "default" || def2.type === "prefault") {
+    return isTransforming(def2.innerType, ctx);
   }
-  if (def.type === "intersection") {
-    return isTransforming(def.left, ctx) || isTransforming(def.right, ctx);
+  if (def2.type === "intersection") {
+    return isTransforming(def2.left, ctx) || isTransforming(def2.right, ctx);
   }
-  if (def.type === "record" || def.type === "map") {
-    return isTransforming(def.keyType, ctx) || isTransforming(def.valueType, ctx);
+  if (def2.type === "record" || def2.type === "map") {
+    return isTransforming(def2.keyType, ctx) || isTransforming(def2.valueType, ctx);
   }
-  if (def.type === "pipe") {
+  if (def2.type === "pipe") {
     if (_schema._zod.traits.has("$ZodCodec"))
       return true;
-    return isTransforming(def.in, ctx) || isTransforming(def.out, ctx);
+    return isTransforming(def2.in, ctx) || isTransforming(def2.out, ctx);
   }
-  if (def.type === "object") {
-    for (const key in def.shape) {
-      if (isTransforming(def.shape[key], ctx))
+  if (def2.type === "object") {
+    for (const key in def2.shape) {
+      if (isTransforming(def2.shape[key], ctx))
         return true;
     }
     return false;
   }
-  if (def.type === "union") {
-    for (const option of def.options) {
+  if (def2.type === "union") {
+    for (const option of def2.options) {
       if (isTransforming(option, ctx))
         return true;
     }
     return false;
   }
-  if (def.type === "tuple") {
-    for (const item of def.items) {
+  if (def2.type === "tuple") {
+    for (const item of def2.items) {
       if (isTransforming(item, ctx))
         return true;
     }
-    if (def.rest && isTransforming(def.rest, ctx))
+    if (def2.rest && isTransforming(def2.rest, ctx))
       return true;
     return false;
   }
@@ -57735,8 +57763,8 @@ var dateProcessor = (_schema, ctx, _json, _params) => {
   }
 };
 var enumProcessor = (schema, _ctx, json2, _params) => {
-  const def = schema._zod.def;
-  const values = getEnumValues(def.entries);
+  const def2 = schema._zod.def;
+  const values = getEnumValues(def2.entries);
   if (values.every((v) => typeof v === "number"))
     json2.type = "number";
   if (values.every((v) => typeof v === "string"))
@@ -57744,9 +57772,9 @@ var enumProcessor = (schema, _ctx, json2, _params) => {
   json2.enum = values;
 };
 var literalProcessor = (schema, ctx, json2, _params) => {
-  const def = schema._zod.def;
+  const def2 = schema._zod.def;
   const vals = [];
-  for (const val of def.values) {
+  for (const val of def2.values) {
     if (val === void 0) {
       if (ctx.unrepresentable === "throw") {
         throw new Error("Literal `undefined` cannot be represented in JSON Schema");
@@ -57850,24 +57878,24 @@ var setProcessor = (_schema, ctx, _json, _params) => {
 };
 var arrayProcessor = (schema, ctx, _json, params) => {
   const json2 = _json;
-  const def = schema._zod.def;
+  const def2 = schema._zod.def;
   const { minimum, maximum } = schema._zod.bag;
   if (typeof minimum === "number")
     json2.minItems = minimum;
   if (typeof maximum === "number")
     json2.maxItems = maximum;
   json2.type = "array";
-  json2.items = process2(def.element, ctx, {
+  json2.items = process2(def2.element, ctx, {
     ...params,
     path: [...params.path, "items"]
   });
 };
 var objectProcessor = (schema, ctx, _json, params) => {
   const json2 = _json;
-  const def = schema._zod.def;
+  const def2 = schema._zod.def;
   json2.type = "object";
   json2.properties = {};
-  const shape = def.shape;
+  const shape = def2.shape;
   for (const key in shape) {
     json2.properties[key] = process2(shape[key], ctx, {
       ...params,
@@ -57876,7 +57904,7 @@ var objectProcessor = (schema, ctx, _json, params) => {
   }
   const allKeys = new Set(Object.keys(shape));
   const requiredKeys = new Set([...allKeys].filter((key) => {
-    const v = def.shape[key]._zod;
+    const v = def2.shape[key]._zod;
     if (ctx.io === "input") {
       return v.optin === void 0;
     } else {
@@ -57886,22 +57914,22 @@ var objectProcessor = (schema, ctx, _json, params) => {
   if (requiredKeys.size > 0) {
     json2.required = Array.from(requiredKeys);
   }
-  if (def.catchall?._zod.def.type === "never") {
+  if (def2.catchall?._zod.def.type === "never") {
     json2.additionalProperties = false;
-  } else if (!def.catchall) {
+  } else if (!def2.catchall) {
     if (ctx.io === "output")
       json2.additionalProperties = false;
-  } else if (def.catchall) {
-    json2.additionalProperties = process2(def.catchall, ctx, {
+  } else if (def2.catchall) {
+    json2.additionalProperties = process2(def2.catchall, ctx, {
       ...params,
       path: [...params.path, "additionalProperties"]
     });
   }
 };
 var unionProcessor = (schema, ctx, json2, params) => {
-  const def = schema._zod.def;
-  const isExclusive = def.inclusive === false;
-  const options = def.options.map((x, i) => process2(x, ctx, {
+  const def2 = schema._zod.def;
+  const isExclusive = def2.inclusive === false;
+  const options = def2.options.map((x, i) => process2(x, ctx, {
     ...params,
     path: [...params.path, isExclusive ? "oneOf" : "anyOf", i]
   }));
@@ -57912,12 +57940,12 @@ var unionProcessor = (schema, ctx, json2, params) => {
   }
 };
 var intersectionProcessor = (schema, ctx, json2, params) => {
-  const def = schema._zod.def;
-  const a = process2(def.left, ctx, {
+  const def2 = schema._zod.def;
+  const a = process2(def2.left, ctx, {
     ...params,
     path: [...params.path, "allOf", 0]
   });
-  const b = process2(def.right, ctx, {
+  const b = process2(def2.right, ctx, {
     ...params,
     path: [...params.path, "allOf", 1]
   });
@@ -57930,17 +57958,17 @@ var intersectionProcessor = (schema, ctx, json2, params) => {
 };
 var tupleProcessor = (schema, ctx, _json, params) => {
   const json2 = _json;
-  const def = schema._zod.def;
+  const def2 = schema._zod.def;
   json2.type = "array";
   const prefixPath = ctx.target === "draft-2020-12" ? "prefixItems" : "items";
   const restPath = ctx.target === "draft-2020-12" ? "items" : ctx.target === "openapi-3.0" ? "items" : "additionalItems";
-  const prefixItems = def.items.map((x, i) => process2(x, ctx, {
+  const prefixItems = def2.items.map((x, i) => process2(x, ctx, {
     ...params,
     path: [...params.path, prefixPath, i]
   }));
-  const rest = def.rest ? process2(def.rest, ctx, {
+  const rest = def2.rest ? process2(def2.rest, ctx, {
     ...params,
-    path: [...params.path, restPath, ...ctx.target === "openapi-3.0" ? [def.items.length] : []]
+    path: [...params.path, restPath, ...ctx.target === "openapi-3.0" ? [def2.items.length] : []]
   }) : null;
   if (ctx.target === "draft-2020-12") {
     json2.prefixItems = prefixItems;
@@ -57972,13 +58000,13 @@ var tupleProcessor = (schema, ctx, _json, params) => {
 };
 var recordProcessor = (schema, ctx, _json, params) => {
   const json2 = _json;
-  const def = schema._zod.def;
+  const def2 = schema._zod.def;
   json2.type = "object";
-  const keyType = def.keyType;
+  const keyType = def2.keyType;
   const keyBag = keyType._zod.bag;
   const patterns = keyBag?.patterns;
-  if (def.mode === "loose" && patterns && patterns.size > 0) {
-    const valueSchema = process2(def.valueType, ctx, {
+  if (def2.mode === "loose" && patterns && patterns.size > 0) {
+    const valueSchema = process2(def2.valueType, ctx, {
       ...params,
       path: [...params.path, "patternProperties", "*"]
     });
@@ -57988,12 +58016,12 @@ var recordProcessor = (schema, ctx, _json, params) => {
     }
   } else {
     if (ctx.target === "draft-07" || ctx.target === "draft-2020-12") {
-      json2.propertyNames = process2(def.keyType, ctx, {
+      json2.propertyNames = process2(def2.keyType, ctx, {
         ...params,
         path: [...params.path, "propertyNames"]
       });
     }
-    json2.additionalProperties = process2(def.valueType, ctx, {
+    json2.additionalProperties = process2(def2.valueType, ctx, {
       ...params,
       path: [...params.path, "additionalProperties"]
     });
@@ -58007,76 +58035,76 @@ var recordProcessor = (schema, ctx, _json, params) => {
   }
 };
 var nullableProcessor = (schema, ctx, json2, params) => {
-  const def = schema._zod.def;
-  const inner = process2(def.innerType, ctx, params);
+  const def2 = schema._zod.def;
+  const inner = process2(def2.innerType, ctx, params);
   const seen = ctx.seen.get(schema);
   if (ctx.target === "openapi-3.0") {
-    seen.ref = def.innerType;
+    seen.ref = def2.innerType;
     json2.nullable = true;
   } else {
     json2.anyOf = [inner, { type: "null" }];
   }
 };
 var nonoptionalProcessor = (schema, ctx, _json, params) => {
-  const def = schema._zod.def;
-  process2(def.innerType, ctx, params);
+  const def2 = schema._zod.def;
+  process2(def2.innerType, ctx, params);
   const seen = ctx.seen.get(schema);
-  seen.ref = def.innerType;
+  seen.ref = def2.innerType;
 };
 var defaultProcessor = (schema, ctx, json2, params) => {
-  const def = schema._zod.def;
-  process2(def.innerType, ctx, params);
+  const def2 = schema._zod.def;
+  process2(def2.innerType, ctx, params);
   const seen = ctx.seen.get(schema);
-  seen.ref = def.innerType;
-  json2.default = JSON.parse(JSON.stringify(def.defaultValue));
+  seen.ref = def2.innerType;
+  json2.default = JSON.parse(JSON.stringify(def2.defaultValue));
 };
 var prefaultProcessor = (schema, ctx, json2, params) => {
-  const def = schema._zod.def;
-  process2(def.innerType, ctx, params);
+  const def2 = schema._zod.def;
+  process2(def2.innerType, ctx, params);
   const seen = ctx.seen.get(schema);
-  seen.ref = def.innerType;
+  seen.ref = def2.innerType;
   if (ctx.io === "input")
-    json2._prefault = JSON.parse(JSON.stringify(def.defaultValue));
+    json2._prefault = JSON.parse(JSON.stringify(def2.defaultValue));
 };
 var catchProcessor = (schema, ctx, json2, params) => {
-  const def = schema._zod.def;
-  process2(def.innerType, ctx, params);
+  const def2 = schema._zod.def;
+  process2(def2.innerType, ctx, params);
   const seen = ctx.seen.get(schema);
-  seen.ref = def.innerType;
+  seen.ref = def2.innerType;
   let catchValue;
   try {
-    catchValue = def.catchValue(void 0);
+    catchValue = def2.catchValue(void 0);
   } catch {
     throw new Error("Dynamic catch values are not supported in JSON Schema");
   }
   json2.default = catchValue;
 };
 var pipeProcessor = (schema, ctx, _json, params) => {
-  const def = schema._zod.def;
-  const inIsTransform = def.in._zod.traits.has("$ZodTransform");
-  const innerType = ctx.io === "input" ? inIsTransform ? def.out : def.in : def.out;
+  const def2 = schema._zod.def;
+  const inIsTransform = def2.in._zod.traits.has("$ZodTransform");
+  const innerType = ctx.io === "input" ? inIsTransform ? def2.out : def2.in : def2.out;
   process2(innerType, ctx, params);
   const seen = ctx.seen.get(schema);
   seen.ref = innerType;
 };
 var readonlyProcessor = (schema, ctx, json2, params) => {
-  const def = schema._zod.def;
-  process2(def.innerType, ctx, params);
+  const def2 = schema._zod.def;
+  process2(def2.innerType, ctx, params);
   const seen = ctx.seen.get(schema);
-  seen.ref = def.innerType;
+  seen.ref = def2.innerType;
   json2.readOnly = true;
 };
 var promiseProcessor = (schema, ctx, _json, params) => {
-  const def = schema._zod.def;
-  process2(def.innerType, ctx, params);
+  const def2 = schema._zod.def;
+  process2(def2.innerType, ctx, params);
   const seen = ctx.seen.get(schema);
-  seen.ref = def.innerType;
+  seen.ref = def2.innerType;
 };
 var optionalProcessor = (schema, ctx, _json, params) => {
-  const def = schema._zod.def;
-  process2(def.innerType, ctx, params);
+  const def2 = schema._zod.def;
+  process2(def2.innerType, ctx, params);
   const seen = ctx.seen.get(schema);
-  seen.ref = def.innerType;
+  seen.ref = def2.innerType;
 };
 var lazyProcessor = (schema, ctx, _json, params) => {
   const innerType = schema._zod.innerType;
@@ -58455,30 +58483,30 @@ __export(iso_exports, {
   duration: () => duration2,
   time: () => time2
 });
-var ZodISODateTime = /* @__PURE__ */ $constructor("ZodISODateTime", (inst, def) => {
-  $ZodISODateTime.init(inst, def);
-  ZodStringFormat.init(inst, def);
+var ZodISODateTime = /* @__PURE__ */ $constructor("ZodISODateTime", (inst, def2) => {
+  $ZodISODateTime.init(inst, def2);
+  ZodStringFormat.init(inst, def2);
 });
 function datetime2(params) {
   return _isoDateTime(ZodISODateTime, params);
 }
-var ZodISODate = /* @__PURE__ */ $constructor("ZodISODate", (inst, def) => {
-  $ZodISODate.init(inst, def);
-  ZodStringFormat.init(inst, def);
+var ZodISODate = /* @__PURE__ */ $constructor("ZodISODate", (inst, def2) => {
+  $ZodISODate.init(inst, def2);
+  ZodStringFormat.init(inst, def2);
 });
 function date2(params) {
   return _isoDate(ZodISODate, params);
 }
-var ZodISOTime = /* @__PURE__ */ $constructor("ZodISOTime", (inst, def) => {
-  $ZodISOTime.init(inst, def);
-  ZodStringFormat.init(inst, def);
+var ZodISOTime = /* @__PURE__ */ $constructor("ZodISOTime", (inst, def2) => {
+  $ZodISOTime.init(inst, def2);
+  ZodStringFormat.init(inst, def2);
 });
 function time2(params) {
   return _isoTime(ZodISOTime, params);
 }
-var ZodISODuration = /* @__PURE__ */ $constructor("ZodISODuration", (inst, def) => {
-  $ZodISODuration.init(inst, def);
-  ZodStringFormat.init(inst, def);
+var ZodISODuration = /* @__PURE__ */ $constructor("ZodISODuration", (inst, def2) => {
+  $ZodISODuration.init(inst, def2);
+  ZodStringFormat.init(inst, def2);
 });
 function duration2(params) {
   return _isoDuration(ZodISODuration, params);
@@ -58576,8 +58604,8 @@ function _installLazyMethods(inst, group, methods) {
     });
   }
 }
-var ZodType = /* @__PURE__ */ $constructor("ZodType", (inst, def) => {
-  $ZodType.init(inst, def);
+var ZodType = /* @__PURE__ */ $constructor("ZodType", (inst, def2) => {
+  $ZodType.init(inst, def2);
   Object.assign(inst["~standard"], {
     jsonSchema: {
       input: createStandardJSONSchemaMethod(inst, "input"),
@@ -58585,9 +58613,9 @@ var ZodType = /* @__PURE__ */ $constructor("ZodType", (inst, def) => {
     }
   });
   inst.toJSONSchema = createToJSONSchemaMethod(inst, {});
-  inst.def = def;
-  inst.type = def.type;
-  Object.defineProperty(inst, "_def", { value: def });
+  inst.def = def2;
+  inst.type = def2.type;
+  Object.defineProperty(inst, "_def", { value: def2 });
   inst.parse = (data, params) => parse2(inst, data, params, { callee: inst.parse });
   inst.safeParse = (data, params) => safeParse2(inst, data, params);
   inst.parseAsync = async (data, params) => parseAsync2(inst, data, params, { callee: inst.parseAsync });
@@ -58603,10 +58631,10 @@ var ZodType = /* @__PURE__ */ $constructor("ZodType", (inst, def) => {
   inst.safeDecodeAsync = async (data, params) => safeDecodeAsync2(inst, data, params);
   _installLazyMethods(inst, "ZodType", {
     check(...chks) {
-      const def2 = this.def;
-      return this.clone(util_exports.mergeDefs(def2, {
+      const def3 = this.def;
+      return this.clone(util_exports.mergeDefs(def3, {
         checks: [
-          ...def2.checks ?? [],
+          ...def3.checks ?? [],
           ...chks.map((ch) => typeof ch === "function" ? { _zod: { check: ch, def: { check: "custom" }, onattach: [] } } : ch)
         ]
       }), { parent: true });
@@ -58614,8 +58642,8 @@ var ZodType = /* @__PURE__ */ $constructor("ZodType", (inst, def) => {
     with(...chks) {
       return this.check(...chks);
     },
-    clone(def2, params) {
-      return clone(this, def2, params);
+    clone(def3, params) {
+      return clone(this, def3, params);
     },
     brand() {
       return this;
@@ -58705,9 +58733,9 @@ var ZodType = /* @__PURE__ */ $constructor("ZodType", (inst, def) => {
   });
   return inst;
 });
-var _ZodString = /* @__PURE__ */ $constructor("_ZodString", (inst, def) => {
-  $ZodString.init(inst, def);
-  ZodType.init(inst, def);
+var _ZodString = /* @__PURE__ */ $constructor("_ZodString", (inst, def2) => {
+  $ZodString.init(inst, def2);
+  ZodType.init(inst, def2);
   inst._zod.processJSONSchema = (ctx, json2, params) => stringProcessor(inst, ctx, json2, params);
   const bag = inst._zod.bag;
   inst.format = bag.format ?? null;
@@ -58761,9 +58789,9 @@ var _ZodString = /* @__PURE__ */ $constructor("_ZodString", (inst, def) => {
     }
   });
 });
-var ZodString = /* @__PURE__ */ $constructor("ZodString", (inst, def) => {
-  $ZodString.init(inst, def);
-  _ZodString.init(inst, def);
+var ZodString = /* @__PURE__ */ $constructor("ZodString", (inst, def2) => {
+  $ZodString.init(inst, def2);
+  _ZodString.init(inst, def2);
   inst.email = (params) => inst.check(_email(ZodEmail, params));
   inst.url = (params) => inst.check(_url(ZodURL, params));
   inst.jwt = (params) => inst.check(_jwt(ZodJWT, params));
@@ -58795,27 +58823,27 @@ var ZodString = /* @__PURE__ */ $constructor("ZodString", (inst, def) => {
 function string2(params) {
   return _string(ZodString, params);
 }
-var ZodStringFormat = /* @__PURE__ */ $constructor("ZodStringFormat", (inst, def) => {
-  $ZodStringFormat.init(inst, def);
-  _ZodString.init(inst, def);
+var ZodStringFormat = /* @__PURE__ */ $constructor("ZodStringFormat", (inst, def2) => {
+  $ZodStringFormat.init(inst, def2);
+  _ZodString.init(inst, def2);
 });
-var ZodEmail = /* @__PURE__ */ $constructor("ZodEmail", (inst, def) => {
-  $ZodEmail.init(inst, def);
-  ZodStringFormat.init(inst, def);
+var ZodEmail = /* @__PURE__ */ $constructor("ZodEmail", (inst, def2) => {
+  $ZodEmail.init(inst, def2);
+  ZodStringFormat.init(inst, def2);
 });
 function email2(params) {
   return _email(ZodEmail, params);
 }
-var ZodGUID = /* @__PURE__ */ $constructor("ZodGUID", (inst, def) => {
-  $ZodGUID.init(inst, def);
-  ZodStringFormat.init(inst, def);
+var ZodGUID = /* @__PURE__ */ $constructor("ZodGUID", (inst, def2) => {
+  $ZodGUID.init(inst, def2);
+  ZodStringFormat.init(inst, def2);
 });
 function guid2(params) {
   return _guid(ZodGUID, params);
 }
-var ZodUUID = /* @__PURE__ */ $constructor("ZodUUID", (inst, def) => {
-  $ZodUUID.init(inst, def);
-  ZodStringFormat.init(inst, def);
+var ZodUUID = /* @__PURE__ */ $constructor("ZodUUID", (inst, def2) => {
+  $ZodUUID.init(inst, def2);
+  ZodStringFormat.init(inst, def2);
 });
 function uuid2(params) {
   return _uuid(ZodUUID, params);
@@ -58829,9 +58857,9 @@ function uuidv6(params) {
 function uuidv7(params) {
   return _uuidv7(ZodUUID, params);
 }
-var ZodURL = /* @__PURE__ */ $constructor("ZodURL", (inst, def) => {
-  $ZodURL.init(inst, def);
-  ZodStringFormat.init(inst, def);
+var ZodURL = /* @__PURE__ */ $constructor("ZodURL", (inst, def2) => {
+  $ZodURL.init(inst, def2);
+  ZodStringFormat.init(inst, def2);
 });
 function url(params) {
   return _url(ZodURL, params);
@@ -58843,121 +58871,121 @@ function httpUrl(params) {
     ...util_exports.normalizeParams(params)
   });
 }
-var ZodEmoji = /* @__PURE__ */ $constructor("ZodEmoji", (inst, def) => {
-  $ZodEmoji.init(inst, def);
-  ZodStringFormat.init(inst, def);
+var ZodEmoji = /* @__PURE__ */ $constructor("ZodEmoji", (inst, def2) => {
+  $ZodEmoji.init(inst, def2);
+  ZodStringFormat.init(inst, def2);
 });
 function emoji2(params) {
   return _emoji2(ZodEmoji, params);
 }
-var ZodNanoID = /* @__PURE__ */ $constructor("ZodNanoID", (inst, def) => {
-  $ZodNanoID.init(inst, def);
-  ZodStringFormat.init(inst, def);
+var ZodNanoID = /* @__PURE__ */ $constructor("ZodNanoID", (inst, def2) => {
+  $ZodNanoID.init(inst, def2);
+  ZodStringFormat.init(inst, def2);
 });
 function nanoid2(params) {
   return _nanoid(ZodNanoID, params);
 }
-var ZodCUID = /* @__PURE__ */ $constructor("ZodCUID", (inst, def) => {
-  $ZodCUID.init(inst, def);
-  ZodStringFormat.init(inst, def);
+var ZodCUID = /* @__PURE__ */ $constructor("ZodCUID", (inst, def2) => {
+  $ZodCUID.init(inst, def2);
+  ZodStringFormat.init(inst, def2);
 });
 function cuid3(params) {
   return _cuid(ZodCUID, params);
 }
-var ZodCUID2 = /* @__PURE__ */ $constructor("ZodCUID2", (inst, def) => {
-  $ZodCUID2.init(inst, def);
-  ZodStringFormat.init(inst, def);
+var ZodCUID2 = /* @__PURE__ */ $constructor("ZodCUID2", (inst, def2) => {
+  $ZodCUID2.init(inst, def2);
+  ZodStringFormat.init(inst, def2);
 });
 function cuid22(params) {
   return _cuid2(ZodCUID2, params);
 }
-var ZodULID = /* @__PURE__ */ $constructor("ZodULID", (inst, def) => {
-  $ZodULID.init(inst, def);
-  ZodStringFormat.init(inst, def);
+var ZodULID = /* @__PURE__ */ $constructor("ZodULID", (inst, def2) => {
+  $ZodULID.init(inst, def2);
+  ZodStringFormat.init(inst, def2);
 });
 function ulid2(params) {
   return _ulid(ZodULID, params);
 }
-var ZodXID = /* @__PURE__ */ $constructor("ZodXID", (inst, def) => {
-  $ZodXID.init(inst, def);
-  ZodStringFormat.init(inst, def);
+var ZodXID = /* @__PURE__ */ $constructor("ZodXID", (inst, def2) => {
+  $ZodXID.init(inst, def2);
+  ZodStringFormat.init(inst, def2);
 });
 function xid2(params) {
   return _xid(ZodXID, params);
 }
-var ZodKSUID = /* @__PURE__ */ $constructor("ZodKSUID", (inst, def) => {
-  $ZodKSUID.init(inst, def);
-  ZodStringFormat.init(inst, def);
+var ZodKSUID = /* @__PURE__ */ $constructor("ZodKSUID", (inst, def2) => {
+  $ZodKSUID.init(inst, def2);
+  ZodStringFormat.init(inst, def2);
 });
 function ksuid2(params) {
   return _ksuid(ZodKSUID, params);
 }
-var ZodIPv4 = /* @__PURE__ */ $constructor("ZodIPv4", (inst, def) => {
-  $ZodIPv4.init(inst, def);
-  ZodStringFormat.init(inst, def);
+var ZodIPv4 = /* @__PURE__ */ $constructor("ZodIPv4", (inst, def2) => {
+  $ZodIPv4.init(inst, def2);
+  ZodStringFormat.init(inst, def2);
 });
 function ipv42(params) {
   return _ipv4(ZodIPv4, params);
 }
-var ZodMAC = /* @__PURE__ */ $constructor("ZodMAC", (inst, def) => {
-  $ZodMAC.init(inst, def);
-  ZodStringFormat.init(inst, def);
+var ZodMAC = /* @__PURE__ */ $constructor("ZodMAC", (inst, def2) => {
+  $ZodMAC.init(inst, def2);
+  ZodStringFormat.init(inst, def2);
 });
 function mac2(params) {
   return _mac(ZodMAC, params);
 }
-var ZodIPv6 = /* @__PURE__ */ $constructor("ZodIPv6", (inst, def) => {
-  $ZodIPv6.init(inst, def);
-  ZodStringFormat.init(inst, def);
+var ZodIPv6 = /* @__PURE__ */ $constructor("ZodIPv6", (inst, def2) => {
+  $ZodIPv6.init(inst, def2);
+  ZodStringFormat.init(inst, def2);
 });
 function ipv62(params) {
   return _ipv6(ZodIPv6, params);
 }
-var ZodCIDRv4 = /* @__PURE__ */ $constructor("ZodCIDRv4", (inst, def) => {
-  $ZodCIDRv4.init(inst, def);
-  ZodStringFormat.init(inst, def);
+var ZodCIDRv4 = /* @__PURE__ */ $constructor("ZodCIDRv4", (inst, def2) => {
+  $ZodCIDRv4.init(inst, def2);
+  ZodStringFormat.init(inst, def2);
 });
 function cidrv42(params) {
   return _cidrv4(ZodCIDRv4, params);
 }
-var ZodCIDRv6 = /* @__PURE__ */ $constructor("ZodCIDRv6", (inst, def) => {
-  $ZodCIDRv6.init(inst, def);
-  ZodStringFormat.init(inst, def);
+var ZodCIDRv6 = /* @__PURE__ */ $constructor("ZodCIDRv6", (inst, def2) => {
+  $ZodCIDRv6.init(inst, def2);
+  ZodStringFormat.init(inst, def2);
 });
 function cidrv62(params) {
   return _cidrv6(ZodCIDRv6, params);
 }
-var ZodBase64 = /* @__PURE__ */ $constructor("ZodBase64", (inst, def) => {
-  $ZodBase64.init(inst, def);
-  ZodStringFormat.init(inst, def);
+var ZodBase64 = /* @__PURE__ */ $constructor("ZodBase64", (inst, def2) => {
+  $ZodBase64.init(inst, def2);
+  ZodStringFormat.init(inst, def2);
 });
 function base642(params) {
   return _base64(ZodBase64, params);
 }
-var ZodBase64URL = /* @__PURE__ */ $constructor("ZodBase64URL", (inst, def) => {
-  $ZodBase64URL.init(inst, def);
-  ZodStringFormat.init(inst, def);
+var ZodBase64URL = /* @__PURE__ */ $constructor("ZodBase64URL", (inst, def2) => {
+  $ZodBase64URL.init(inst, def2);
+  ZodStringFormat.init(inst, def2);
 });
 function base64url2(params) {
   return _base64url(ZodBase64URL, params);
 }
-var ZodE164 = /* @__PURE__ */ $constructor("ZodE164", (inst, def) => {
-  $ZodE164.init(inst, def);
-  ZodStringFormat.init(inst, def);
+var ZodE164 = /* @__PURE__ */ $constructor("ZodE164", (inst, def2) => {
+  $ZodE164.init(inst, def2);
+  ZodStringFormat.init(inst, def2);
 });
 function e1642(params) {
   return _e164(ZodE164, params);
 }
-var ZodJWT = /* @__PURE__ */ $constructor("ZodJWT", (inst, def) => {
-  $ZodJWT.init(inst, def);
-  ZodStringFormat.init(inst, def);
+var ZodJWT = /* @__PURE__ */ $constructor("ZodJWT", (inst, def2) => {
+  $ZodJWT.init(inst, def2);
+  ZodStringFormat.init(inst, def2);
 });
 function jwt(params) {
   return _jwt(ZodJWT, params);
 }
-var ZodCustomStringFormat = /* @__PURE__ */ $constructor("ZodCustomStringFormat", (inst, def) => {
-  $ZodCustomStringFormat.init(inst, def);
-  ZodStringFormat.init(inst, def);
+var ZodCustomStringFormat = /* @__PURE__ */ $constructor("ZodCustomStringFormat", (inst, def2) => {
+  $ZodCustomStringFormat.init(inst, def2);
+  ZodStringFormat.init(inst, def2);
 });
 function stringFormat(format, fnOrRegex, _params = {}) {
   return _stringFormat(ZodCustomStringFormat, format, fnOrRegex, _params);
@@ -58976,9 +59004,9 @@ function hash(alg, params) {
     throw new Error(`Unrecognized hash format: ${format}`);
   return _stringFormat(ZodCustomStringFormat, format, regex, params);
 }
-var ZodNumber = /* @__PURE__ */ $constructor("ZodNumber", (inst, def) => {
-  $ZodNumber.init(inst, def);
-  ZodType.init(inst, def);
+var ZodNumber = /* @__PURE__ */ $constructor("ZodNumber", (inst, def2) => {
+  $ZodNumber.init(inst, def2);
+  ZodType.init(inst, def2);
   inst._zod.processJSONSchema = (ctx, json2, params) => numberProcessor(inst, ctx, json2, params);
   _installLazyMethods(inst, "ZodNumber", {
     gt(value, params) {
@@ -59037,9 +59065,9 @@ var ZodNumber = /* @__PURE__ */ $constructor("ZodNumber", (inst, def) => {
 function number2(params) {
   return _number(ZodNumber, params);
 }
-var ZodNumberFormat = /* @__PURE__ */ $constructor("ZodNumberFormat", (inst, def) => {
-  $ZodNumberFormat.init(inst, def);
-  ZodNumber.init(inst, def);
+var ZodNumberFormat = /* @__PURE__ */ $constructor("ZodNumberFormat", (inst, def2) => {
+  $ZodNumberFormat.init(inst, def2);
+  ZodNumber.init(inst, def2);
 });
 function int(params) {
   return _int(ZodNumberFormat, params);
@@ -59056,17 +59084,17 @@ function int32(params) {
 function uint32(params) {
   return _uint32(ZodNumberFormat, params);
 }
-var ZodBoolean = /* @__PURE__ */ $constructor("ZodBoolean", (inst, def) => {
-  $ZodBoolean.init(inst, def);
-  ZodType.init(inst, def);
+var ZodBoolean = /* @__PURE__ */ $constructor("ZodBoolean", (inst, def2) => {
+  $ZodBoolean.init(inst, def2);
+  ZodType.init(inst, def2);
   inst._zod.processJSONSchema = (ctx, json2, params) => booleanProcessor(inst, ctx, json2, params);
 });
 function boolean2(params) {
   return _boolean(ZodBoolean, params);
 }
-var ZodBigInt = /* @__PURE__ */ $constructor("ZodBigInt", (inst, def) => {
-  $ZodBigInt.init(inst, def);
-  ZodType.init(inst, def);
+var ZodBigInt = /* @__PURE__ */ $constructor("ZodBigInt", (inst, def2) => {
+  $ZodBigInt.init(inst, def2);
+  ZodType.init(inst, def2);
   inst._zod.processJSONSchema = (ctx, json2, params) => bigintProcessor(inst, ctx, json2, params);
   inst.gte = (value, params) => inst.check(_gte(value, params));
   inst.min = (value, params) => inst.check(_gte(value, params));
@@ -59089,9 +59117,9 @@ var ZodBigInt = /* @__PURE__ */ $constructor("ZodBigInt", (inst, def) => {
 function bigint2(params) {
   return _bigint(ZodBigInt, params);
 }
-var ZodBigIntFormat = /* @__PURE__ */ $constructor("ZodBigIntFormat", (inst, def) => {
-  $ZodBigIntFormat.init(inst, def);
-  ZodBigInt.init(inst, def);
+var ZodBigIntFormat = /* @__PURE__ */ $constructor("ZodBigIntFormat", (inst, def2) => {
+  $ZodBigIntFormat.init(inst, def2);
+  ZodBigInt.init(inst, def2);
 });
 function int64(params) {
   return _int64(ZodBigIntFormat, params);
@@ -59099,65 +59127,65 @@ function int64(params) {
 function uint64(params) {
   return _uint64(ZodBigIntFormat, params);
 }
-var ZodSymbol = /* @__PURE__ */ $constructor("ZodSymbol", (inst, def) => {
-  $ZodSymbol.init(inst, def);
-  ZodType.init(inst, def);
+var ZodSymbol = /* @__PURE__ */ $constructor("ZodSymbol", (inst, def2) => {
+  $ZodSymbol.init(inst, def2);
+  ZodType.init(inst, def2);
   inst._zod.processJSONSchema = (ctx, json2, params) => symbolProcessor(inst, ctx, json2, params);
 });
 function symbol(params) {
   return _symbol(ZodSymbol, params);
 }
-var ZodUndefined = /* @__PURE__ */ $constructor("ZodUndefined", (inst, def) => {
-  $ZodUndefined.init(inst, def);
-  ZodType.init(inst, def);
+var ZodUndefined = /* @__PURE__ */ $constructor("ZodUndefined", (inst, def2) => {
+  $ZodUndefined.init(inst, def2);
+  ZodType.init(inst, def2);
   inst._zod.processJSONSchema = (ctx, json2, params) => undefinedProcessor(inst, ctx, json2, params);
 });
 function _undefined3(params) {
   return _undefined2(ZodUndefined, params);
 }
-var ZodNull = /* @__PURE__ */ $constructor("ZodNull", (inst, def) => {
-  $ZodNull.init(inst, def);
-  ZodType.init(inst, def);
+var ZodNull = /* @__PURE__ */ $constructor("ZodNull", (inst, def2) => {
+  $ZodNull.init(inst, def2);
+  ZodType.init(inst, def2);
   inst._zod.processJSONSchema = (ctx, json2, params) => nullProcessor(inst, ctx, json2, params);
 });
 function _null3(params) {
   return _null2(ZodNull, params);
 }
-var ZodAny = /* @__PURE__ */ $constructor("ZodAny", (inst, def) => {
-  $ZodAny.init(inst, def);
-  ZodType.init(inst, def);
+var ZodAny = /* @__PURE__ */ $constructor("ZodAny", (inst, def2) => {
+  $ZodAny.init(inst, def2);
+  ZodType.init(inst, def2);
   inst._zod.processJSONSchema = (ctx, json2, params) => anyProcessor(inst, ctx, json2, params);
 });
 function any() {
   return _any(ZodAny);
 }
-var ZodUnknown = /* @__PURE__ */ $constructor("ZodUnknown", (inst, def) => {
-  $ZodUnknown.init(inst, def);
-  ZodType.init(inst, def);
+var ZodUnknown = /* @__PURE__ */ $constructor("ZodUnknown", (inst, def2) => {
+  $ZodUnknown.init(inst, def2);
+  ZodType.init(inst, def2);
   inst._zod.processJSONSchema = (ctx, json2, params) => unknownProcessor(inst, ctx, json2, params);
 });
 function unknown() {
   return _unknown(ZodUnknown);
 }
-var ZodNever = /* @__PURE__ */ $constructor("ZodNever", (inst, def) => {
-  $ZodNever.init(inst, def);
-  ZodType.init(inst, def);
+var ZodNever = /* @__PURE__ */ $constructor("ZodNever", (inst, def2) => {
+  $ZodNever.init(inst, def2);
+  ZodType.init(inst, def2);
   inst._zod.processJSONSchema = (ctx, json2, params) => neverProcessor(inst, ctx, json2, params);
 });
 function never(params) {
   return _never(ZodNever, params);
 }
-var ZodVoid = /* @__PURE__ */ $constructor("ZodVoid", (inst, def) => {
-  $ZodVoid.init(inst, def);
-  ZodType.init(inst, def);
+var ZodVoid = /* @__PURE__ */ $constructor("ZodVoid", (inst, def2) => {
+  $ZodVoid.init(inst, def2);
+  ZodType.init(inst, def2);
   inst._zod.processJSONSchema = (ctx, json2, params) => voidProcessor(inst, ctx, json2, params);
 });
 function _void2(params) {
   return _void(ZodVoid, params);
 }
-var ZodDate = /* @__PURE__ */ $constructor("ZodDate", (inst, def) => {
-  $ZodDate.init(inst, def);
-  ZodType.init(inst, def);
+var ZodDate = /* @__PURE__ */ $constructor("ZodDate", (inst, def2) => {
+  $ZodDate.init(inst, def2);
+  ZodType.init(inst, def2);
   inst._zod.processJSONSchema = (ctx, json2, params) => dateProcessor(inst, ctx, json2, params);
   inst.min = (value, params) => inst.check(_gte(value, params));
   inst.max = (value, params) => inst.check(_lte(value, params));
@@ -59168,11 +59196,11 @@ var ZodDate = /* @__PURE__ */ $constructor("ZodDate", (inst, def) => {
 function date3(params) {
   return _date(ZodDate, params);
 }
-var ZodArray = /* @__PURE__ */ $constructor("ZodArray", (inst, def) => {
-  $ZodArray.init(inst, def);
-  ZodType.init(inst, def);
+var ZodArray = /* @__PURE__ */ $constructor("ZodArray", (inst, def2) => {
+  $ZodArray.init(inst, def2);
+  ZodType.init(inst, def2);
   inst._zod.processJSONSchema = (ctx, json2, params) => arrayProcessor(inst, ctx, json2, params);
-  inst.element = def.element;
+  inst.element = def2.element;
   _installLazyMethods(inst, "ZodArray", {
     min(n, params) {
       return this.check(_minLength(n, params));
@@ -59198,12 +59226,12 @@ function keyof(schema) {
   const shape = schema._zod.def.shape;
   return _enum2(Object.keys(shape));
 }
-var ZodObject = /* @__PURE__ */ $constructor("ZodObject", (inst, def) => {
-  $ZodObjectJIT.init(inst, def);
-  ZodType.init(inst, def);
+var ZodObject = /* @__PURE__ */ $constructor("ZodObject", (inst, def2) => {
+  $ZodObjectJIT.init(inst, def2);
+  ZodType.init(inst, def2);
   inst._zod.processJSONSchema = (ctx, json2, params) => objectProcessor(inst, ctx, json2, params);
   util_exports.defineLazy(inst, "shape", () => {
-    return def.shape;
+    return def2.shape;
   });
   _installLazyMethods(inst, "ZodObject", {
     keyof() {
@@ -59248,12 +59276,12 @@ var ZodObject = /* @__PURE__ */ $constructor("ZodObject", (inst, def) => {
   });
 });
 function object(shape, params) {
-  const def = {
+  const def2 = {
     type: "object",
     shape: shape ?? {},
     ...util_exports.normalizeParams(params)
   };
-  return new ZodObject(def);
+  return new ZodObject(def2);
 }
 function strictObject(shape, params) {
   return new ZodObject({
@@ -59271,11 +59299,11 @@ function looseObject(shape, params) {
     ...util_exports.normalizeParams(params)
   });
 }
-var ZodUnion = /* @__PURE__ */ $constructor("ZodUnion", (inst, def) => {
-  $ZodUnion.init(inst, def);
-  ZodType.init(inst, def);
+var ZodUnion = /* @__PURE__ */ $constructor("ZodUnion", (inst, def2) => {
+  $ZodUnion.init(inst, def2);
+  ZodType.init(inst, def2);
   inst._zod.processJSONSchema = (ctx, json2, params) => unionProcessor(inst, ctx, json2, params);
-  inst.options = def.options;
+  inst.options = def2.options;
 });
 function union(options, params) {
   return new ZodUnion({
@@ -59284,11 +59312,11 @@ function union(options, params) {
     ...util_exports.normalizeParams(params)
   });
 }
-var ZodXor = /* @__PURE__ */ $constructor("ZodXor", (inst, def) => {
-  ZodUnion.init(inst, def);
-  $ZodXor.init(inst, def);
+var ZodXor = /* @__PURE__ */ $constructor("ZodXor", (inst, def2) => {
+  ZodUnion.init(inst, def2);
+  $ZodXor.init(inst, def2);
   inst._zod.processJSONSchema = (ctx, json2, params) => unionProcessor(inst, ctx, json2, params);
-  inst.options = def.options;
+  inst.options = def2.options;
 });
 function xor(options, params) {
   return new ZodXor({
@@ -59298,9 +59326,9 @@ function xor(options, params) {
     ...util_exports.normalizeParams(params)
   });
 }
-var ZodDiscriminatedUnion = /* @__PURE__ */ $constructor("ZodDiscriminatedUnion", (inst, def) => {
-  ZodUnion.init(inst, def);
-  $ZodDiscriminatedUnion.init(inst, def);
+var ZodDiscriminatedUnion = /* @__PURE__ */ $constructor("ZodDiscriminatedUnion", (inst, def2) => {
+  ZodUnion.init(inst, def2);
+  $ZodDiscriminatedUnion.init(inst, def2);
 });
 function discriminatedUnion(discriminator, options, params) {
   return new ZodDiscriminatedUnion({
@@ -59310,9 +59338,9 @@ function discriminatedUnion(discriminator, options, params) {
     ...util_exports.normalizeParams(params)
   });
 }
-var ZodIntersection = /* @__PURE__ */ $constructor("ZodIntersection", (inst, def) => {
-  $ZodIntersection.init(inst, def);
-  ZodType.init(inst, def);
+var ZodIntersection = /* @__PURE__ */ $constructor("ZodIntersection", (inst, def2) => {
+  $ZodIntersection.init(inst, def2);
+  ZodType.init(inst, def2);
   inst._zod.processJSONSchema = (ctx, json2, params) => intersectionProcessor(inst, ctx, json2, params);
 });
 function intersection(left, right) {
@@ -59322,9 +59350,9 @@ function intersection(left, right) {
     right
   });
 }
-var ZodTuple = /* @__PURE__ */ $constructor("ZodTuple", (inst, def) => {
-  $ZodTuple.init(inst, def);
-  ZodType.init(inst, def);
+var ZodTuple = /* @__PURE__ */ $constructor("ZodTuple", (inst, def2) => {
+  $ZodTuple.init(inst, def2);
+  ZodType.init(inst, def2);
   inst._zod.processJSONSchema = (ctx, json2, params) => tupleProcessor(inst, ctx, json2, params);
   inst.rest = (rest) => inst.clone({
     ...inst._zod.def,
@@ -59342,12 +59370,12 @@ function tuple(items, _paramsOrRest, _params) {
     ...util_exports.normalizeParams(params)
   });
 }
-var ZodRecord = /* @__PURE__ */ $constructor("ZodRecord", (inst, def) => {
-  $ZodRecord.init(inst, def);
-  ZodType.init(inst, def);
+var ZodRecord = /* @__PURE__ */ $constructor("ZodRecord", (inst, def2) => {
+  $ZodRecord.init(inst, def2);
+  ZodType.init(inst, def2);
   inst._zod.processJSONSchema = (ctx, json2, params) => recordProcessor(inst, ctx, json2, params);
-  inst.keyType = def.keyType;
-  inst.valueType = def.valueType;
+  inst.keyType = def2.keyType;
+  inst.valueType = def2.valueType;
 });
 function record(keyType, valueType, params) {
   if (!valueType || !valueType._zod) {
@@ -59384,12 +59412,12 @@ function looseRecord(keyType, valueType, params) {
     ...util_exports.normalizeParams(params)
   });
 }
-var ZodMap = /* @__PURE__ */ $constructor("ZodMap", (inst, def) => {
-  $ZodMap.init(inst, def);
-  ZodType.init(inst, def);
+var ZodMap = /* @__PURE__ */ $constructor("ZodMap", (inst, def2) => {
+  $ZodMap.init(inst, def2);
+  ZodType.init(inst, def2);
   inst._zod.processJSONSchema = (ctx, json2, params) => mapProcessor(inst, ctx, json2, params);
-  inst.keyType = def.keyType;
-  inst.valueType = def.valueType;
+  inst.keyType = def2.keyType;
+  inst.valueType = def2.valueType;
   inst.min = (...args) => inst.check(_minSize(...args));
   inst.nonempty = (params) => inst.check(_minSize(1, params));
   inst.max = (...args) => inst.check(_maxSize(...args));
@@ -59403,9 +59431,9 @@ function map(keyType, valueType, params) {
     ...util_exports.normalizeParams(params)
   });
 }
-var ZodSet = /* @__PURE__ */ $constructor("ZodSet", (inst, def) => {
-  $ZodSet.init(inst, def);
-  ZodType.init(inst, def);
+var ZodSet = /* @__PURE__ */ $constructor("ZodSet", (inst, def2) => {
+  $ZodSet.init(inst, def2);
+  ZodType.init(inst, def2);
   inst._zod.processJSONSchema = (ctx, json2, params) => setProcessor(inst, ctx, json2, params);
   inst.min = (...args) => inst.check(_minSize(...args));
   inst.nonempty = (params) => inst.check(_minSize(1, params));
@@ -59419,30 +59447,30 @@ function set(valueType, params) {
     ...util_exports.normalizeParams(params)
   });
 }
-var ZodEnum = /* @__PURE__ */ $constructor("ZodEnum", (inst, def) => {
-  $ZodEnum.init(inst, def);
-  ZodType.init(inst, def);
+var ZodEnum = /* @__PURE__ */ $constructor("ZodEnum", (inst, def2) => {
+  $ZodEnum.init(inst, def2);
+  ZodType.init(inst, def2);
   inst._zod.processJSONSchema = (ctx, json2, params) => enumProcessor(inst, ctx, json2, params);
-  inst.enum = def.entries;
-  inst.options = Object.values(def.entries);
-  const keys = new Set(Object.keys(def.entries));
+  inst.enum = def2.entries;
+  inst.options = Object.values(def2.entries);
+  const keys = new Set(Object.keys(def2.entries));
   inst.extract = (values, params) => {
     const newEntries = {};
     for (const value of values) {
       if (keys.has(value)) {
-        newEntries[value] = def.entries[value];
+        newEntries[value] = def2.entries[value];
       } else
         throw new Error(`Key ${value} not found in enum`);
     }
     return new ZodEnum({
-      ...def,
+      ...def2,
       checks: [],
       ...util_exports.normalizeParams(params),
       entries: newEntries
     });
   };
   inst.exclude = (values, params) => {
-    const newEntries = { ...def.entries };
+    const newEntries = { ...def2.entries };
     for (const value of values) {
       if (keys.has(value)) {
         delete newEntries[value];
@@ -59450,7 +59478,7 @@ var ZodEnum = /* @__PURE__ */ $constructor("ZodEnum", (inst, def) => {
         throw new Error(`Key ${value} not found in enum`);
     }
     return new ZodEnum({
-      ...def,
+      ...def2,
       checks: [],
       ...util_exports.normalizeParams(params),
       entries: newEntries
@@ -59472,17 +59500,17 @@ function nativeEnum(entries, params) {
     ...util_exports.normalizeParams(params)
   });
 }
-var ZodLiteral = /* @__PURE__ */ $constructor("ZodLiteral", (inst, def) => {
-  $ZodLiteral.init(inst, def);
-  ZodType.init(inst, def);
+var ZodLiteral = /* @__PURE__ */ $constructor("ZodLiteral", (inst, def2) => {
+  $ZodLiteral.init(inst, def2);
+  ZodType.init(inst, def2);
   inst._zod.processJSONSchema = (ctx, json2, params) => literalProcessor(inst, ctx, json2, params);
-  inst.values = new Set(def.values);
+  inst.values = new Set(def2.values);
   Object.defineProperty(inst, "value", {
     get() {
-      if (def.values.length > 1) {
+      if (def2.values.length > 1) {
         throw new Error("This schema contains multiple valid literal values. Use `.values` instead.");
       }
-      return def.values[0];
+      return def2.values[0];
     }
   });
 });
@@ -59493,9 +59521,9 @@ function literal(value, params) {
     ...util_exports.normalizeParams(params)
   });
 }
-var ZodFile = /* @__PURE__ */ $constructor("ZodFile", (inst, def) => {
-  $ZodFile.init(inst, def);
-  ZodType.init(inst, def);
+var ZodFile = /* @__PURE__ */ $constructor("ZodFile", (inst, def2) => {
+  $ZodFile.init(inst, def2);
+  ZodType.init(inst, def2);
   inst._zod.processJSONSchema = (ctx, json2, params) => fileProcessor(inst, ctx, json2, params);
   inst.min = (size, params) => inst.check(_minSize(size, params));
   inst.max = (size, params) => inst.check(_maxSize(size, params));
@@ -59504,9 +59532,9 @@ var ZodFile = /* @__PURE__ */ $constructor("ZodFile", (inst, def) => {
 function file(params) {
   return _file(ZodFile, params);
 }
-var ZodTransform = /* @__PURE__ */ $constructor("ZodTransform", (inst, def) => {
-  $ZodTransform.init(inst, def);
-  ZodType.init(inst, def);
+var ZodTransform = /* @__PURE__ */ $constructor("ZodTransform", (inst, def2) => {
+  $ZodTransform.init(inst, def2);
+  ZodType.init(inst, def2);
   inst._zod.processJSONSchema = (ctx, json2, params) => transformProcessor(inst, ctx, json2, params);
   inst._zod.parse = (payload, _ctx) => {
     if (_ctx.direction === "backward") {
@@ -59514,7 +59542,7 @@ var ZodTransform = /* @__PURE__ */ $constructor("ZodTransform", (inst, def) => {
     }
     payload.addIssue = (issue2) => {
       if (typeof issue2 === "string") {
-        payload.issues.push(util_exports.issue(issue2, payload.value, def));
+        payload.issues.push(util_exports.issue(issue2, payload.value, def2));
       } else {
         const _issue = issue2;
         if (_issue.fatal)
@@ -59525,7 +59553,7 @@ var ZodTransform = /* @__PURE__ */ $constructor("ZodTransform", (inst, def) => {
         payload.issues.push(util_exports.issue(_issue));
       }
     };
-    const output = def.transform(payload.value, payload);
+    const output = def2.transform(payload.value, payload);
     if (output instanceof Promise) {
       return output.then((output2) => {
         payload.value = output2;
@@ -59544,9 +59572,9 @@ function transform(fn) {
     transform: fn
   });
 }
-var ZodOptional = /* @__PURE__ */ $constructor("ZodOptional", (inst, def) => {
-  $ZodOptional.init(inst, def);
-  ZodType.init(inst, def);
+var ZodOptional = /* @__PURE__ */ $constructor("ZodOptional", (inst, def2) => {
+  $ZodOptional.init(inst, def2);
+  ZodType.init(inst, def2);
   inst._zod.processJSONSchema = (ctx, json2, params) => optionalProcessor(inst, ctx, json2, params);
   inst.unwrap = () => inst._zod.def.innerType;
 });
@@ -59556,9 +59584,9 @@ function optional(innerType) {
     innerType
   });
 }
-var ZodExactOptional = /* @__PURE__ */ $constructor("ZodExactOptional", (inst, def) => {
-  $ZodExactOptional.init(inst, def);
-  ZodType.init(inst, def);
+var ZodExactOptional = /* @__PURE__ */ $constructor("ZodExactOptional", (inst, def2) => {
+  $ZodExactOptional.init(inst, def2);
+  ZodType.init(inst, def2);
   inst._zod.processJSONSchema = (ctx, json2, params) => optionalProcessor(inst, ctx, json2, params);
   inst.unwrap = () => inst._zod.def.innerType;
 });
@@ -59568,9 +59596,9 @@ function exactOptional(innerType) {
     innerType
   });
 }
-var ZodNullable = /* @__PURE__ */ $constructor("ZodNullable", (inst, def) => {
-  $ZodNullable.init(inst, def);
-  ZodType.init(inst, def);
+var ZodNullable = /* @__PURE__ */ $constructor("ZodNullable", (inst, def2) => {
+  $ZodNullable.init(inst, def2);
+  ZodType.init(inst, def2);
   inst._zod.processJSONSchema = (ctx, json2, params) => nullableProcessor(inst, ctx, json2, params);
   inst.unwrap = () => inst._zod.def.innerType;
 });
@@ -59583,9 +59611,9 @@ function nullable(innerType) {
 function nullish2(innerType) {
   return optional(nullable(innerType));
 }
-var ZodDefault = /* @__PURE__ */ $constructor("ZodDefault", (inst, def) => {
-  $ZodDefault.init(inst, def);
-  ZodType.init(inst, def);
+var ZodDefault = /* @__PURE__ */ $constructor("ZodDefault", (inst, def2) => {
+  $ZodDefault.init(inst, def2);
+  ZodType.init(inst, def2);
   inst._zod.processJSONSchema = (ctx, json2, params) => defaultProcessor(inst, ctx, json2, params);
   inst.unwrap = () => inst._zod.def.innerType;
   inst.removeDefault = inst.unwrap;
@@ -59599,9 +59627,9 @@ function _default2(innerType, defaultValue) {
     }
   });
 }
-var ZodPrefault = /* @__PURE__ */ $constructor("ZodPrefault", (inst, def) => {
-  $ZodPrefault.init(inst, def);
-  ZodType.init(inst, def);
+var ZodPrefault = /* @__PURE__ */ $constructor("ZodPrefault", (inst, def2) => {
+  $ZodPrefault.init(inst, def2);
+  ZodType.init(inst, def2);
   inst._zod.processJSONSchema = (ctx, json2, params) => prefaultProcessor(inst, ctx, json2, params);
   inst.unwrap = () => inst._zod.def.innerType;
 });
@@ -59614,9 +59642,9 @@ function prefault(innerType, defaultValue) {
     }
   });
 }
-var ZodNonOptional = /* @__PURE__ */ $constructor("ZodNonOptional", (inst, def) => {
-  $ZodNonOptional.init(inst, def);
-  ZodType.init(inst, def);
+var ZodNonOptional = /* @__PURE__ */ $constructor("ZodNonOptional", (inst, def2) => {
+  $ZodNonOptional.init(inst, def2);
+  ZodType.init(inst, def2);
   inst._zod.processJSONSchema = (ctx, json2, params) => nonoptionalProcessor(inst, ctx, json2, params);
   inst.unwrap = () => inst._zod.def.innerType;
 });
@@ -59627,9 +59655,9 @@ function nonoptional(innerType, params) {
     ...util_exports.normalizeParams(params)
   });
 }
-var ZodSuccess = /* @__PURE__ */ $constructor("ZodSuccess", (inst, def) => {
-  $ZodSuccess.init(inst, def);
-  ZodType.init(inst, def);
+var ZodSuccess = /* @__PURE__ */ $constructor("ZodSuccess", (inst, def2) => {
+  $ZodSuccess.init(inst, def2);
+  ZodType.init(inst, def2);
   inst._zod.processJSONSchema = (ctx, json2, params) => successProcessor(inst, ctx, json2, params);
   inst.unwrap = () => inst._zod.def.innerType;
 });
@@ -59639,9 +59667,9 @@ function success(innerType) {
     innerType
   });
 }
-var ZodCatch = /* @__PURE__ */ $constructor("ZodCatch", (inst, def) => {
-  $ZodCatch.init(inst, def);
-  ZodType.init(inst, def);
+var ZodCatch = /* @__PURE__ */ $constructor("ZodCatch", (inst, def2) => {
+  $ZodCatch.init(inst, def2);
+  ZodType.init(inst, def2);
   inst._zod.processJSONSchema = (ctx, json2, params) => catchProcessor(inst, ctx, json2, params);
   inst.unwrap = () => inst._zod.def.innerType;
   inst.removeCatch = inst.unwrap;
@@ -59653,20 +59681,20 @@ function _catch2(innerType, catchValue) {
     catchValue: typeof catchValue === "function" ? catchValue : () => catchValue
   });
 }
-var ZodNaN = /* @__PURE__ */ $constructor("ZodNaN", (inst, def) => {
-  $ZodNaN.init(inst, def);
-  ZodType.init(inst, def);
+var ZodNaN = /* @__PURE__ */ $constructor("ZodNaN", (inst, def2) => {
+  $ZodNaN.init(inst, def2);
+  ZodType.init(inst, def2);
   inst._zod.processJSONSchema = (ctx, json2, params) => nanProcessor(inst, ctx, json2, params);
 });
 function nan(params) {
   return _nan(ZodNaN, params);
 }
-var ZodPipe = /* @__PURE__ */ $constructor("ZodPipe", (inst, def) => {
-  $ZodPipe.init(inst, def);
-  ZodType.init(inst, def);
+var ZodPipe = /* @__PURE__ */ $constructor("ZodPipe", (inst, def2) => {
+  $ZodPipe.init(inst, def2);
+  ZodType.init(inst, def2);
   inst._zod.processJSONSchema = (ctx, json2, params) => pipeProcessor(inst, ctx, json2, params);
-  inst.in = def.in;
-  inst.out = def.out;
+  inst.in = def2.in;
+  inst.out = def2.out;
 });
 function pipe(in_, out) {
   return new ZodPipe({
@@ -59676,9 +59704,9 @@ function pipe(in_, out) {
     // ...util.normalizeParams(params),
   });
 }
-var ZodCodec = /* @__PURE__ */ $constructor("ZodCodec", (inst, def) => {
-  ZodPipe.init(inst, def);
-  $ZodCodec.init(inst, def);
+var ZodCodec = /* @__PURE__ */ $constructor("ZodCodec", (inst, def2) => {
+  ZodPipe.init(inst, def2);
+  $ZodCodec.init(inst, def2);
 });
 function codec(in_, out, params) {
   return new ZodCodec({
@@ -59690,22 +59718,22 @@ function codec(in_, out, params) {
   });
 }
 function invertCodec(codec2) {
-  const def = codec2._zod.def;
+  const def2 = codec2._zod.def;
   return new ZodCodec({
     type: "pipe",
-    in: def.out,
-    out: def.in,
-    transform: def.reverseTransform,
-    reverseTransform: def.transform
+    in: def2.out,
+    out: def2.in,
+    transform: def2.reverseTransform,
+    reverseTransform: def2.transform
   });
 }
-var ZodPreprocess = /* @__PURE__ */ $constructor("ZodPreprocess", (inst, def) => {
-  ZodPipe.init(inst, def);
-  $ZodPreprocess.init(inst, def);
+var ZodPreprocess = /* @__PURE__ */ $constructor("ZodPreprocess", (inst, def2) => {
+  ZodPipe.init(inst, def2);
+  $ZodPreprocess.init(inst, def2);
 });
-var ZodReadonly = /* @__PURE__ */ $constructor("ZodReadonly", (inst, def) => {
-  $ZodReadonly.init(inst, def);
-  ZodType.init(inst, def);
+var ZodReadonly = /* @__PURE__ */ $constructor("ZodReadonly", (inst, def2) => {
+  $ZodReadonly.init(inst, def2);
+  ZodType.init(inst, def2);
   inst._zod.processJSONSchema = (ctx, json2, params) => readonlyProcessor(inst, ctx, json2, params);
   inst.unwrap = () => inst._zod.def.innerType;
 });
@@ -59715,9 +59743,9 @@ function readonly(innerType) {
     innerType
   });
 }
-var ZodTemplateLiteral = /* @__PURE__ */ $constructor("ZodTemplateLiteral", (inst, def) => {
-  $ZodTemplateLiteral.init(inst, def);
-  ZodType.init(inst, def);
+var ZodTemplateLiteral = /* @__PURE__ */ $constructor("ZodTemplateLiteral", (inst, def2) => {
+  $ZodTemplateLiteral.init(inst, def2);
+  ZodType.init(inst, def2);
   inst._zod.processJSONSchema = (ctx, json2, params) => templateLiteralProcessor(inst, ctx, json2, params);
 });
 function templateLiteral(parts, params) {
@@ -59727,9 +59755,9 @@ function templateLiteral(parts, params) {
     ...util_exports.normalizeParams(params)
   });
 }
-var ZodLazy = /* @__PURE__ */ $constructor("ZodLazy", (inst, def) => {
-  $ZodLazy.init(inst, def);
-  ZodType.init(inst, def);
+var ZodLazy = /* @__PURE__ */ $constructor("ZodLazy", (inst, def2) => {
+  $ZodLazy.init(inst, def2);
+  ZodType.init(inst, def2);
   inst._zod.processJSONSchema = (ctx, json2, params) => lazyProcessor(inst, ctx, json2, params);
   inst.unwrap = () => inst._zod.def.getter();
 });
@@ -59739,9 +59767,9 @@ function lazy(getter) {
     getter
   });
 }
-var ZodPromise = /* @__PURE__ */ $constructor("ZodPromise", (inst, def) => {
-  $ZodPromise.init(inst, def);
-  ZodType.init(inst, def);
+var ZodPromise = /* @__PURE__ */ $constructor("ZodPromise", (inst, def2) => {
+  $ZodPromise.init(inst, def2);
+  ZodType.init(inst, def2);
   inst._zod.processJSONSchema = (ctx, json2, params) => promiseProcessor(inst, ctx, json2, params);
   inst.unwrap = () => inst._zod.def.innerType;
 });
@@ -59751,9 +59779,9 @@ function promise(innerType) {
     innerType
   });
 }
-var ZodFunction = /* @__PURE__ */ $constructor("ZodFunction", (inst, def) => {
-  $ZodFunction.init(inst, def);
-  ZodType.init(inst, def);
+var ZodFunction = /* @__PURE__ */ $constructor("ZodFunction", (inst, def2) => {
+  $ZodFunction.init(inst, def2);
+  ZodType.init(inst, def2);
   inst._zod.processJSONSchema = (ctx, json2, params) => functionProcessor(inst, ctx, json2, params);
 });
 function _function(params) {
@@ -59763,9 +59791,9 @@ function _function(params) {
     output: params?.output ?? unknown()
   });
 }
-var ZodCustom = /* @__PURE__ */ $constructor("ZodCustom", (inst, def) => {
-  $ZodCustom.init(inst, def);
-  ZodType.init(inst, def);
+var ZodCustom = /* @__PURE__ */ $constructor("ZodCustom", (inst, def2) => {
+  $ZodCustom.init(inst, def2);
+  ZodType.init(inst, def2);
   inst._zod.processJSONSchema = (ctx, json2, params) => customProcessor(inst, ctx, json2, params);
 });
 function check(fn) {
@@ -60364,8 +60392,6 @@ config(en_default());
 
 // ../../shared/src/constants.ts
 var COMPANY_STATUSES = ["active", "paused", "archived"];
-var DEFAULT_COMPANY_ATTACHMENT_MAX_BYTES = 10 * 1024 * 1024;
-var MAX_COMPANY_ATTACHMENT_MAX_BYTES = 1024 * 1024 * 1024;
 var DEPLOYMENT_MODES = ["local_trusted", "authenticated"];
 var DEPLOYMENT_EXPOSURES = ["private", "public"];
 var BIND_MODES = ["loopback", "lan", "tailnet", "custom"];
@@ -60410,7 +60436,6 @@ var AGENT_ROLES = [
   "researcher",
   "general"
 ];
-var MODEL_PROFILE_KEYS = ["cheap"];
 var AGENT_ICON_NAMES = [
   "bot",
   "cpu",
@@ -60547,7 +60572,8 @@ var ISSUE_THREAD_INTERACTION_KINDS = [
   "ask_user_questions",
   "request_confirmation",
   "request_checkbox_confirmation",
-  "request_item_verdicts"
+  "request_item_verdicts",
+  "connection_intent"
 ];
 var ISSUE_THREAD_INTERACTION_CANONICAL_RESOLVER_POLICIES = [
   "anyone",
@@ -60857,7 +60883,7 @@ var PERMISSION_KEYS = [
   "pipelines:write",
   "joins:approve"
 ];
-var TOOL_APPLICATION_TYPES = ["mcp_http", "mcp_stdio", "paperclip_plugin", "a2a"];
+var TOOL_APPLICATION_TYPES = ["mcp_http", "mcp_stdio", "paperclip_plugin", "a2a", "chat"];
 var TOOL_APPLICATION_STATUSES = ["draft", "active", "disabled", "archived"];
 var TOOL_CONNECTION_KINDS = ["managed"];
 var TOOL_CONNECTION_HEALTH_STATUSES = [
@@ -60899,7 +60925,14 @@ var TOOL_MCP_GATEWAY_CONTEXT_SCOPE_TYPES = [
   "agent"
 ];
 var TOOL_MCP_GATEWAY_TOKEN_SUBJECT_TYPES = ["gateway_client", "heartbeat_run", "board_user", "agent"];
-var TOOL_MCP_GATEWAY_TOKEN_ACTIONS = ["tools/list", "tools/call"];
+var TOOL_MCP_GATEWAY_TOKEN_ACTIONS = [
+  "tools/list",
+  "tools/call",
+  "resources/list",
+  "resources/read",
+  "prompts/list",
+  "prompts/get"
+];
 var CONNECTION_TOKEN_ISSUANCE_PATHS = ["exchange", "oauth_access", "static"];
 var TOOL_POLICY_TYPES = [
   "allow",
@@ -61207,6 +61240,96 @@ var PLUGIN_STATE_SCOPE_KINDS = [
 var agentAdapterTypeSchema = external_exports.string().trim().min(1).default("process").describe(`Known built-in adapters: ${AGENT_ADAPTER_TYPES.join(", ")}. External adapters may register additional non-empty string types at runtime.`);
 var optionalAgentAdapterTypeSchema = external_exports.string().trim().min(1).optional();
 
+// ../../shared/src/runner-goal.ts
+var RUNNER_GOAL_MAX_OBJECTIVE_CHARS = 4e3;
+var runnerGoalAvailabilitySchema = external_exports.enum([
+  "available",
+  "unsupported",
+  "policy_disabled"
+]);
+var runnerGoalCapabilityActionSchema = external_exports.enum(["set", "pause", "resume", "clear"]);
+var runnerGoalStatusSchema = external_exports.enum([
+  "active",
+  "paused",
+  "blocked",
+  "limited",
+  "usage_limited",
+  "budget_limited",
+  "complete"
+]);
+var runnerGoalActionSchema = external_exports.enum([
+  "create",
+  "edit",
+  "replace",
+  "pause",
+  "resume",
+  "clear"
+]);
+var runnerGoalPendingActionSchema = external_exports.enum([
+  "starting",
+  "editing",
+  "replacing",
+  "pausing",
+  "resuming",
+  "clearing",
+  "continuing"
+]);
+var objectiveSchema = external_exports.string().trim().min(1).max(RUNNER_GOAL_MAX_OBJECTIVE_CHARS);
+var runnerGoalActionRequestSchema = external_exports.object({
+  requestId: external_exports.string().trim().min(1).max(160),
+  agentId: external_exports.string().uuid(),
+  expectedRevision: external_exports.number().int().nonnegative(),
+  action: runnerGoalActionSchema,
+  objective: objectiveSchema.optional(),
+  tokenBudget: external_exports.number().int().positive().nullable().optional(),
+  confirmReplace: external_exports.boolean().optional()
+}).superRefine((value, context2) => {
+  const objectiveAction = value.action === "create" || value.action === "edit" || value.action === "replace";
+  if (objectiveAction && value.objective === void 0) {
+    context2.addIssue({
+      code: "custom",
+      path: ["objective"],
+      message: `${value.action} requires a nonblank objective`
+    });
+  }
+  if (!objectiveAction && (value.objective !== void 0 || value.tokenBudget !== void 0)) {
+    context2.addIssue({
+      code: "custom",
+      path: [value.objective !== void 0 ? "objective" : "tokenBudget"],
+      message: `${value.action} does not accept an objective or token budget`
+    });
+  }
+  if (value.action === "replace" && value.confirmReplace !== true) {
+    context2.addIssue({
+      code: "custom",
+      path: ["confirmReplace"],
+      message: "replace requires explicit confirmation"
+    });
+  }
+});
+
+// ../../shared/src/connection-intent-guidance.ts
+var CONNECTION_INTENT_AGENT_GUIDANCE = [
+  "Connection tools:",
+  "- When work requires a known external service and usable access is uncertain, call `connections_search` with the service name or capability.",
+  "- This applies both when the user explicitly asks to connect a service and when the requested work implicitly depends on that service.",
+  "- If search returns `ready`, use the installed connection; do not create a connection intent.",
+  "- If search returns `available` or `needs_user_action`, call `connection_request` with the returned service identifier.",
+  "- If search returns `unavailable`, explain that the service is unavailable and do not call `connection_request`.",
+  "- If `connection_request` returns `needs_user_action`, finish any independent work, then yield in a waiting posture. Do not retry the request, ask for credentials in comments, or claim access.",
+  "- Do not use connection tools for arbitrary MCP URLs, unsupported services, or work that does not require an external service.",
+  "- Keep an existing pending card across messages. Do not request again after the user declines unless they explicitly ask to retry.",
+  "- On a continuation run after connection setup, use the newly installed connection instead of requesting it again."
+].join("\n");
+var CONNECTIONS_SEARCH_TOOL_DESCRIPTION = [
+  "Search Paperclip's catalog services and authorized configured custom connections and report this run's agent-relative access state.",
+  "Use it when work requires a known external service and usable access is uncertain; do not use it for arbitrary MCP URLs or unrelated work."
+].join(" ");
+var CONNECTION_REQUEST_TOOL_DESCRIPTION = [
+  "Request access to a known connectable service for this run's agent from the responsible user.",
+  "Call it only with the service identifier returned as available or needs_user_action by connections_search; if user action is needed, finish independent work, then yield without retrying or asking for credentials in comments."
+].join(" ");
+
 // ../../shared/src/types/native-finalization.ts
 var NATIVE_FINALIZATION_SCHEMA = "paperclip.native-finalization.v1";
 
@@ -61369,6 +61492,20 @@ var decisionSpecSchema = external_exports.object({
   options: decisionOptionsSchema,
   inputs: decisionInputsSchema.nullable().optional()
 });
+
+// ../../shared/src/validators/connection-intent.ts
+var connectionsSearchInputSchema = external_exports.object({
+  query: external_exports.string().trim().max(200).default("")
+}).strict();
+var connectionRequestInputSchema = external_exports.object({
+  service: external_exports.string().trim().min(1).max(120)
+}).strict();
+var completeConnectionIntentSchema = external_exports.object({
+  connectionId: external_exports.string().guid()
+}).strict();
+var declineConnectionIntentSchema = external_exports.object({
+  reason: external_exports.string().trim().max(4e3).optional()
+}).strict();
 
 // ../../shared/src/validators/workspace-file-resource.ts
 var workspaceFileListSearchMaxBytes = 128;
@@ -61603,6 +61740,7 @@ var ATTENTION_SOURCE_KINDS = [
   "issue_thread_interaction",
   "join_request",
   "recovery_action",
+  // Legacy persisted decision sources remain readable; no feed items are generated.
   "productivity_review",
   "blocker_attention",
   "review",
@@ -61691,6 +61829,57 @@ var LOW_TRUST_REVIEW_PRESET = "low_trust_review";
 var LOW_TRUST_REVIEW_PRESET_VERSION = 1;
 var LOW_TRUST_REVIEW_RAW_OUTPUT_DISPOSITION = "quarantine";
 
+// ../../shared/src/app-definitions/agentmail.json
+var agentmail_default = {
+  schemaVersion: 1,
+  slug: "agentmail",
+  name: "AgentMail",
+  description: "Give agents email inboxes and handle each conversation as a task.",
+  categories: [
+    "communication"
+  ],
+  featured: false,
+  branding: {
+    logoUrl: "/brands/apps/agentmail.svg"
+  },
+  urlPatterns: [
+    "https://console.agentmail.to/*"
+  ],
+  methods: [
+    {
+      key: "email-agent",
+      label: "Email with an agent",
+      purpose: "channel",
+      provider: "agentmail",
+      transport: "rest_api",
+      auth: "api_key",
+      ownershipModes: [
+        "customer"
+      ],
+      whenToUse: "Assign an inbox to an agent and manage email conversations in tasks.",
+      credentialFields: [
+        {
+          key: "apiKey",
+          label: "AgentMail API key",
+          type: "password",
+          placeholder: "am_\u2026",
+          required: true,
+          secret: true
+        }
+      ],
+      guidanceMd: "Connect an AgentMail API key, then create or select an inbox for your agent. WebSocket receiving works without a public URL.",
+      consoleLinks: {
+        keys: "https://console.agentmail.to",
+        docs: "https://docs.agentmail.to/inboxes"
+      },
+      riskTier: "S3",
+      requiredResourceFilters: [
+        "inbox"
+      ]
+    }
+  ]
+};
+
 // ../../shared/src/app-definitions/zapier.json
 var zapier_default = {
   schemaVersion: 1,
@@ -61702,42 +61891,27 @@ var zapier_default = {
   ],
   featured: true,
   branding: {
-    logoUrl: "https://www.google.com/s2/favicons?domain=zapier.com&sz=128"
+    logoUrl: "/brands/apps/zapier.svg"
   },
   urlPatterns: [
     "https://mcp.zapier.com/*"
   ],
   methods: [
     {
-      key: "mcp-key",
+      key: "generated-url",
       transport: "mcp_remote",
-      auth: "api_key",
+      auth: "none",
       ownershipModes: [
         "customer"
       ],
-      whenToUse: "Use the provider-hosted connection for the quickest setup.",
-      defaults: {
-        serverUrl: "https://mcp.zapier.com/api/mcp"
-      },
-      guidanceMd: "Create a Zapier MCP connection, then paste its token here.",
+      whenToUse: "Use the complete provider-generated MCP URL from Zapier.",
+      defaults: {},
+      guidanceMd: "Create a Zapier MCP server, then paste the complete generated connection URL. The token remains embedded in that URL.",
       riskTier: "S3",
-      credentialFields: [
-        {
-          key: "authorization",
-          label: "Zapier MCP token",
-          type: "password",
-          required: true,
-          placeholder: "Paste your Zapier token",
-          secret: true
-        }
-      ],
-      keyPlacement: {
-        location: "header",
-        name: "Authorization",
-        prefix: "Bearer "
-      }
+      label: "Paste generated MCP URL"
     }
-  ]
+  ],
+  docsUrl: "https://docs.zapier.com/mcp/quickstart"
 };
 
 // ../../shared/src/app-definitions/github.json
@@ -61745,18 +61919,49 @@ var github_default = {
   schemaVersion: 1,
   slug: "github",
   name: "GitHub",
-  description: "Read code and pull requests, and coordinate repository work.",
+  description: "Give agents repository tools or let people work with an agent from GitHub issues and pull requests.",
   categories: [
     "developer"
   ],
   featured: true,
   branding: {
-    logoUrl: "https://www.google.com/s2/favicons?domain=github.com&sz=128"
+    logoUrl: "/brands/apps/github.svg",
+    darkLogoUrl: "/brands/apps/github-dark.svg"
   },
   urlPatterns: [
-    "https://api.githubcopilot.com/mcp/*"
+    "https://api.githubcopilot.com/mcp/*",
+    "https://github.com/*"
   ],
   methods: [
+    {
+      key: "managed",
+      transport: "mcp_remote",
+      auth: "oauth",
+      ownershipModes: [
+        "platform_shared"
+      ],
+      whenToUse: "Connect your GitHub account for durable MCP, shell Git, gh, and repository access.",
+      defaults: {
+        serverUrl: "https://api.githubcopilot.com/mcp/"
+      },
+      guidanceMd: "Authorize Paperclip, then choose selected repositories in GitHub. You can edit repository access later from GitHub's installation settings.",
+      riskTier: "S3",
+      label: "Use this connection as an agent tool",
+      purpose: "tool",
+      oauthStrategy: "paperclip_cloud_connector",
+      connectorProfile: "github.code",
+      grantKinds: [
+        "user",
+        "agent"
+      ],
+      warnings: [
+        "Shell Git and gh receive this identity for the run and are not constrained by per-tool Ask-first controls."
+      ],
+      requiredResourceFilters: [
+        "organization",
+        "repository"
+      ]
+    },
     {
       key: "mcp-key",
       transport: "mcp_remote",
@@ -61770,6 +61975,8 @@ var github_default = {
       },
       guidanceMd: "Create a fine-grained token limited to the repositories agents should use.",
       riskTier: "S3",
+      label: "Personal access token (advanced)",
+      purpose: "tool",
       credentialFields: [
         {
           key: "authorization",
@@ -61789,6 +61996,46 @@ var github_default = {
         "organization",
         "repository"
       ]
+    },
+    {
+      key: "chat-agent",
+      label: "Chat with an agent",
+      purpose: "channel",
+      provider: "github",
+      transport: "chat_sdk",
+      auth: "api_key",
+      ownershipModes: [
+        "customer"
+      ],
+      whenToUse: "Let people in GitHub start and continue work with one Paperclip agent.",
+      credentialFields: [
+        {
+          key: "appId",
+          label: "GitHub App ID",
+          type: "text",
+          required: true,
+          placeholder: "123456",
+          secret: false
+        },
+        {
+          key: "privateKey",
+          label: "Private key (PEM)",
+          type: "textarea",
+          required: true,
+          placeholder: "-----BEGIN RSA PRIVATE KEY-----",
+          secret: true
+        }
+      ],
+      guidanceMd: "Generate the webhook secret in Paperclip, then create one private GitHub App with active SSL-verified webhooks, Issues and Pull requests read/write permission, and the selectable issue_comment and pull_request_review_comment events. GitHub sends installation and installation_repositories automatically. Install the App only on repositories where people may mention the agent.",
+      consoleLinks: {
+        register: "https://github.com/settings/apps/new",
+        docs: "https://docs.github.com/en/apps/creating-github-apps/registering-a-github-app/registering-a-github-app"
+      },
+      riskTier: "S3",
+      requiredResourceFilters: [
+        "organization",
+        "repository"
+      ]
     }
   ]
 };
@@ -61798,16 +62045,17 @@ var slack_default = {
   schemaVersion: 1,
   slug: "slack",
   name: "Slack",
-  description: "Search channels and coordinate team communication.",
+  description: "Give agents Slack tools or let people start and continue Paperclip work from Slack.",
   categories: [
     "communication"
   ],
   featured: true,
   branding: {
-    logoUrl: "https://www.google.com/s2/favicons?domain=slack.com&sz=128"
+    logoUrl: "/brands/apps/slack.svg"
   },
   urlPatterns: [
-    "https://mcp.slack.com/*"
+    "https://mcp.slack.com/*",
+    "https://app.slack.com/client/*"
   ],
   methods: [
     {
@@ -61815,8 +62063,7 @@ var slack_default = {
       transport: "mcp_remote",
       auth: "oauth",
       ownershipModes: [
-        "customer",
-        "dcr"
+        "customer"
       ],
       whenToUse: "Use the provider-hosted connection for the quickest setup.",
       defaults: {
@@ -61831,8 +62078,294 @@ var slack_default = {
       },
       guidanceMd: "Connect a Slack workspace and limit access to the channels agents need.",
       riskTier: "S3",
+      label: "Use this connection as an agent tool",
+      purpose: "tool",
       requiredResourceFilters: [
         "workspace",
+        "channel"
+      ]
+    },
+    {
+      key: "chat-agent",
+      label: "Chat with an agent",
+      purpose: "channel",
+      provider: "slack",
+      transport: "chat_sdk",
+      auth: "api_key",
+      ownershipModes: [
+        "customer"
+      ],
+      whenToUse: "Let people in Slack start and continue work with one Paperclip agent.",
+      credentialFields: [
+        {
+          key: "botToken",
+          label: "Bot User OAuth Token",
+          type: "password",
+          required: true,
+          placeholder: "xoxb-...",
+          secret: true
+        },
+        {
+          key: "signingSecret",
+          label: "Signing Secret",
+          type: "password",
+          required: true,
+          placeholder: "Paste the Slack App signing secret",
+          secret: true
+        }
+      ],
+      guidanceMd: "Create and install one Slack App for this agent. Paperclip receives verified Events API requests and interactive callbacks, acknowledges with reactions, responds in direct messages, and starts one Paperclip task per new mentioned channel thread.",
+      consoleLinks: {
+        register: "https://api.slack.com/apps",
+        docs: "https://api.slack.com/start/quickstart"
+      },
+      riskTier: "S3",
+      requiredResourceFilters: [
+        "workspace",
+        "channel"
+      ]
+    }
+  ]
+};
+
+// ../../shared/src/app-definitions/microsoft-teams.json
+var microsoft_teams_default = {
+  schemaVersion: 1,
+  slug: "microsoft-teams",
+  name: "Microsoft Teams",
+  description: "Let people start and continue Paperclip work with an agent from Microsoft Teams.",
+  categories: [
+    "communication"
+  ],
+  featured: false,
+  branding: {
+    logoUrl: "/brands/apps/microsoft-teams.svg"
+  },
+  urlPatterns: [
+    "https://teams.microsoft.com/*"
+  ],
+  methods: [
+    {
+      key: "chat-agent",
+      label: "Chat with an agent",
+      purpose: "channel",
+      provider: "microsoft-teams",
+      transport: "chat_sdk",
+      auth: "api_key",
+      ownershipModes: [
+        "customer"
+      ],
+      whenToUse: "Let people in Microsoft Teams start and continue work with one Paperclip agent.",
+      credentialFields: [
+        {
+          key: "clientId",
+          label: "Application / Client ID",
+          type: "text",
+          required: true,
+          placeholder: "00000000-0000-0000-0000-000000000000",
+          secret: false
+        },
+        {
+          key: "tenantId",
+          label: "Directory / Tenant ID",
+          type: "text",
+          required: true,
+          placeholder: "00000000-0000-0000-0000-000000000000",
+          secret: false
+        },
+        {
+          key: "clientSecret",
+          label: "Client secret",
+          type: "password",
+          required: true,
+          placeholder: "Paste the client-secret value",
+          secret: true
+        }
+      ],
+      guidanceMd: "Use a Microsoft 365 work or school organization where you can register an Entra app, create a single-tenant Azure Bot, and upload or install a Teams app. Personal or free Teams accounts at teams.live.com cannot complete this setup. Enable personal, team, and groupChat bot scopes and the ChannelMessage.Read.Group and ChatMessage.Read.Chat resource-specific application permissions. Those RSC grants let an installed app receive every message in a team or group chat without an @mention, so explain that access to installers. One team install covers its standard channels; private and shared channels require a separate installation and are not supported by this release.",
+      consoleLinks: {
+        register: "https://dev.teams.microsoft.com/apps",
+        docs: "https://learn.microsoft.com/en-us/microsoftteams/platform/bots/how-to/create-a-bot-for-teams"
+      },
+      riskTier: "S3",
+      requiredResourceFilters: [
+        "team",
+        "channel",
+        "chat"
+      ]
+    }
+  ]
+};
+
+// ../../shared/src/app-definitions/imessage-photon.json
+var imessage_photon_default = {
+  schemaVersion: 1,
+  slug: "imessage-photon",
+  name: "iMessage Photon",
+  description: "Message a Paperclip agent from Apple Messages using Photon Cloud. Pro supports DMs; dedicated lines also support groups.",
+  categories: [
+    "communication"
+  ],
+  featured: false,
+  branding: {
+    logoUrl: "/brands/apps/imessage-photon.png"
+  },
+  urlPatterns: [
+    "https://photon.codes/*"
+  ],
+  methods: [
+    {
+      key: "chat-agent",
+      label: "Chat with an agent",
+      purpose: "channel",
+      provider: "imessage-photon",
+      transport: "chat_sdk",
+      auth: "api_key",
+      ownershipModes: [
+        "customer"
+      ],
+      whenToUse: "Let people in iMessage Photon start and continue work with one Paperclip agent.",
+      credentialFields: [
+        {
+          key: "projectSecret",
+          label: "Project secret",
+          type: "password",
+          required: true,
+          placeholder: "Photon project secret",
+          secret: true
+        }
+      ],
+      guidanceMd: "Connect a Photon Cloud project. Pro shared lines support DMs after sender enrollment in Photon and identity linking in Paperclip. Dedicated lines also support individually enabled groups.",
+      consoleLinks: {
+        register: "https://photon.codes/",
+        docs: "https://photon.codes/docs/spectrum-ts/providers/imessage/connection-and-routing"
+      },
+      riskTier: "S3",
+      requiredResourceFilters: [
+        "direct_message",
+        "group_chat"
+      ]
+    }
+  ]
+};
+
+// ../../shared/src/app-definitions/telegram.json
+var telegram_default = {
+  schemaVersion: 1,
+  slug: "telegram",
+  name: "Telegram",
+  description: "Let people start and continue Paperclip work with an agent from Telegram.",
+  categories: [
+    "communication"
+  ],
+  featured: false,
+  branding: {
+    logoUrl: "/brands/apps/telegram.svg"
+  },
+  urlPatterns: [
+    "https://t.me/*",
+    "https://telegram.me/*",
+    "https://api.telegram.org/*"
+  ],
+  methods: [
+    {
+      key: "chat-agent",
+      label: "Chat with an agent",
+      purpose: "channel",
+      provider: "telegram",
+      transport: "chat_sdk",
+      auth: "api_key",
+      ownershipModes: [
+        "customer"
+      ],
+      whenToUse: "Let people in Telegram start and continue work with one Paperclip agent.",
+      credentialFields: [
+        {
+          key: "botToken",
+          label: "Bot token",
+          type: "password",
+          required: true,
+          placeholder: "123456789:AA...",
+          secret: true
+        }
+      ],
+      guidanceMd: "Create one dedicated bot with BotFather, then connect its token to the public Paperclip webhook endpoint.",
+      consoleLinks: {
+        register: "https://t.me/BotFather",
+        docs: "https://core.telegram.org/bots/tutorial"
+      },
+      riskTier: "S3",
+      requiredResourceFilters: [
+        "chat",
+        "group",
+        "topic"
+      ]
+    }
+  ]
+};
+
+// ../../shared/src/app-definitions/discord.json
+var discord_default = {
+  schemaVersion: 1,
+  slug: "discord",
+  name: "Discord",
+  description: "Let people start and continue Paperclip work with an agent from Discord.",
+  categories: [
+    "communication"
+  ],
+  featured: false,
+  branding: {
+    logoUrl: "/brands/apps/discord.svg",
+    darkLogoUrl: "/brands/apps/discord-dark.svg"
+  },
+  urlPatterns: [
+    "https://discord.com/*"
+  ],
+  methods: [
+    {
+      key: "chat-agent",
+      label: "Chat with an agent",
+      purpose: "channel",
+      provider: "discord",
+      transport: "chat_sdk",
+      auth: "api_key",
+      ownershipModes: [
+        "customer"
+      ],
+      whenToUse: "Let people in Discord start and continue work with one Paperclip agent.",
+      credentialFields: [
+        {
+          key: "botToken",
+          label: "Bot token",
+          type: "password",
+          required: true,
+          placeholder: "Paste the Discord bot token",
+          secret: true
+        },
+        {
+          key: "applicationId",
+          label: "Application ID",
+          type: "text",
+          required: true,
+          placeholder: "123456789012345678",
+          secret: false
+        },
+        {
+          key: "guildId",
+          label: "Server ID",
+          type: "text",
+          required: true,
+          placeholder: "123456789012345678",
+          secret: false
+        }
+      ],
+      guidanceMd: "Create one dedicated Discord application and bot, enable the Message Content intent, install it in one server with the documented bot permissions, then connect its bot token, Application ID, and server ID. Paperclip starts one Discord thread per root bot mention and keeps the linked Paperclip task authoritative.",
+      consoleLinks: {
+        register: "https://discord.com/developers/applications",
+        docs: "https://discord.com/developers/docs/quick-start/getting-started"
+      },
+      riskTier: "S3",
+      requiredResourceFilters: [
         "channel"
       ]
     }
@@ -61850,7 +62383,7 @@ var notion_default = {
   ],
   featured: true,
   branding: {
-    logoUrl: "https://www.google.com/s2/favicons?domain=notion.so&sz=128"
+    logoUrl: "/brands/apps/notion.svg"
   },
   urlPatterns: [
     "https://mcp.notion.com/*"
@@ -61874,9 +62407,307 @@ var notion_default = {
         "workspace",
         "page",
         "database"
-      ]
+      ],
+      credentialSources: {
+        vercelConnect: {
+          services: [
+            "notion"
+          ],
+          principalModes: [
+            "user"
+          ],
+          scopes: [
+            "*"
+          ],
+          header: {
+            name: "Authorization",
+            prefix: "Bearer "
+          }
+        }
+      }
     }
   ],
+  redirectConstraints: "https-or-loopback-http",
+  docsUrl: "https://developers.notion.com/guides/mcp/build-mcp-client"
+};
+
+// ../../shared/src/app-definitions/posthog.json
+var posthog_default = {
+  schemaVersion: 1,
+  slug: "posthog",
+  name: "PostHog",
+  description: "Analyze product usage, errors, feature flags, and experiments with PostHog's hosted MCP server.",
+  categories: [
+    "analytics"
+  ],
+  featured: true,
+  branding: {
+    logoUrl: "/brands/apps/posthog.svg",
+    darkLogoUrl: "/brands/apps/posthog-dark.svg"
+  },
+  urlPatterns: [
+    "https://mcp.posthog.com/*"
+  ],
+  methods: [
+    {
+      key: "mcp-oauth",
+      transport: "mcp_remote",
+      auth: "oauth",
+      ownershipModes: [
+        "customer",
+        "dcr"
+      ],
+      whenToUse: "Sign in with PostHog in the browser. Recommended for hosted PostHog accounts.",
+      defaults: {
+        serverUrl: "https://mcp.posthog.com/mcp"
+      },
+      guidanceMd: "Connect with PostHog's recommended defaults. Project pinning, read-only access, and catalog filters are optional advanced controls.",
+      riskTier: "S3",
+      tenantFields: [
+        {
+          key: "projectId",
+          label: "Pin to project ID",
+          type: "text",
+          advanced: true,
+          placeholder: "Optional numeric project ID",
+          helperMd: "Optional. Pin this connection to one project and remove PostHog's project-switching tool.",
+          validation: {
+            pattern: "^[0-9]+$",
+            maxLength: 32
+          },
+          transport: {
+            location: "header",
+            name: "x-posthog-project-id"
+          }
+        },
+        {
+          key: "readOnly",
+          label: "Read-only mode",
+          type: "checkbox",
+          advanced: true,
+          defaultValue: false,
+          helperMd: "Turn on to hide tools that can change PostHog data.",
+          transport: {
+            location: "query",
+            name: "readonly",
+            format: "boolean",
+            omitFalse: true
+          }
+        },
+        {
+          key: "features",
+          label: "Feature groups",
+          type: "textarea",
+          advanced: true,
+          placeholder: "Optional comma-separated feature groups",
+          helperMd: "Leave blank to expose every feature group, or enter a comma-separated list to narrow access.",
+          validation: {
+            maxLength: 500
+          },
+          transport: {
+            location: "query",
+            name: "features",
+            format: "csv"
+          }
+        },
+        {
+          key: "tools",
+          label: "Individual tools",
+          type: "textarea",
+          advanced: true,
+          placeholder: "Optional comma-separated tool names",
+          helperMd: "Leave blank to expose all tools. Exact names here are combined with any feature groups.",
+          validation: {
+            maxLength: 2e3
+          },
+          transport: {
+            location: "query",
+            name: "tools",
+            format: "csv"
+          }
+        },
+        {
+          key: "mode",
+          label: "Tool response mode",
+          type: "select",
+          hidden: true,
+          required: true,
+          placeholder: "Individual tools",
+          defaultValue: "tools",
+          options: [
+            {
+              value: "tools",
+              label: "Individual tools"
+            }
+          ],
+          helperMd: "Paperclip uses individual tools so every action can be governed. CLI mode remains unavailable until nested execution is governed.",
+          transport: {
+            location: "query",
+            name: "mode"
+          }
+        }
+      ],
+      label: "Sign in with PostHog",
+      consoleLinks: {
+        docs: "https://posthog.com/docs/model-context-protocol"
+      },
+      credentialSources: {
+        vercelConnect: {
+          services: [
+            "posthog",
+            "mcp.posthog.com/mcp"
+          ],
+          principalModes: [
+            "user"
+          ],
+          scopes: [
+            "*"
+          ],
+          header: {
+            name: "Authorization",
+            prefix: "Bearer "
+          }
+        }
+      }
+    },
+    {
+      key: "mcp-api-key",
+      transport: "mcp_remote",
+      auth: "api_key",
+      ownershipModes: [
+        "customer"
+      ],
+      whenToUse: "Use a PostHog personal API key when browser sign-in is not suitable.",
+      defaults: {
+        serverUrl: "https://mcp.posthog.com/mcp"
+      },
+      guidanceMd: "Connect with PostHog's recommended defaults. Project pinning, read-only access, and catalog filters are optional advanced controls.",
+      riskTier: "S3",
+      tenantFields: [
+        {
+          key: "projectId",
+          label: "Pin to project ID",
+          type: "text",
+          advanced: true,
+          placeholder: "Optional numeric project ID",
+          helperMd: "Optional. Pin this connection to one project and remove PostHog's project-switching tool.",
+          validation: {
+            pattern: "^[0-9]+$",
+            maxLength: 32
+          },
+          transport: {
+            location: "header",
+            name: "x-posthog-project-id"
+          }
+        },
+        {
+          key: "readOnly",
+          label: "Read-only mode",
+          type: "checkbox",
+          advanced: true,
+          defaultValue: false,
+          helperMd: "Turn on to hide tools that can change PostHog data.",
+          transport: {
+            location: "query",
+            name: "readonly",
+            format: "boolean",
+            omitFalse: true
+          }
+        },
+        {
+          key: "features",
+          label: "Feature groups",
+          type: "textarea",
+          advanced: true,
+          placeholder: "Optional comma-separated feature groups",
+          helperMd: "Leave blank to expose every feature group, or enter a comma-separated list to narrow access.",
+          validation: {
+            maxLength: 500
+          },
+          transport: {
+            location: "query",
+            name: "features",
+            format: "csv"
+          }
+        },
+        {
+          key: "tools",
+          label: "Individual tools",
+          type: "textarea",
+          advanced: true,
+          placeholder: "Optional comma-separated tool names",
+          helperMd: "Leave blank to expose all tools. Exact names here are combined with any feature groups.",
+          validation: {
+            maxLength: 2e3
+          },
+          transport: {
+            location: "query",
+            name: "tools",
+            format: "csv"
+          }
+        },
+        {
+          key: "mode",
+          label: "Tool response mode",
+          type: "select",
+          hidden: true,
+          required: true,
+          placeholder: "Individual tools",
+          defaultValue: "tools",
+          options: [
+            {
+              value: "tools",
+              label: "Individual tools"
+            }
+          ],
+          helperMd: "Paperclip uses individual tools so every action can be governed. CLI mode remains unavailable until nested execution is governed.",
+          transport: {
+            location: "query",
+            name: "mode"
+          }
+        }
+      ],
+      label: "Use a personal API key",
+      credentialFields: [
+        {
+          key: "authorization",
+          label: "PostHog personal API key",
+          type: "password",
+          required: true,
+          placeholder: "phx_...",
+          secret: true
+        }
+      ],
+      keyPlacement: {
+        location: "header",
+        name: "Authorization",
+        prefix: "Bearer "
+      },
+      consoleLinks: {
+        keys: "https://posthog.com/docs/model-context-protocol/faq",
+        docs: "https://posthog.com/docs/model-context-protocol/faq"
+      },
+      credentialSources: {
+        vercelConnect: {
+          services: [
+            "posthog",
+            "mcp.posthog.com/mcp"
+          ],
+          principalModes: [
+            "app"
+          ],
+          scopes: [
+            "*"
+          ],
+          header: {
+            name: "Authorization",
+            prefix: "Bearer "
+          }
+        }
+      }
+    }
+  ],
+  docsUrl: "https://posthog.com/docs/model-context-protocol",
   redirectConstraints: "https-or-loopback-http"
 };
 
@@ -61891,7 +62722,8 @@ var linear_default = {
   ],
   featured: true,
   branding: {
-    logoUrl: "https://www.google.com/s2/favicons?domain=linear.app&sz=128"
+    logoUrl: "/brands/apps/linear.svg",
+    darkLogoUrl: "/brands/apps/linear-dark.svg"
   },
   urlPatterns: [
     "https://mcp.linear.app/*"
@@ -61902,8 +62734,7 @@ var linear_default = {
       transport: "mcp_remote",
       auth: "oauth",
       ownershipModes: [
-        "customer",
-        "dcr"
+        "customer"
       ],
       whenToUse: "Use the provider-hosted connection for the quickest setup.",
       defaults: {
@@ -61921,45 +62752,25 @@ var linear_default = {
         "workspace",
         "team",
         "project"
-      ]
-    }
-  ]
-};
-
-// ../../shared/src/app-definitions/google-sheets.json
-var google_sheets_default = {
-  schemaVersion: 1,
-  slug: "google-sheets",
-  name: "Google Sheets",
-  description: "Read and update selected spreadsheets.",
-  categories: [
-    "data"
-  ],
-  featured: false,
-  branding: {
-    logoUrl: "https://www.google.com/s2/favicons?domain=sheets.google.com&sz=128"
-  },
-  urlPatterns: [
-    "https://docs.google.com/spreadsheets/*",
-    "https://sheets.google.com/*"
-  ],
-  methods: [
-    {
-      key: "local",
-      transport: "local_stdio",
-      auth: "none",
-      ownershipModes: [
-        "customer"
       ],
-      whenToUse: "Use credentials from your provider account.",
-      defaults: {
-        templateKey: "paperclip.google-sheets"
-      },
-      guidanceMd: "Share each spreadsheet with the Paperclip robot email, then paste the sheet links.",
-      riskTier: "S3",
-      requiredResourceFilters: [
-        "spreadsheet"
-      ]
+      credentialSources: {
+        vercelConnect: {
+          services: [
+            "linear"
+          ],
+          principalModes: [
+            "user"
+          ],
+          scopes: [
+            "read",
+            "write"
+          ],
+          header: {
+            name: "Authorization",
+            prefix: "Bearer "
+          }
+        }
+      }
     }
   ]
 };
@@ -61975,7 +62786,8 @@ var context7_default = {
   ],
   featured: false,
   branding: {
-    logoUrl: "https://www.google.com/s2/favicons?domain=context7.com&sz=128"
+    logoUrl: "/brands/apps/context7.svg",
+    darkLogoUrl: "/brands/apps/context7-dark.svg"
   },
   urlPatterns: [
     "https://mcp.context7.com/*"
@@ -61998,6 +62810,179 @@ var context7_default = {
   ]
 };
 
+// ../../shared/src/app-definitions/shopify.json
+var shopify_default = {
+  schemaVersion: 1,
+  slug: "shopify",
+  name: "Shopify",
+  description: "Search a store's products and policies, and manage shopping carts.",
+  categories: [
+    "commerce"
+  ],
+  featured: false,
+  branding: {
+    logoUrl: "/brands/apps/shopify.svg"
+  },
+  urlPatterns: [
+    "https://*.myshopify.com/api/ucp/mcp",
+    "https://*.myshopify.com/api/mcp"
+  ],
+  methods: [
+    {
+      key: "ucp-commerce",
+      transport: "mcp_remote",
+      auth: "none",
+      ownershipModes: [
+        "customer"
+      ],
+      whenToUse: "Recommended for Shopify's current UCP catalog, cart, and checkout tools.",
+      defaults: {
+        serverUrlTemplate: "https://{storeDomain}/api/ucp/mcp",
+        toolArgumentDefaults: {
+          meta: {
+            "ucp-agent": {
+              profile: "https://shopify.dev/ucp/agent-profiles/examples/2026-04-08/valid-with-capabilities.json"
+            }
+          }
+        }
+      },
+      guidanceMd: "Connect Shopify's current UCP server for shopper-facing catalog and commerce tools. Paperclip supplies the required agent profile automatically.",
+      riskTier: "S3",
+      label: "Shopify UCP commerce",
+      tenantFields: [
+        {
+          key: "storeDomain",
+          label: "Store domain",
+          type: "text",
+          required: true,
+          placeholder: "your-store.myshopify.com",
+          helperMd: "Enter the permanent myshopify.com domain without https://. Custom storefront domains are not the MCP endpoint.",
+          validation: {
+            pattern: "^[A-Za-z0-9][A-Za-z0-9-]*\\.myshopify\\.com$",
+            maxLength: 255
+          }
+        }
+      ],
+      consoleLinks: {
+        docs: "https://shopify.dev/docs/agents/catalog/storefront-catalog"
+      },
+      warnings: [
+        "This is Shopify's shopper-facing UCP server, not Admin API access. It does not manage merchant products or customers.",
+        "The storefront must be public. A private or password-protected storefront returns HTTP 401 even when the merchant is signed in to Shopify Admin.",
+        "Paperclip currently uses Shopify's documented hosted agent-profile fixture while Paperclip's production UCP profile is being established."
+      ],
+      requiredResourceFilters: [
+        "store"
+      ]
+    },
+    {
+      key: "storefront-mcp",
+      transport: "mcp_remote",
+      auth: "none",
+      ownershipModes: [
+        "customer"
+      ],
+      whenToUse: "Use Shopify's compatibility server when agents need storefront policy and FAQ search.",
+      defaults: {
+        serverUrlTemplate: "https://{storeDomain}/api/mcp"
+      },
+      guidanceMd: "Connect Shopify's official Storefront MCP server for shopper-facing catalog, policy, and cart tools.",
+      riskTier: "S3",
+      label: "Storefront policies and compatibility tools",
+      tenantFields: [
+        {
+          key: "storeDomain",
+          label: "Store domain",
+          type: "text",
+          required: true,
+          placeholder: "your-store.myshopify.com",
+          helperMd: "Enter the permanent myshopify.com domain without https://. Custom storefront domains are not the MCP endpoint.",
+          validation: {
+            pattern: "^[A-Za-z0-9][A-Za-z0-9-]*\\.myshopify\\.com$",
+            maxLength: 255
+          }
+        }
+      ],
+      consoleLinks: {
+        docs: "https://shopify.dev/docs/apps/build/storefront-mcp/servers/storefront"
+      },
+      warnings: [
+        "This is Shopify's Storefront MCP, not Admin API access. It does not manage merchant products, orders, or customers.",
+        "The storefront must be public. A private or password-protected storefront returns HTTP 401 even when the merchant is signed in to Shopify Admin."
+      ],
+      requiredResourceFilters: [
+        "store"
+      ]
+    }
+  ],
+  docsUrl: "https://shopify.dev/docs/apps/build/storefront-mcp/servers/storefront",
+  setupPrerequisite: {
+    title: "Launch the storefront before connecting",
+    description: "Shopify's Storefront MCP is a public, no-auth endpoint. Paperclip cannot use the merchant's Shopify Admin session to bypass a private storefront.",
+    steps: [
+      "Select a Shopify plan; Shopify keeps trial storefronts private until a plan is selected.",
+      "In Shopify Admin, open Online Store \u2192 Preferences and set Storefront visibility to Public (remove password protection).",
+      "Use the permanent <store>.myshopify.com domain in Paperclip, even if the store also has a custom domain."
+    ],
+    actionLabel: "Open Shopify Admin",
+    actionUrl: "https://admin.shopify.com/"
+  }
+};
+
+// ../../shared/src/app-definitions/composio.json
+var composio_default = {
+  schemaVersion: 1,
+  slug: "composio",
+  name: "Composio",
+  description: "Connect Composio so Paperclip can discover and manage the toolkits in your project.",
+  categories: [
+    "productivity"
+  ],
+  featured: true,
+  branding: {
+    logoUrl: "/brands/apps/composio.svg",
+    darkLogoUrl: "/brands/apps/composio-dark.svg"
+  },
+  urlPatterns: [
+    "https://backend.composio.dev/*"
+  ],
+  methods: [
+    {
+      key: "api-key",
+      transport: "rest_api",
+      auth: "api_key",
+      ownershipModes: [
+        "customer"
+      ],
+      whenToUse: "Use a project API key from the Composio project that owns the toolkits and connected accounts.",
+      defaults: {
+        serviceHost: "backend.composio.dev"
+      },
+      guidanceMd: "Create a scoped project API key in Composio. It needs read access to toolkits and auth configs; later service-connection phases also need connected-account and session access.",
+      riskTier: "S3",
+      credentialFields: [
+        {
+          key: "apiKey",
+          label: "Composio project API key",
+          type: "password",
+          required: true,
+          placeholder: "Paste the Composio API key",
+          secret: true
+        }
+      ],
+      keyPlacement: {
+        location: "header",
+        name: "x-api-key"
+      },
+      consoleLinks: {
+        keys: "https://app.composio.dev/",
+        settings: "https://app.composio.dev/",
+        docs: "https://docs.composio.dev/reference/authenticating-to-composio/project-api-key-permissions"
+      }
+    }
+  ]
+};
+
 // ../../shared/src/app-definitions/oauth-generic.json
 var oauth_generic_default = {
   schemaVersion: 1,
@@ -62009,7 +62994,7 @@ var oauth_generic_default = {
   ],
   featured: false,
   branding: {
-    logoUrl: "https://www.google.com/s2/favicons?domain=oauth.net&sz=128"
+    logoUrl: "/brands/apps/oauth-generic.svg"
   },
   urlPatterns: [],
   methods: [
@@ -62058,7 +63043,7 @@ var api_key_generic_default = {
   ],
   featured: false,
   branding: {
-    logoUrl: "https://www.google.com/s2/favicons?domain=openapis.org&sz=128"
+    logoUrl: "/brands/apps/api-key-generic.svg"
   },
   urlPatterns: [],
   methods: [
@@ -62103,7 +63088,8 @@ var sentry_default = {
   ],
   featured: false,
   branding: {
-    logoUrl: "https://www.google.com/s2/favicons?domain=sentry.io&sz=128"
+    logoUrl: "/brands/apps/sentry.svg",
+    darkLogoUrl: "/brands/apps/sentry-dark.svg"
   },
   urlPatterns: [
     "https://mcp.sentry.dev/*"
@@ -62130,7 +63116,9 @@ var sentry_default = {
         "environment"
       ]
     }
-  ]
+  ],
+  docsUrl: "https://mcp.sentry.dev/.well-known/oauth-authorization-server",
+  redirectConstraints: "https-or-loopback-http"
 };
 
 // ../../shared/src/app-definitions/vercel.json
@@ -62144,7 +63132,8 @@ var vercel_default = {
   ],
   featured: false,
   branding: {
-    logoUrl: "https://www.google.com/s2/favicons?domain=vercel.com&sz=128"
+    logoUrl: "/brands/apps/vercel.svg",
+    darkLogoUrl: "/brands/apps/vercel-dark.svg"
   },
   urlPatterns: [
     "https://mcp.vercel.com/*"
@@ -62170,7 +63159,11 @@ var vercel_default = {
         "environment"
       ]
     }
-  ]
+  ],
+  availability: {
+    available: false,
+    reason: "Vercel currently reviews and approves MCP clients."
+  }
 };
 
 // ../../shared/src/app-definitions/anthropic.json
@@ -62184,24 +63177,53 @@ var anthropic_default = {
   ],
   featured: false,
   branding: {
-    logoUrl: "https://www.google.com/s2/favicons?domain=anthropic.com&sz=128"
+    logoUrl: "/brands/apps/anthropic.svg",
+    darkLogoUrl: "/brands/apps/anthropic-dark.svg"
   },
   urlPatterns: [
     "https://api.anthropic.com/*"
   ],
   methods: [
     {
-      key: "api-key",
-      transport: "rest_api",
-      auth: "api_key",
+      key: "ai-subscription",
+      label: "Claude subscription",
+      purpose: "ai",
+      transport: "runtime_auth",
+      auth: "oauth",
+      ai: {
+        provider: "anthropic",
+        method: "subscription"
+      },
+      grantKinds: [
+        "user",
+        "organization"
+      ],
       ownershipModes: [
         "customer"
       ],
-      whenToUse: "Use credentials from your provider account.",
-      defaults: {
-        serviceHost: "api.anthropic.com"
+      whenToUse: "Authenticate an agent with this account.",
+      guidanceMd: "Use your personal account or an explicitly shared company account.",
+      riskTier: "S3"
+    },
+    {
+      key: "ai-api_key",
+      label: "Claude API key",
+      purpose: "ai",
+      transport: "runtime_auth",
+      auth: "api_key",
+      ai: {
+        provider: "anthropic",
+        method: "api_key"
       },
-      guidanceMd: "Create a key in the Anthropic Console and rotate it if it has been exposed.",
+      grantKinds: [
+        "user",
+        "organization"
+      ],
+      ownershipModes: [
+        "customer"
+      ],
+      whenToUse: "Authenticate an agent with this account.",
+      guidanceMd: "Use your personal account or an explicitly shared company account.",
       riskTier: "S3",
       credentialFields: [
         {
@@ -62209,34 +63231,4441 @@ var anthropic_default = {
           label: "API key",
           type: "password",
           required: true,
-          placeholder: "sk-ant-api03-...",
+          placeholder: "Enter API key",
+          secret: true
+        }
+      ],
+      keyPlacement: {
+        location: "env",
+        name: "ANTHROPIC_API_KEY"
+      }
+    }
+  ]
+};
+
+// ../../shared/src/app-definitions/jira.json
+var jira_default = {
+  schemaVersion: 1,
+  slug: "jira",
+  name: "Jira",
+  description: "Connect Jira's provider-hosted MCP server.",
+  categories: [
+    "productivity"
+  ],
+  featured: true,
+  branding: {
+    logoUrl: "/brands/apps/jira.svg"
+  },
+  urlPatterns: [
+    "https://mcp.atlassian.com/*"
+  ],
+  docsUrl: "https://support.atlassian.com/atlassian-rovo-mcp-server/docs/getting-started-with-the-atlassian-remote-mcp-server/",
+  redirectConstraints: "https-or-loopback-http",
+  methods: [
+    {
+      key: "mcp-oauth",
+      transport: "mcp_remote",
+      auth: "oauth",
+      ownershipModes: [
+        "dcr"
+      ],
+      whenToUse: "Use browser sign-in for the provider-hosted MCP server.",
+      defaults: {
+        serverUrl: "https://mcp.atlassian.com/v1/mcp/authv2",
+        scopesHint: [
+          "read:me",
+          "read:account",
+          "offline_access",
+          "email",
+          "read:jira-work",
+          "write:jira-work",
+          "search:confluence",
+          "read:confluence-user",
+          "read:page:confluence",
+          "write:page:confluence",
+          "read:comment:confluence",
+          "write:comment:confluence",
+          "read:space:confluence",
+          "read:hierarchical-content:confluence",
+          "write:component:compass",
+          "read:component:compass",
+          "read:scorecard:compass",
+          "write:scorecard:compass",
+          "read:event:compass",
+          "read:metric:compass",
+          "read:all:twg",
+          "write:all:twg"
+        ]
+      },
+      guidanceMd: "Connect Jira in the browser. An active Jira or Confluence site; tenant policy may require an administrator to approve the client.",
+      riskTier: "S3",
+      label: "Sign in with Jira",
+      consoleLinks: {
+        docs: "https://support.atlassian.com/atlassian-rovo-mcp-server/docs/getting-started-with-the-atlassian-remote-mcp-server/"
+      },
+      warnings: [
+        "An active Jira or Confluence site; tenant policy may require an administrator to approve the client."
+      ]
+    }
+  ]
+};
+
+// ../../shared/src/app-definitions/airtable.json
+var airtable_default = {
+  schemaVersion: 1,
+  slug: "airtable",
+  name: "Airtable",
+  description: "Connect Airtable's provider-hosted MCP server.",
+  categories: [
+    "data"
+  ],
+  featured: false,
+  branding: {
+    logoUrl: "/brands/apps/airtable.svg"
+  },
+  urlPatterns: [
+    "https://mcp.airtable.com/*"
+  ],
+  docsUrl: "https://support.airtable.com/articles/9897799762-using-the-airtable-mcp-server",
+  redirectConstraints: "https-or-loopback-http",
+  methods: [
+    {
+      key: "mcp-oauth",
+      transport: "mcp_remote",
+      auth: "oauth",
+      ownershipModes: [
+        "dcr"
+      ],
+      whenToUse: "Use browser sign-in for the provider-hosted MCP server.",
+      defaults: {
+        serverUrl: "https://mcp.airtable.com/mcp"
+      },
+      guidanceMd: "Connect Airtable in the browser. An Airtable account; enterprise administrators may need to allowlist the client.",
+      riskTier: "S3",
+      label: "Sign in with Airtable",
+      consoleLinks: {
+        docs: "https://support.airtable.com/articles/9897799762-using-the-airtable-mcp-server"
+      },
+      warnings: [
+        "An Airtable account; enterprise administrators may need to allowlist the client."
+      ]
+    }
+  ]
+};
+
+// ../../shared/src/app-definitions/beehiiv.json
+var beehiiv_default = {
+  schemaVersion: 1,
+  slug: "beehiiv",
+  name: "beehiiv",
+  description: "Connect beehiiv's provider-hosted MCP server.",
+  categories: [
+    "content"
+  ],
+  featured: false,
+  branding: {
+    logoUrl: "/brands/apps/beehiiv.png"
+  },
+  urlPatterns: [
+    "https://mcp.beehiiv.com/*"
+  ],
+  docsUrl: "https://www.beehiiv.com/features/mcp/getting-started",
+  redirectConstraints: "https-or-loopback-http",
+  methods: [
+    {
+      key: "mcp-oauth",
+      transport: "mcp_remote",
+      auth: "oauth",
+      ownershipModes: [
+        "dcr"
+      ],
+      whenToUse: "Use browser sign-in for the provider-hosted MCP server.",
+      defaults: {
+        serverUrl: "https://mcp.beehiiv.com/mcp"
+      },
+      guidanceMd: "Connect beehiiv in the browser. A beehiiv account; the subscription plan controls available write capabilities.",
+      riskTier: "S3",
+      label: "Sign in with beehiiv",
+      consoleLinks: {
+        docs: "https://www.beehiiv.com/features/mcp/getting-started"
+      },
+      warnings: [
+        "A beehiiv account; the subscription plan controls available write capabilities."
+      ]
+    }
+  ]
+};
+
+// ../../shared/src/app-definitions/bitly.json
+var bitly_default = {
+  schemaVersion: 1,
+  slug: "bitly",
+  name: "Bitly",
+  description: "Connect Bitly's provider-hosted MCP server.",
+  categories: [
+    "analytics"
+  ],
+  featured: false,
+  branding: {
+    logoUrl: "/brands/apps/bitly.svg"
+  },
+  urlPatterns: [
+    "https://api-ssl.bitly.com/*"
+  ],
+  docsUrl: "https://dev.bitly.com/bitly-mcp/overview/quickstart/",
+  redirectConstraints: "https-or-loopback-http",
+  methods: [
+    {
+      key: "mcp-oauth",
+      transport: "mcp_remote",
+      auth: "oauth",
+      ownershipModes: [
+        "dcr"
+      ],
+      whenToUse: "Use browser sign-in for the provider-hosted MCP server.",
+      defaults: {
+        serverUrl: "https://api-ssl.bitly.com/v4/mcp"
+      },
+      guidanceMd: "Connect Bitly in the browser. A Bitly account with either browser authorization or an API token.",
+      riskTier: "S2",
+      label: "Sign in with Bitly",
+      consoleLinks: {
+        docs: "https://dev.bitly.com/bitly-mcp/overview/quickstart/"
+      },
+      warnings: [
+        "A Bitly account with either browser authorization or an API token."
+      ]
+    },
+    {
+      key: "mcp-api-key",
+      transport: "mcp_remote",
+      auth: "api_key",
+      ownershipModes: [
+        "customer"
+      ],
+      whenToUse: "Use a restricted customer-owned key when browser sign-in is not suitable.",
+      defaults: {
+        serverUrl: "https://api-ssl.bitly.com/v4/mcp"
+      },
+      guidanceMd: "Use a customer-created Bitly key. A Bitly account with either browser authorization or an API token.",
+      riskTier: "S2",
+      label: "Use an API key",
+      credentialFields: [
+        {
+          key: "authorization",
+          label: "Bitly API key",
+          type: "password",
+          required: true,
+          placeholder: "Paste your Bitly API token",
           secret: true
         }
       ],
       keyPlacement: {
         location: "header",
-        name: "x-api-key"
+        name: "Authorization",
+        prefix: "Bearer "
+      },
+      consoleLinks: {
+        keys: "https://dev.bitly.com/bitly-mcp/overview/quickstart/",
+        docs: "https://dev.bitly.com/bitly-mcp/overview/quickstart/"
+      },
+      warnings: [
+        "A Bitly account with either browser authorization or an API token."
+      ]
+    }
+  ]
+};
+
+// ../../shared/src/app-definitions/candid.json
+var candid_default = {
+  schemaVersion: 1,
+  slug: "candid",
+  name: "Candid",
+  description: "Connect Candid's provider-hosted MCP server.",
+  categories: [
+    "data"
+  ],
+  featured: false,
+  branding: {
+    logoUrl: "/brands/apps/candid.png"
+  },
+  urlPatterns: [
+    "https://mcp.candid.org/*"
+  ],
+  docsUrl: "https://learning.candid.org/getting-started-with-the-candid-mcp-connector/375441",
+  redirectConstraints: "https-or-loopback-http",
+  methods: [
+    {
+      key: "mcp-oauth",
+      transport: "mcp_remote",
+      auth: "oauth",
+      ownershipModes: [
+        "dcr"
+      ],
+      whenToUse: "Use browser sign-in for the provider-hosted MCP server.",
+      defaults: {
+        serverUrl: "https://mcp.candid.org/mcp"
+      },
+      guidanceMd: "Connect Candid in the browser. A Candid account with access to the MCP connector.",
+      riskTier: "S2",
+      label: "Sign in with Candid",
+      consoleLinks: {
+        docs: "https://learning.candid.org/getting-started-with-the-candid-mcp-connector/375441"
+      },
+      warnings: [
+        "A Candid account with access to the MCP connector."
+      ]
+    }
+  ]
+};
+
+// ../../shared/src/app-definitions/cloudflare.json
+var cloudflare_default = {
+  schemaVersion: 1,
+  slug: "cloudflare",
+  name: "Cloudflare",
+  description: "Connect Cloudflare's provider-hosted MCP server.",
+  categories: [
+    "developer"
+  ],
+  featured: false,
+  branding: {
+    logoUrl: "/brands/apps/cloudflare.svg"
+  },
+  urlPatterns: [
+    "https://mcp.cloudflare.com/*"
+  ],
+  docsUrl: "https://developers.cloudflare.com/agents/model-context-protocol/cloudflare/servers-for-cloudflare/",
+  redirectConstraints: "https-or-loopback-http",
+  methods: [
+    {
+      key: "mcp-oauth",
+      transport: "mcp_remote",
+      auth: "oauth",
+      ownershipModes: [
+        "dcr"
+      ],
+      whenToUse: "Use browser sign-in for the provider-hosted MCP server.",
+      defaults: {
+        serverUrl: "https://mcp.cloudflare.com/mcp"
+      },
+      guidanceMd: "Connect Cloudflare in the browser. A Cloudflare account with access to the resources being connected.",
+      riskTier: "S3",
+      label: "Sign in with Cloudflare",
+      consoleLinks: {
+        docs: "https://developers.cloudflare.com/agents/model-context-protocol/cloudflare/servers-for-cloudflare/"
+      },
+      warnings: [
+        "A Cloudflare account with access to the resources being connected."
+      ]
+    },
+    {
+      key: "mcp-api-key",
+      transport: "mcp_remote",
+      auth: "api_key",
+      ownershipModes: [
+        "customer"
+      ],
+      whenToUse: "Use a restricted customer-owned key when browser sign-in is not suitable.",
+      defaults: {
+        serverUrl: "https://mcp.cloudflare.com/mcp"
+      },
+      guidanceMd: "Use a customer-created Cloudflare key. A Cloudflare account with access to the resources being connected.",
+      riskTier: "S3",
+      label: "Use an API key",
+      credentialFields: [
+        {
+          key: "authorization",
+          label: "Cloudflare API key",
+          type: "password",
+          required: true,
+          placeholder: "Paste your Cloudflare API token",
+          secret: true
+        }
+      ],
+      keyPlacement: {
+        location: "header",
+        name: "Authorization",
+        prefix: "Bearer "
+      },
+      consoleLinks: {
+        keys: "https://developers.cloudflare.com/agents/model-context-protocol/cloudflare/servers-for-cloudflare/",
+        docs: "https://developers.cloudflare.com/agents/model-context-protocol/cloudflare/servers-for-cloudflare/"
+      },
+      warnings: [
+        "A Cloudflare account with access to the resources being connected."
+      ]
+    }
+  ]
+};
+
+// ../../shared/src/app-definitions/cloudinary.json
+var cloudinary_default = {
+  schemaVersion: 1,
+  slug: "cloudinary",
+  name: "Cloudinary",
+  description: "Connect Cloudinary's provider-hosted MCP server.",
+  categories: [
+    "content"
+  ],
+  featured: false,
+  branding: {
+    logoUrl: "/brands/apps/cloudinary.svg",
+    darkLogoUrl: "/brands/apps/cloudinary-dark.svg"
+  },
+  urlPatterns: [
+    "https://asset-management.mcp.cloudinary.com/*"
+  ],
+  docsUrl: "https://cloudinary.com/documentation/cloudinary_llm_mcp",
+  redirectConstraints: "https-or-loopback-http",
+  methods: [
+    {
+      key: "mcp-oauth",
+      transport: "mcp_remote",
+      auth: "oauth",
+      ownershipModes: [
+        "dcr"
+      ],
+      whenToUse: "Use browser sign-in for the provider-hosted MCP server.",
+      defaults: {
+        serverUrl: "https://asset-management.mcp.cloudinary.com/mcp"
+      },
+      guidanceMd: "Connect Cloudinary in the browser. A Cloudinary account; authorization is limited by the signed-in user's roles.",
+      riskTier: "S3",
+      label: "Sign in with Cloudinary",
+      consoleLinks: {
+        docs: "https://cloudinary.com/documentation/cloudinary_llm_mcp"
+      },
+      warnings: [
+        "A Cloudinary account; authorization is limited by the signed-in user's roles."
+      ]
+    }
+  ]
+};
+
+// ../../shared/src/app-definitions/coda.json
+var coda_default = {
+  schemaVersion: 1,
+  slug: "coda",
+  name: "Coda",
+  description: "Connect Coda's provider-hosted MCP server.",
+  categories: [
+    "productivity"
+  ],
+  featured: false,
+  branding: {
+    logoUrl: "/brands/apps/coda.svg"
+  },
+  urlPatterns: [
+    "https://coda.io/*"
+  ],
+  docsUrl: "https://help.coda.io/hc/en-us/articles/44722769665549-Security-recommendations-for-the-Coda-MCP",
+  redirectConstraints: "https-or-loopback-http",
+  methods: [
+    {
+      key: "mcp-oauth",
+      transport: "mcp_remote",
+      auth: "oauth",
+      ownershipModes: [
+        "dcr"
+      ],
+      whenToUse: "Use browser sign-in for the provider-hosted MCP server.",
+      defaults: {
+        serverUrl: "https://coda.io/apis/mcp"
+      },
+      guidanceMd: "Connect Coda in the browser. A Coda account; the hosted MCP service is currently beta.",
+      riskTier: "S3",
+      label: "Sign in with Coda",
+      consoleLinks: {
+        docs: "https://help.coda.io/hc/en-us/articles/44722769665549-Security-recommendations-for-the-Coda-MCP"
+      },
+      warnings: [
+        "A Coda account; the hosted MCP service is currently beta.",
+        "This provider's hosted MCP server is currently beta or preview."
+      ]
+    },
+    {
+      key: "mcp-api-key",
+      transport: "mcp_remote",
+      auth: "api_key",
+      ownershipModes: [
+        "customer"
+      ],
+      whenToUse: "Use a restricted customer-owned key when browser sign-in is not suitable.",
+      defaults: {
+        serverUrl: "https://coda.io/apis/mcp"
+      },
+      guidanceMd: "Use a customer-created Coda key. A Coda account; the hosted MCP service is currently beta.",
+      riskTier: "S3",
+      label: "Use an API key",
+      credentialFields: [
+        {
+          key: "authorization",
+          label: "Coda API key",
+          type: "password",
+          required: true,
+          placeholder: "Paste your Coda API token",
+          secret: true
+        }
+      ],
+      keyPlacement: {
+        location: "header",
+        name: "Authorization",
+        prefix: "Bearer "
+      },
+      consoleLinks: {
+        keys: "https://help.coda.io/hc/en-us/articles/44722769665549-Security-recommendations-for-the-Coda-MCP",
+        docs: "https://help.coda.io/hc/en-us/articles/44722769665549-Security-recommendations-for-the-Coda-MCP"
+      },
+      warnings: [
+        "A Coda account; the hosted MCP service is currently beta.",
+        "This provider's hosted MCP server is currently beta or preview."
+      ]
+    }
+  ]
+};
+
+// ../../shared/src/app-definitions/hugging-face.json
+var hugging_face_default = {
+  schemaVersion: 1,
+  slug: "hugging-face",
+  name: "Hugging Face",
+  description: "Connect Hugging Face's provider-hosted MCP server.",
+  categories: [
+    "ai"
+  ],
+  featured: false,
+  branding: {
+    logoUrl: "/brands/apps/hugging-face.svg"
+  },
+  urlPatterns: [
+    "https://huggingface.co/*"
+  ],
+  docsUrl: "https://huggingface.co/docs/hub/agents-mcp",
+  redirectConstraints: "https-or-loopback-http",
+  methods: [
+    {
+      key: "mcp-oauth",
+      transport: "mcp_remote",
+      auth: "oauth",
+      ownershipModes: [
+        "dcr"
+      ],
+      whenToUse: "Use browser sign-in for the provider-hosted MCP server.",
+      defaults: {
+        serverUrl: "https://huggingface.co/mcp?login&gradio=none",
+        scopesHint: [
+          "read-mcp"
+        ]
+      },
+      guidanceMd: "Connect Hugging Face in the browser. A Hugging Face account.",
+      riskTier: "S2",
+      label: "Sign in with Hugging Face",
+      consoleLinks: {
+        docs: "https://huggingface.co/docs/hub/agents-mcp"
+      },
+      warnings: [
+        "A Hugging Face account."
+      ]
+    }
+  ]
+};
+
+// ../../shared/src/app-definitions/kernel.json
+var kernel_default = {
+  schemaVersion: 1,
+  slug: "kernel",
+  name: "Kernel",
+  description: "Connect Kernel's provider-hosted MCP server.",
+  categories: [
+    "developer"
+  ],
+  featured: false,
+  branding: {
+    logoUrl: "/brands/apps/kernel.svg"
+  },
+  urlPatterns: [
+    "https://mcp.onkernel.com/*"
+  ],
+  docsUrl: "https://www.kernel.sh/docs/reference/mcp-server/",
+  redirectConstraints: "https-or-loopback-http",
+  methods: [
+    {
+      key: "mcp-oauth",
+      transport: "mcp_remote",
+      auth: "oauth",
+      ownershipModes: [
+        "dcr"
+      ],
+      whenToUse: "Use browser sign-in for the provider-hosted MCP server.",
+      defaults: {
+        serverUrl: "https://mcp.onkernel.com/mcp"
+      },
+      guidanceMd: "Connect Kernel in the browser. A Kernel account with either browser authorization or an API key.",
+      riskTier: "S3",
+      label: "Sign in with Kernel",
+      consoleLinks: {
+        docs: "https://www.kernel.sh/docs/reference/mcp-server/"
+      },
+      warnings: [
+        "A Kernel account with either browser authorization or an API key."
+      ]
+    },
+    {
+      key: "mcp-api-key",
+      transport: "mcp_remote",
+      auth: "api_key",
+      ownershipModes: [
+        "customer"
+      ],
+      whenToUse: "Use a restricted customer-owned key when browser sign-in is not suitable.",
+      defaults: {
+        serverUrl: "https://mcp.onkernel.com/mcp"
+      },
+      guidanceMd: "Use a customer-created Kernel key. A Kernel account with either browser authorization or an API key.",
+      riskTier: "S3",
+      label: "Use an API key",
+      credentialFields: [
+        {
+          key: "authorization",
+          label: "Kernel API key",
+          type: "password",
+          required: true,
+          placeholder: "Paste your Kernel API key",
+          secret: true
+        }
+      ],
+      keyPlacement: {
+        location: "header",
+        name: "X-API-Key",
+        prefix: null
+      },
+      consoleLinks: {
+        keys: "https://www.kernel.sh/docs/reference/mcp-server/",
+        docs: "https://www.kernel.sh/docs/reference/mcp-server/"
+      },
+      warnings: [
+        "A Kernel account with either browser authorization or an API key."
+      ]
+    }
+  ]
+};
+
+// ../../shared/src/app-definitions/local-falcon.json
+var local_falcon_default = {
+  schemaVersion: 1,
+  slug: "local-falcon",
+  name: "Local Falcon",
+  description: "Connect Local Falcon's provider-hosted MCP server.",
+  categories: [
+    "analytics"
+  ],
+  featured: false,
+  branding: {
+    logoUrl: "/brands/apps/local-falcon.png"
+  },
+  urlPatterns: [
+    "https://mcp.localfalcon.com/*"
+  ],
+  docsUrl: "https://docs.localfalcon.com/",
+  redirectConstraints: "https-or-loopback-http",
+  methods: [
+    {
+      key: "mcp-oauth",
+      transport: "mcp_remote",
+      auth: "oauth",
+      ownershipModes: [
+        "dcr"
+      ],
+      whenToUse: "Use browser sign-in for the provider-hosted MCP server.",
+      defaults: {
+        serverUrl: "https://mcp.localfalcon.com"
+      },
+      guidanceMd: "Connect Local Falcon in the browser. A Local Falcon account with MCP access.",
+      riskTier: "S2",
+      label: "Sign in with Local Falcon",
+      consoleLinks: {
+        docs: "https://docs.localfalcon.com/"
+      },
+      warnings: [
+        "A Local Falcon account with MCP access."
+      ]
+    }
+  ]
+};
+
+// ../../shared/src/app-definitions/make.json
+var make_default = {
+  schemaVersion: 1,
+  slug: "make",
+  name: "Make",
+  description: "Connect Make's provider-hosted MCP server.",
+  categories: [
+    "productivity"
+  ],
+  featured: false,
+  branding: {
+    logoUrl: "/brands/apps/make.svg",
+    darkLogoUrl: "/brands/apps/make-dark.svg"
+  },
+  urlPatterns: [
+    "https://mcp.make.com/*"
+  ],
+  docsUrl: "https://developers.make.com/mcp-server",
+  redirectConstraints: "https-or-loopback-http",
+  methods: [
+    {
+      key: "mcp-oauth",
+      transport: "mcp_remote",
+      auth: "oauth",
+      ownershipModes: [
+        "dcr"
+      ],
+      whenToUse: "Use browser sign-in for the provider-hosted MCP server.",
+      defaults: {
+        serverUrl: "https://mcp.make.com"
+      },
+      guidanceMd: "Connect Make in the browser. A Make account and access to the scenarios exposed to MCP.",
+      riskTier: "S3",
+      label: "Sign in with Make",
+      consoleLinks: {
+        docs: "https://developers.make.com/mcp-server"
+      },
+      warnings: [
+        "A Make account and access to the scenarios exposed to MCP."
+      ]
+    }
+  ]
+};
+
+// ../../shared/src/app-definitions/manufact.json
+var manufact_default = {
+  schemaVersion: 1,
+  slug: "manufact",
+  name: "Manufact",
+  description: "Connect Manufact's provider-hosted MCP server.",
+  categories: [
+    "productivity"
+  ],
+  featured: false,
+  branding: {
+    logoUrl: "/brands/apps/manufact.svg",
+    darkLogoUrl: "/brands/apps/manufact-dark.svg"
+  },
+  urlPatterns: [
+    "https://mcp.manufact.com/*"
+  ],
+  docsUrl: "https://docs.manufact.com/mcp",
+  redirectConstraints: "https-or-loopback-http",
+  methods: [
+    {
+      key: "mcp-oauth",
+      transport: "mcp_remote",
+      auth: "oauth",
+      ownershipModes: [
+        "dcr"
+      ],
+      whenToUse: "Use browser sign-in for the provider-hosted MCP server.",
+      defaults: {
+        serverUrl: "https://mcp.manufact.com/mcp"
+      },
+      guidanceMd: "Connect Manufact in the browser. A Manufact account with MCP access.",
+      riskTier: "S3",
+      label: "Sign in with Manufact",
+      consoleLinks: {
+        docs: "https://docs.manufact.com/mcp"
+      },
+      warnings: [
+        "A Manufact account with MCP access."
+      ]
+    }
+  ]
+};
+
+// ../../shared/src/app-definitions/miro.json
+var miro_default = {
+  schemaVersion: 1,
+  slug: "miro",
+  name: "Miro",
+  description: "Connect Miro's provider-hosted MCP server.",
+  categories: [
+    "productivity"
+  ],
+  featured: false,
+  branding: {
+    logoUrl: "/brands/apps/miro.svg"
+  },
+  urlPatterns: [
+    "https://mcp.miro.com/*"
+  ],
+  docsUrl: "https://help.miro.com/hc/en-us/articles/31625301583890-How-to-enable-Miro-s-MCP-Server-user-guide",
+  redirectConstraints: "https-or-loopback-http",
+  methods: [
+    {
+      key: "mcp-oauth",
+      transport: "mcp_remote",
+      auth: "oauth",
+      ownershipModes: [
+        "dcr"
+      ],
+      whenToUse: "Use browser sign-in for the provider-hosted MCP server.",
+      defaults: {
+        serverUrl: "https://mcp.miro.com/"
+      },
+      guidanceMd: "Connect Miro in the browser. A Miro account; enterprise administrators may restrict third-party MCP clients.",
+      riskTier: "S3",
+      label: "Sign in with Miro",
+      consoleLinks: {
+        docs: "https://help.miro.com/hc/en-us/articles/31625301583890-How-to-enable-Miro-s-MCP-Server-user-guide"
+      },
+      warnings: [
+        "A Miro account; enterprise administrators may restrict third-party MCP clients."
+      ]
+    }
+  ]
+};
+
+// ../../shared/src/app-definitions/netlify.json
+var netlify_default = {
+  schemaVersion: 1,
+  slug: "netlify",
+  name: "Netlify",
+  description: "Connect Netlify's provider-hosted MCP server.",
+  categories: [
+    "developer"
+  ],
+  featured: false,
+  branding: {
+    logoUrl: "/brands/apps/netlify.svg",
+    darkLogoUrl: "/brands/apps/netlify-dark.svg"
+  },
+  urlPatterns: [
+    "https://netlify-mcp.netlify.app/*"
+  ],
+  docsUrl: "https://docs.netlify.com/build/build-with-ai/agent-setup-guides/agent-setup-overview/",
+  redirectConstraints: "https-or-loopback-http",
+  methods: [
+    {
+      key: "mcp-oauth",
+      transport: "mcp_remote",
+      auth: "oauth",
+      ownershipModes: [
+        "dcr"
+      ],
+      whenToUse: "Use browser sign-in for the provider-hosted MCP server.",
+      defaults: {
+        serverUrl: "https://netlify-mcp.netlify.app/mcp"
+      },
+      guidanceMd: "Connect Netlify in the browser. A Netlify account with access to the relevant team and sites.",
+      riskTier: "S3",
+      label: "Sign in with Netlify",
+      consoleLinks: {
+        docs: "https://docs.netlify.com/build/build-with-ai/agent-setup-guides/agent-setup-overview/"
+      },
+      warnings: [
+        "A Netlify account with access to the relevant team and sites."
+      ]
+    }
+  ]
+};
+
+// ../../shared/src/app-definitions/oreilly.json
+var oreilly_default = {
+  schemaVersion: 1,
+  slug: "oreilly",
+  name: "O'Reilly",
+  description: "Connect O'Reilly's provider-hosted MCP server.",
+  categories: [
+    "content"
+  ],
+  featured: false,
+  branding: {
+    logoUrl: "/brands/apps/oreilly.svg"
+  },
+  urlPatterns: [
+    "https://api.oreilly.com/*"
+  ],
+  docsUrl: "https://learning.oreilly.com/apidocs/mcp/content/",
+  redirectConstraints: "https-or-loopback-http",
+  methods: [
+    {
+      key: "mcp-oauth",
+      transport: "mcp_remote",
+      auth: "oauth",
+      ownershipModes: [
+        "dcr"
+      ],
+      whenToUse: "Use browser sign-in for the provider-hosted MCP server.",
+      defaults: {
+        serverUrl: "https://api.oreilly.com/api/content-discovery/v1/mcp/"
+      },
+      guidanceMd: "Connect O'Reilly in the browser. An O'Reilly Learning subscription with MCP or API access.",
+      riskTier: "S2",
+      label: "Sign in with O'Reilly",
+      consoleLinks: {
+        docs: "https://learning.oreilly.com/apidocs/mcp/content/"
+      },
+      warnings: [
+        "An O'Reilly Learning subscription with MCP or API access."
+      ]
+    },
+    {
+      key: "mcp-api-key",
+      transport: "mcp_remote",
+      auth: "api_key",
+      ownershipModes: [
+        "customer"
+      ],
+      whenToUse: "Use a restricted customer-owned key when browser sign-in is not suitable.",
+      defaults: {
+        serverUrl: "https://api.oreilly.com/api/content-discovery/v1/mcp/"
+      },
+      guidanceMd: "Use a customer-created O'Reilly key. An O'Reilly Learning subscription with MCP or API access.",
+      riskTier: "S2",
+      label: "Use an API key",
+      credentialFields: [
+        {
+          key: "authorization",
+          label: "O'Reilly API key",
+          type: "password",
+          required: true,
+          placeholder: "Paste your O'Reilly API token",
+          secret: true
+        }
+      ],
+      keyPlacement: {
+        location: "header",
+        name: "Authorization",
+        prefix: "Bearer "
+      },
+      consoleLinks: {
+        keys: "https://learning.oreilly.com/apidocs/mcp/content/",
+        docs: "https://learning.oreilly.com/apidocs/mcp/content/"
+      },
+      warnings: [
+        "An O'Reilly Learning subscription with MCP or API access."
+      ]
+    }
+  ]
+};
+
+// ../../shared/src/app-definitions/planetscale.json
+var planetscale_default = {
+  schemaVersion: 1,
+  slug: "planetscale",
+  name: "PlanetScale",
+  description: "Connect PlanetScale's provider-hosted MCP server.",
+  categories: [
+    "data"
+  ],
+  featured: false,
+  branding: {
+    logoUrl: "/brands/apps/planetscale.svg",
+    darkLogoUrl: "/brands/apps/planetscale-dark.svg"
+  },
+  urlPatterns: [
+    "https://mcp.pscale.dev/*"
+  ],
+  docsUrl: "https://planetscale.com/docs/connect/mcp",
+  redirectConstraints: "https-or-loopback-http",
+  methods: [
+    {
+      key: "mcp-oauth",
+      transport: "mcp_remote",
+      auth: "oauth",
+      ownershipModes: [
+        "dcr"
+      ],
+      whenToUse: "Use browser sign-in for the provider-hosted MCP server.",
+      defaults: {
+        serverUrl: "https://mcp.pscale.dev/mcp/planetscale"
+      },
+      guidanceMd: "Connect PlanetScale in the browser. A PlanetScale account; database and branch access are chosen during authorization.",
+      riskTier: "S4",
+      label: "Database access",
+      consoleLinks: {
+        docs: "https://planetscale.com/docs/connect/mcp"
+      },
+      warnings: [
+        "A PlanetScale account; database and branch access are chosen during authorization."
+      ],
+      tenantFields: [
+        {
+          key: "project",
+          label: "Project or database",
+          type: "text",
+          advanced: true,
+          placeholder: "Optional project or database name",
+          helperMd: "Records the intended database boundary; final access is selected during PlanetScale authorization."
+        },
+        {
+          key: "branch",
+          label: "Branch",
+          type: "text",
+          advanced: true,
+          placeholder: "Optional branch name",
+          helperMd: "Records the intended branch boundary; final access is selected during PlanetScale authorization."
+        }
+      ],
+      requiredResourceFilters: [
+        "organization",
+        "database",
+        "branch"
+      ]
+    },
+    {
+      key: "mcp-insights-only",
+      transport: "mcp_remote",
+      auth: "oauth",
+      ownershipModes: [
+        "dcr"
+      ],
+      whenToUse: "Use query insights and schema recommendations without query execution tools.",
+      defaults: {
+        serverUrl: "https://mcp.pscale.dev/mcp/planetscale-insights-only"
+      },
+      guidanceMd: "Connect PlanetScale in the browser. A PlanetScale account; database and branch access are chosen during authorization.",
+      riskTier: "S4",
+      label: "Insights only",
+      consoleLinks: {
+        docs: "https://planetscale.com/docs/connect/mcp"
+      },
+      warnings: [
+        "A PlanetScale account; database and branch access are chosen during authorization."
+      ],
+      requiredResourceFilters: [
+        "organization",
+        "database",
+        "branch"
+      ]
+    }
+  ]
+};
+
+// ../../shared/src/app-definitions/resend.json
+var resend_default = {
+  schemaVersion: 1,
+  slug: "resend",
+  name: "Resend",
+  description: "Connect Resend's provider-hosted MCP server.",
+  categories: [
+    "communication"
+  ],
+  featured: false,
+  branding: {
+    logoUrl: "/brands/apps/resend.svg",
+    darkLogoUrl: "/brands/apps/resend-dark.svg"
+  },
+  urlPatterns: [
+    "https://mcp.resend.com/*"
+  ],
+  docsUrl: "https://resend.com/changelog/remote-mcp-server",
+  redirectConstraints: "https-or-loopback-http",
+  methods: [
+    {
+      key: "mcp-oauth",
+      transport: "mcp_remote",
+      auth: "oauth",
+      ownershipModes: [
+        "dcr"
+      ],
+      whenToUse: "Use browser sign-in for the provider-hosted MCP server.",
+      defaults: {
+        serverUrl: "https://mcp.resend.com/mcp"
+      },
+      guidanceMd: "Connect Resend in the browser. A Resend account with access to the relevant domains.",
+      riskTier: "S3",
+      label: "Sign in with Resend",
+      consoleLinks: {
+        docs: "https://resend.com/changelog/remote-mcp-server"
+      },
+      warnings: [
+        "A Resend account with access to the relevant domains."
+      ]
+    }
+  ]
+};
+
+// ../../shared/src/app-definitions/ticktick.json
+var ticktick_default = {
+  schemaVersion: 1,
+  slug: "ticktick",
+  name: "TickTick",
+  description: "Connect TickTick's provider-hosted MCP server.",
+  categories: [
+    "productivity"
+  ],
+  featured: false,
+  branding: {
+    logoUrl: "/brands/apps/ticktick.svg"
+  },
+  urlPatterns: [
+    "https://mcp.ticktick.com/*"
+  ],
+  docsUrl: "https://help.ticktick.com/articles/7438129581631995904",
+  redirectConstraints: "https-or-loopback-http",
+  methods: [
+    {
+      key: "mcp-oauth",
+      transport: "mcp_remote",
+      auth: "oauth",
+      ownershipModes: [
+        "dcr"
+      ],
+      whenToUse: "Use browser sign-in for the provider-hosted MCP server.",
+      defaults: {
+        serverUrl: "https://mcp.ticktick.com"
+      },
+      guidanceMd: "Connect TickTick in the browser. A TickTick account with MCP access.",
+      riskTier: "S3",
+      label: "Sign in with TickTick",
+      consoleLinks: {
+        docs: "https://help.ticktick.com/articles/7438129581631995904"
+      },
+      warnings: [
+        "A TickTick account with MCP access."
+      ]
+    }
+  ]
+};
+
+// ../../shared/src/app-definitions/todoist.json
+var todoist_default = {
+  schemaVersion: 1,
+  slug: "todoist",
+  name: "Todoist",
+  description: "Connect Todoist's provider-hosted MCP server.",
+  categories: [
+    "productivity"
+  ],
+  featured: false,
+  branding: {
+    logoUrl: "/brands/apps/todoist.svg"
+  },
+  urlPatterns: [
+    "https://ai.todoist.net/*"
+  ],
+  docsUrl: "https://developer.todoist.com/",
+  redirectConstraints: "https-or-loopback-http",
+  methods: [
+    {
+      key: "mcp-oauth",
+      transport: "mcp_remote",
+      auth: "oauth",
+      ownershipModes: [
+        "dcr"
+      ],
+      whenToUse: "Use browser sign-in for the provider-hosted MCP server.",
+      defaults: {
+        serverUrl: "https://ai.todoist.net/mcp"
+      },
+      guidanceMd: "Connect Todoist in the browser. A Todoist account.",
+      riskTier: "S3",
+      label: "Sign in with Todoist",
+      consoleLinks: {
+        docs: "https://developer.todoist.com/"
+      },
+      warnings: [
+        "A Todoist account."
+      ]
+    }
+  ]
+};
+
+// ../../shared/src/app-definitions/webflow.json
+var webflow_default = {
+  schemaVersion: 1,
+  slug: "webflow",
+  name: "Webflow",
+  description: "Connect Webflow's provider-hosted MCP server.",
+  categories: [
+    "content"
+  ],
+  featured: false,
+  branding: {
+    logoUrl: "/brands/apps/webflow.svg"
+  },
+  urlPatterns: [
+    "https://mcp.webflow.com/*"
+  ],
+  docsUrl: "https://developers.webflow.com/mcp/reference/getting-started",
+  redirectConstraints: "https-or-loopback-http",
+  methods: [
+    {
+      key: "mcp-oauth",
+      transport: "mcp_remote",
+      auth: "oauth",
+      ownershipModes: [
+        "dcr"
+      ],
+      whenToUse: "Use browser sign-in for the provider-hosted MCP server.",
+      defaults: {
+        serverUrl: "https://mcp.webflow.com/mcp"
+      },
+      guidanceMd: "Connect Webflow in the browser. A Webflow account; workspace and site roles constrain accessible sites.",
+      riskTier: "S3",
+      label: "Sign in with Webflow",
+      consoleLinks: {
+        docs: "https://developers.webflow.com/mcp/reference/getting-started"
+      },
+      warnings: [
+        "A Webflow account; workspace and site roles constrain accessible sites."
+      ]
+    }
+  ]
+};
+
+// ../../shared/src/app-definitions/wix.json
+var wix_default = {
+  schemaVersion: 1,
+  slug: "wix",
+  name: "Wix",
+  description: "Connect Wix's provider-hosted MCP server.",
+  categories: [
+    "content"
+  ],
+  featured: false,
+  branding: {
+    logoUrl: "/brands/apps/wix.svg",
+    darkLogoUrl: "/brands/apps/wix-dark.svg"
+  },
+  urlPatterns: [
+    "https://mcp.wix.com/*"
+  ],
+  docsUrl: "https://www.wix.com/studio/developers/mcp-server",
+  redirectConstraints: "https-or-loopback-http",
+  methods: [
+    {
+      key: "mcp-oauth",
+      transport: "mcp_remote",
+      auth: "oauth",
+      ownershipModes: [
+        "dcr"
+      ],
+      whenToUse: "Use browser sign-in for the provider-hosted MCP server.",
+      defaults: {
+        serverUrl: "https://mcp.wix.com/mcp"
+      },
+      guidanceMd: "Connect Wix in the browser. A Wix account with access to the relevant sites.",
+      riskTier: "S3",
+      label: "Sign in with Wix",
+      consoleLinks: {
+        docs: "https://www.wix.com/studio/developers/mcp-server"
+      },
+      warnings: [
+        "A Wix account with access to the relevant sites."
+      ]
+    }
+  ]
+};
+
+// ../../shared/src/app-definitions/brex.json
+var brex_default = {
+  schemaVersion: 1,
+  slug: "brex",
+  name: "Brex",
+  description: "Connect Brex's provider-hosted MCP server.",
+  categories: [
+    "commerce"
+  ],
+  featured: false,
+  branding: {
+    logoUrl: "/brands/apps/brex.svg",
+    darkLogoUrl: "/brands/apps/brex-dark.svg"
+  },
+  urlPatterns: [
+    "https://api.brex.com/*"
+  ],
+  docsUrl: "https://www.brex.com/support/using-brex-in-ai-apps",
+  redirectConstraints: "https-or-loopback-http",
+  methods: [
+    {
+      key: "mcp-oauth",
+      transport: "mcp_remote",
+      auth: "oauth",
+      ownershipModes: [
+        "dcr"
+      ],
+      whenToUse: "Use browser sign-in for the provider-hosted MCP server.",
+      defaults: {
+        serverUrl: "https://api.brex.com/mcp"
+      },
+      guidanceMd: "Connect Brex in the browser. Brex early access and an administrator enabling the integration; financial actions require explicit approval.",
+      riskTier: "S4",
+      label: "Sign in with Brex",
+      consoleLinks: {
+        docs: "https://www.brex.com/support/using-brex-in-ai-apps"
+      },
+      warnings: [
+        "Brex early access and an administrator enabling the integration; financial actions require explicit approval.",
+        "Financial or destructive actions must be explicitly approved before execution."
+      ]
+    }
+  ]
+};
+
+// ../../shared/src/app-definitions/clickhouse.json
+var clickhouse_default = {
+  schemaVersion: 1,
+  slug: "clickhouse",
+  name: "ClickHouse",
+  description: "Connect ClickHouse's provider-hosted MCP server.",
+  categories: [
+    "data"
+  ],
+  featured: false,
+  branding: {
+    logoUrl: "/brands/apps/clickhouse.svg",
+    darkLogoUrl: "/brands/apps/clickhouse-dark.svg"
+  },
+  urlPatterns: [
+    "https://mcp.clickhouse.cloud/*"
+  ],
+  docsUrl: "https://clickhouse.com/blog/announcing-managed-clickstack-mcp-server",
+  redirectConstraints: "https-or-loopback-http",
+  methods: [
+    {
+      key: "mcp-oauth",
+      transport: "mcp_remote",
+      auth: "oauth",
+      ownershipModes: [
+        "dcr"
+      ],
+      whenToUse: "Use browser sign-in for the provider-hosted MCP server.",
+      defaults: {
+        serverUrl: "https://mcp.clickhouse.cloud/clickstack"
+      },
+      guidanceMd: "Connect ClickHouse in the browser. A ClickHouse Cloud ClickStack service and its service ID.",
+      riskTier: "S4",
+      label: "Sign in with ClickHouse",
+      consoleLinks: {
+        docs: "https://clickhouse.com/blog/announcing-managed-clickstack-mcp-server"
+      },
+      warnings: [
+        "A ClickHouse Cloud ClickStack service and its service ID."
+      ],
+      tenantFields: [
+        {
+          key: "serviceId",
+          label: "ClickHouse Cloud service ID",
+          type: "text",
+          required: true,
+          placeholder: "11e1031f-9a13-4cac-9bc7-d4ec9286ec17",
+          helperMd: "Copy the service ID from ClickStack \u2192 Team Settings \u2192 API & Agents.",
+          transport: {
+            location: "header",
+            name: "x-service-id"
+          }
+        }
+      ],
+      requiredResourceFilters: [
+        "service"
+      ]
+    }
+  ]
+};
+
+// ../../shared/src/app-definitions/egnyte.json
+var egnyte_default = {
+  schemaVersion: 1,
+  slug: "egnyte",
+  name: "Egnyte",
+  description: "Connect Egnyte's provider-hosted MCP server.",
+  categories: [
+    "content"
+  ],
+  featured: false,
+  branding: {
+    logoUrl: "/brands/apps/egnyte.svg"
+  },
+  urlPatterns: [
+    "https://mcp-server.egnyte.com/*"
+  ],
+  docsUrl: "https://developers.egnyte.com/docs/Remote_MCP_Server",
+  redirectConstraints: "https-or-loopback-http",
+  methods: [
+    {
+      key: "mcp-oauth",
+      transport: "mcp_remote",
+      auth: "oauth",
+      ownershipModes: [
+        "dcr"
+      ],
+      whenToUse: "Use browser sign-in for the provider-hosted MCP server.",
+      defaults: {
+        serverUrl: "https://mcp-server.egnyte.com/mcp"
+      },
+      guidanceMd: "Connect Egnyte in the browser. An eligible Egnyte plan and administrator approval for external LLM access.",
+      riskTier: "S3",
+      label: "Sign in with Egnyte",
+      consoleLinks: {
+        docs: "https://developers.egnyte.com/docs/Remote_MCP_Server"
+      },
+      warnings: [
+        "An eligible Egnyte plan and administrator approval for external LLM access."
+      ]
+    }
+  ]
+};
+
+// ../../shared/src/app-definitions/embat.json
+var embat_default = {
+  schemaVersion: 1,
+  slug: "embat",
+  name: "Embat",
+  description: "Connect Embat's provider-hosted MCP server.",
+  categories: [
+    "commerce"
+  ],
+  featured: false,
+  branding: {
+    logoUrl: "/brands/apps/embat.svg"
+  },
+  urlPatterns: [
+    "https://tellme.embat.io/*"
+  ],
+  docsUrl: "https://tellme.embat.io/.well-known/oauth-protected-resource/mcp",
+  redirectConstraints: "https-or-loopback-http",
+  methods: [
+    {
+      key: "mcp-oauth",
+      transport: "mcp_remote",
+      auth: "oauth",
+      ownershipModes: [
+        "dcr"
+      ],
+      whenToUse: "Use browser sign-in for the provider-hosted MCP server.",
+      defaults: {
+        serverUrl: "https://tellme.embat.io/mcp"
+      },
+      guidanceMd: "Connect Embat in the browser. An Embat account; pilot the connection because provider setup documentation is sparse.",
+      riskTier: "S4",
+      label: "Sign in with Embat",
+      consoleLinks: {
+        docs: "https://tellme.embat.io/.well-known/oauth-protected-resource/mcp"
+      },
+      warnings: [
+        "An Embat account; pilot the connection because provider setup documentation is sparse."
+      ]
+    }
+  ]
+};
+
+// ../../shared/src/app-definitions/mixpanel.json
+var mixpanel_default = {
+  schemaVersion: 1,
+  slug: "mixpanel",
+  name: "Mixpanel",
+  description: "Connect Mixpanel's provider-hosted MCP server.",
+  categories: [
+    "analytics"
+  ],
+  featured: false,
+  branding: {
+    logoUrl: "/brands/apps/mixpanel.svg",
+    darkLogoUrl: "/brands/apps/mixpanel-dark.svg"
+  },
+  urlPatterns: [
+    "https://mcp.mixpanel.com/*"
+  ],
+  docsUrl: "https://mixpanel.com/blog/mixpanel-mcp-server/",
+  redirectConstraints: "https-or-loopback-http",
+  methods: [
+    {
+      key: "mcp-oauth",
+      transport: "mcp_remote",
+      auth: "oauth",
+      ownershipModes: [
+        "dcr"
+      ],
+      whenToUse: "Use browser sign-in for the provider-hosted MCP server.",
+      defaults: {
+        serverUrl: "https://mcp.mixpanel.com/mcp"
+      },
+      guidanceMd: "Connect Mixpanel in the browser. A Mixpanel account; the hosted MCP server is currently beta.",
+      riskTier: "S3",
+      label: "Sign in with Mixpanel",
+      consoleLinks: {
+        docs: "https://mixpanel.com/blog/mixpanel-mcp-server/"
+      },
+      warnings: [
+        "A Mixpanel account; the hosted MCP server is currently beta.",
+        "This provider's hosted MCP server is currently beta or preview."
+      ]
+    }
+  ]
+};
+
+// ../../shared/src/app-definitions/postman.json
+var postman_default = {
+  schemaVersion: 1,
+  slug: "postman",
+  name: "Postman",
+  description: "Connect Postman's provider-hosted MCP server.",
+  categories: [
+    "developer"
+  ],
+  featured: false,
+  branding: {
+    logoUrl: "/brands/apps/postman.svg"
+  },
+  urlPatterns: [
+    "https://mcp.postman.com/*"
+  ],
+  docsUrl: "https://learning.postman.com/latest-v-12/docs/reference/postman-api/postman-mcp-server/postman-mcp-remote-server",
+  redirectConstraints: "https-or-loopback-http",
+  methods: [
+    {
+      key: "mcp-oauth-minimal",
+      transport: "mcp_remote",
+      auth: "oauth",
+      ownershipModes: [
+        "dcr"
+      ],
+      whenToUse: "Use browser sign-in for the provider-hosted MCP server.",
+      defaults: {
+        serverUrl: "https://mcp.postman.com/minimal"
+      },
+      guidanceMd: "Connect Postman in the browser. A Postman account; OAuth is available for US endpoints and API keys are required for EU endpoints.",
+      riskTier: "S3",
+      label: "US \xB7 Browser sign-in",
+      consoleLinks: {
+        docs: "https://learning.postman.com/latest-v-12/docs/reference/postman-api/postman-mcp-server/postman-mcp-remote-server"
+      },
+      warnings: [
+        "A Postman account; OAuth is available for US endpoints and API keys are required for EU endpoints."
+      ],
+      capabilityProfile: {
+        key: "minimal",
+        label: "Minimal",
+        description: "Essential workspace, collection, and environment tools with the smallest tool catalog."
+      }
+    },
+    {
+      key: "mcp-oauth-code",
+      transport: "mcp_remote",
+      auth: "oauth",
+      ownershipModes: [
+        "dcr"
+      ],
+      whenToUse: "Use browser sign-in for the provider-hosted MCP server.",
+      defaults: {
+        serverUrl: "https://mcp.postman.com/code"
+      },
+      guidanceMd: "Connect Postman in the browser. A Postman account; OAuth is available for US endpoints and API keys are required for EU endpoints.",
+      riskTier: "S3",
+      label: "US \xB7 Browser sign-in",
+      consoleLinks: {
+        docs: "https://learning.postman.com/latest-v-12/docs/reference/postman-api/postman-mcp-server/postman-mcp-remote-server"
+      },
+      warnings: [
+        "A Postman account; OAuth is available for US endpoints and API keys are required for EU endpoints."
+      ],
+      capabilityProfile: {
+        key: "code",
+        label: "Code",
+        description: "Tools for generating client code from API definitions."
+      }
+    },
+    {
+      key: "mcp-oauth-full",
+      transport: "mcp_remote",
+      auth: "oauth",
+      ownershipModes: [
+        "dcr"
+      ],
+      whenToUse: "Use browser sign-in for the provider-hosted MCP server.",
+      defaults: {
+        serverUrl: "https://mcp.postman.com/mcp"
+      },
+      guidanceMd: "Connect Postman in the browser. A Postman account; OAuth is available for US endpoints and API keys are required for EU endpoints.",
+      riskTier: "S3",
+      label: "US \xB7 Browser sign-in",
+      consoleLinks: {
+        docs: "https://learning.postman.com/latest-v-12/docs/reference/postman-api/postman-mcp-server/postman-mcp-remote-server"
+      },
+      warnings: [
+        "A Postman account; OAuth is available for US endpoints and API keys are required for EU endpoints."
+      ],
+      capabilityProfile: {
+        key: "write",
+        label: "Full",
+        description: "All Postman API tools, including write-capable collaboration and advanced features."
+      }
+    },
+    {
+      key: "mcp-eu-key-minimal",
+      transport: "mcp_remote",
+      auth: "api_key",
+      ownershipModes: [
+        "customer"
+      ],
+      whenToUse: "Use a restricted customer-owned key when browser sign-in is not suitable.",
+      defaults: {
+        serverUrl: "https://mcp.eu.postman.com/minimal"
+      },
+      guidanceMd: "Use a customer-created Postman key. A Postman account; OAuth is available for US endpoints and API keys are required for EU endpoints.",
+      riskTier: "S3",
+      label: "EU \xB7 API key",
+      credentialFields: [
+        {
+          key: "authorization",
+          label: "Postman API key",
+          type: "password",
+          required: true,
+          placeholder: "PMAK-...",
+          secret: true
+        }
+      ],
+      keyPlacement: {
+        location: "header",
+        name: "Authorization",
+        prefix: "Bearer "
+      },
+      consoleLinks: {
+        keys: "https://learning.postman.com/latest-v-12/docs/reference/postman-api/postman-mcp-server/postman-mcp-remote-server",
+        docs: "https://learning.postman.com/latest-v-12/docs/reference/postman-api/postman-mcp-server/postman-mcp-remote-server"
+      },
+      warnings: [
+        "A Postman account; OAuth is available for US endpoints and API keys are required for EU endpoints."
+      ],
+      capabilityProfile: {
+        key: "minimal",
+        label: "Minimal",
+        description: "Essential workspace, collection, and environment tools with the smallest tool catalog."
+      }
+    },
+    {
+      key: "mcp-eu-key-code",
+      transport: "mcp_remote",
+      auth: "api_key",
+      ownershipModes: [
+        "customer"
+      ],
+      whenToUse: "Use a restricted customer-owned key when browser sign-in is not suitable.",
+      defaults: {
+        serverUrl: "https://mcp.eu.postman.com/code"
+      },
+      guidanceMd: "Use a customer-created Postman key. A Postman account; OAuth is available for US endpoints and API keys are required for EU endpoints.",
+      riskTier: "S3",
+      label: "EU \xB7 API key",
+      credentialFields: [
+        {
+          key: "authorization",
+          label: "Postman API key",
+          type: "password",
+          required: true,
+          placeholder: "PMAK-...",
+          secret: true
+        }
+      ],
+      keyPlacement: {
+        location: "header",
+        name: "Authorization",
+        prefix: "Bearer "
+      },
+      consoleLinks: {
+        keys: "https://learning.postman.com/latest-v-12/docs/reference/postman-api/postman-mcp-server/postman-mcp-remote-server",
+        docs: "https://learning.postman.com/latest-v-12/docs/reference/postman-api/postman-mcp-server/postman-mcp-remote-server"
+      },
+      warnings: [
+        "A Postman account; OAuth is available for US endpoints and API keys are required for EU endpoints."
+      ],
+      capabilityProfile: {
+        key: "code",
+        label: "Code",
+        description: "Tools for generating client code from API definitions."
+      }
+    },
+    {
+      key: "mcp-eu-key-full",
+      transport: "mcp_remote",
+      auth: "api_key",
+      ownershipModes: [
+        "customer"
+      ],
+      whenToUse: "Use a restricted customer-owned key when browser sign-in is not suitable.",
+      defaults: {
+        serverUrl: "https://mcp.eu.postman.com/mcp"
+      },
+      guidanceMd: "Use a customer-created Postman key. A Postman account; OAuth is available for US endpoints and API keys are required for EU endpoints.",
+      riskTier: "S3",
+      label: "EU \xB7 API key",
+      credentialFields: [
+        {
+          key: "authorization",
+          label: "Postman API key",
+          type: "password",
+          required: true,
+          placeholder: "PMAK-...",
+          secret: true
+        }
+      ],
+      keyPlacement: {
+        location: "header",
+        name: "Authorization",
+        prefix: "Bearer "
+      },
+      consoleLinks: {
+        keys: "https://learning.postman.com/latest-v-12/docs/reference/postman-api/postman-mcp-server/postman-mcp-remote-server",
+        docs: "https://learning.postman.com/latest-v-12/docs/reference/postman-api/postman-mcp-server/postman-mcp-remote-server"
+      },
+      warnings: [
+        "A Postman account; OAuth is available for US endpoints and API keys are required for EU endpoints."
+      ],
+      capabilityProfile: {
+        key: "write",
+        label: "Full",
+        description: "All Postman API tools, including write-capable collaboration and advanced features."
+      }
+    }
+  ]
+};
+
+// ../../shared/src/app-definitions/razorpay.json
+var razorpay_default = {
+  schemaVersion: 1,
+  slug: "razorpay",
+  name: "Razorpay",
+  description: "Connect Razorpay's provider-hosted MCP server.",
+  categories: [
+    "commerce"
+  ],
+  featured: false,
+  branding: {
+    logoUrl: "/brands/apps/razorpay.svg",
+    darkLogoUrl: "/brands/apps/razorpay-dark.svg"
+  },
+  urlPatterns: [
+    "https://mcp.razorpay.com/*"
+  ],
+  docsUrl: "https://razorpay.com/docs/mcp-server/oauth/",
+  redirectConstraints: "https-or-loopback-http",
+  methods: [
+    {
+      key: "mcp-oauth",
+      transport: "mcp_remote",
+      auth: "oauth",
+      ownershipModes: [
+        "dcr"
+      ],
+      whenToUse: "Use browser sign-in for the provider-hosted MCP server.",
+      defaults: {
+        serverUrl: "https://mcp.razorpay.com/mcp"
+      },
+      guidanceMd: "Connect Razorpay in the browser. A Razorpay account; financial or destructive actions always require explicit approval.",
+      riskTier: "S4",
+      label: "Sign in with Razorpay",
+      consoleLinks: {
+        docs: "https://razorpay.com/docs/mcp-server/oauth/"
+      },
+      warnings: [
+        "A Razorpay account; financial or destructive actions always require explicit approval.",
+        "Financial or destructive actions must be explicitly approved before execution."
+      ]
+    },
+    {
+      key: "mcp-api-key",
+      transport: "mcp_remote",
+      auth: "api_key",
+      ownershipModes: [
+        "customer"
+      ],
+      whenToUse: "Use a restricted customer-owned key when browser sign-in is not suitable.",
+      defaults: {
+        serverUrl: "https://mcp.razorpay.com/mcp"
+      },
+      guidanceMd: "Use a customer-created Razorpay key. A Razorpay account; financial or destructive actions always require explicit approval.",
+      riskTier: "S4",
+      label: "Use an API key",
+      credentialFields: [
+        {
+          key: "authorization",
+          label: "Razorpay API key",
+          type: "password",
+          required: true,
+          placeholder: "Paste the base64-encoded key ID and secret",
+          secret: true
+        }
+      ],
+      keyPlacement: {
+        location: "header",
+        name: "Authorization",
+        prefix: "Basic "
+      },
+      consoleLinks: {
+        keys: "https://razorpay.com/docs/mcp-server/oauth/",
+        docs: "https://razorpay.com/docs/mcp-server/oauth/"
+      },
+      warnings: [
+        "A Razorpay account; financial or destructive actions always require explicit approval.",
+        "Financial or destructive actions must be explicitly approved before execution."
+      ]
+    }
+  ]
+};
+
+// ../../shared/src/app-definitions/sanity.json
+var sanity_default = {
+  schemaVersion: 1,
+  slug: "sanity",
+  name: "Sanity",
+  description: "Connect Sanity's provider-hosted MCP server.",
+  categories: [
+    "content"
+  ],
+  featured: false,
+  branding: {
+    logoUrl: "/brands/apps/sanity.svg",
+    darkLogoUrl: "/brands/apps/sanity-dark.svg"
+  },
+  urlPatterns: [
+    "https://mcp.sanity.io/*"
+  ],
+  docsUrl: "https://www.sanity.io/docs/ai/mcp-server",
+  redirectConstraints: "https-or-loopback-http",
+  methods: [
+    {
+      key: "mcp-oauth",
+      transport: "mcp_remote",
+      auth: "oauth",
+      ownershipModes: [
+        "dcr"
+      ],
+      whenToUse: "Use browser sign-in for the provider-hosted MCP server.",
+      defaults: {
+        serverUrl: "https://mcp.sanity.io"
+      },
+      guidanceMd: "Connect Sanity in the browser. A Sanity account with access to the relevant projects and datasets.",
+      riskTier: "S3",
+      label: "Sign in with Sanity",
+      consoleLinks: {
+        docs: "https://www.sanity.io/docs/ai/mcp-server"
+      },
+      warnings: [
+        "A Sanity account with access to the relevant projects and datasets."
+      ]
+    },
+    {
+      key: "mcp-api-key",
+      transport: "mcp_remote",
+      auth: "api_key",
+      ownershipModes: [
+        "customer"
+      ],
+      whenToUse: "Use a restricted customer-owned key when browser sign-in is not suitable.",
+      defaults: {
+        serverUrl: "https://mcp.sanity.io"
+      },
+      guidanceMd: "Use a customer-created Sanity key. A Sanity account with access to the relevant projects and datasets.",
+      riskTier: "S3",
+      label: "Use an API key",
+      credentialFields: [
+        {
+          key: "authorization",
+          label: "Sanity API key",
+          type: "password",
+          required: true,
+          placeholder: "sk...",
+          secret: true
+        }
+      ],
+      keyPlacement: {
+        location: "header",
+        name: "Authorization",
+        prefix: "Bearer "
+      },
+      consoleLinks: {
+        keys: "https://www.sanity.io/docs/ai/mcp-server",
+        docs: "https://www.sanity.io/docs/ai/mcp-server"
+      },
+      warnings: [
+        "A Sanity account with access to the relevant projects and datasets."
+      ]
+    }
+  ]
+};
+
+// ../../shared/src/app-definitions/stripe.json
+var stripe_default = {
+  schemaVersion: 1,
+  slug: "stripe",
+  name: "Stripe",
+  description: "Connect Stripe's provider-hosted MCP server.",
+  categories: [
+    "commerce"
+  ],
+  featured: false,
+  branding: {
+    logoUrl: "/brands/apps/stripe.svg"
+  },
+  urlPatterns: [
+    "https://mcp.stripe.com/*"
+  ],
+  docsUrl: "https://docs.stripe.com/mcp",
+  redirectConstraints: "https-or-loopback-http",
+  methods: [
+    {
+      key: "mcp-oauth",
+      transport: "mcp_remote",
+      auth: "oauth",
+      ownershipModes: [
+        "dcr"
+      ],
+      whenToUse: "Use browser sign-in for the provider-hosted MCP server.",
+      defaults: {
+        serverUrl: "https://mcp.stripe.com"
+      },
+      guidanceMd: "Connect Stripe in the browser. A Stripe account; the server is public preview and payment actions require explicit approval.",
+      riskTier: "S4",
+      label: "Sign in with Stripe",
+      consoleLinks: {
+        docs: "https://docs.stripe.com/mcp"
+      },
+      warnings: [
+        "A Stripe account; the server is public preview and payment actions require explicit approval.",
+        "Financial or destructive actions must be explicitly approved before execution."
+      ]
+    },
+    {
+      key: "mcp-api-key",
+      transport: "mcp_remote",
+      auth: "api_key",
+      ownershipModes: [
+        "customer"
+      ],
+      whenToUse: "Use a restricted customer-owned key when browser sign-in is not suitable.",
+      defaults: {
+        serverUrl: "https://mcp.stripe.com"
+      },
+      guidanceMd: "Use a customer-created Stripe key. A Stripe account; the server is public preview and payment actions require explicit approval.",
+      riskTier: "S4",
+      label: "Use an API key",
+      credentialFields: [
+        {
+          key: "authorization",
+          label: "Stripe API key",
+          type: "password",
+          required: true,
+          placeholder: "sk_...",
+          secret: true
+        }
+      ],
+      keyPlacement: {
+        location: "header",
+        name: "Authorization",
+        prefix: "Bearer "
+      },
+      consoleLinks: {
+        keys: "https://docs.stripe.com/mcp",
+        docs: "https://docs.stripe.com/mcp"
+      },
+      warnings: [
+        "A Stripe account; the server is public preview and payment actions require explicit approval.",
+        "Financial or destructive actions must be explicitly approved before execution."
+      ]
+    }
+  ]
+};
+
+// ../../shared/src/app-definitions/supabase.json
+var supabase_default = {
+  schemaVersion: 1,
+  slug: "supabase",
+  name: "Supabase",
+  description: "Connect Supabase's provider-hosted MCP server.",
+  categories: [
+    "data"
+  ],
+  featured: false,
+  branding: {
+    logoUrl: "/brands/apps/supabase.svg"
+  },
+  urlPatterns: [
+    "https://mcp.supabase.com/*"
+  ],
+  docsUrl: "https://supabase.com/docs/guides/ai-tools/mcp",
+  redirectConstraints: "https-or-loopback-http",
+  methods: [
+    {
+      key: "mcp-oauth",
+      transport: "mcp_remote",
+      auth: "oauth",
+      ownershipModes: [
+        "dcr"
+      ],
+      whenToUse: "Use browser sign-in for the provider-hosted MCP server.",
+      defaults: {
+        serverUrl: "https://mcp.supabase.com/mcp"
+      },
+      guidanceMd: "Connect Supabase in the browser and scope the connection to one development project. Write tools start enabled and remain governed by Paperclip's action policies.",
+      riskTier: "S4",
+      label: "Sign in with Supabase",
+      consoleLinks: {
+        docs: "https://supabase.com/docs/guides/ai-tools/mcp"
+      },
+      warnings: [
+        "A Supabase account; use a development project and review write actions before connecting production data.",
+        "Do not connect production data unless you have reviewed Supabase's MCP security guidance."
+      ],
+      tenantFields: [
+        {
+          key: "projectRef",
+          label: "Project reference",
+          type: "text",
+          required: true,
+          placeholder: "abcdefghijklmnopqrst",
+          helperMd: "Scope the connection to one development project.",
+          transport: {
+            location: "query",
+            name: "project_ref"
+          }
+        },
+        {
+          key: "readOnly",
+          label: "Read-only mode",
+          type: "checkbox",
+          defaultValue: false,
+          helperMd: "Enable this to prevent the connection from changing the database.",
+          transport: {
+            location: "query",
+            name: "read_only",
+            format: "boolean"
+          }
+        },
+        {
+          key: "features",
+          label: "Feature groups",
+          type: "textarea",
+          advanced: true,
+          placeholder: "database,docs",
+          helperMd: "Optional comma-separated feature groups.",
+          transport: {
+            location: "query",
+            name: "features",
+            format: "csv"
+          }
+        }
+      ],
+      requiredResourceFilters: [
+        "project"
+      ]
+    },
+    {
+      key: "mcp-api-key",
+      transport: "mcp_remote",
+      auth: "api_key",
+      ownershipModes: [
+        "customer"
+      ],
+      whenToUse: "Use a restricted customer-owned key when browser sign-in is not suitable.",
+      defaults: {
+        serverUrl: "https://mcp.supabase.com/mcp"
+      },
+      guidanceMd: "Use a customer-created Supabase key scoped to one development project. Write tools start enabled and remain governed by Paperclip's action policies.",
+      riskTier: "S4",
+      label: "Use an API key",
+      credentialFields: [
+        {
+          key: "authorization",
+          label: "Supabase API key",
+          type: "password",
+          required: true,
+          placeholder: "sbp_...",
+          secret: true
+        }
+      ],
+      keyPlacement: {
+        location: "header",
+        name: "Authorization",
+        prefix: "Bearer "
+      },
+      consoleLinks: {
+        keys: "https://supabase.com/docs/guides/ai-tools/mcp",
+        docs: "https://supabase.com/docs/guides/ai-tools/mcp"
+      },
+      warnings: [
+        "A Supabase account; use a development project and review write actions before connecting production data.",
+        "Do not connect production data unless you have reviewed Supabase's MCP security guidance."
+      ],
+      tenantFields: [
+        {
+          key: "projectRef",
+          label: "Project reference",
+          type: "text",
+          required: true,
+          placeholder: "abcdefghijklmnopqrst",
+          helperMd: "Scope the connection to one development project.",
+          transport: {
+            location: "query",
+            name: "project_ref"
+          }
+        },
+        {
+          key: "readOnly",
+          label: "Read-only mode",
+          type: "checkbox",
+          defaultValue: false,
+          helperMd: "Enable this to prevent the connection from changing the database.",
+          transport: {
+            location: "query",
+            name: "read_only",
+            format: "boolean"
+          }
+        },
+        {
+          key: "features",
+          label: "Feature groups",
+          type: "textarea",
+          advanced: true,
+          placeholder: "database,docs",
+          helperMd: "Optional comma-separated feature groups.",
+          transport: {
+            location: "query",
+            name: "features",
+            format: "csv"
+          }
+        }
+      ],
+      requiredResourceFilters: [
+        "project"
+      ]
+    }
+  ]
+};
+
+// ../../shared/src/app-definitions/ticket-tailor.json
+var ticket_tailor_default = {
+  schemaVersion: 1,
+  slug: "ticket-tailor",
+  name: "Ticket Tailor",
+  description: "Connect Ticket Tailor's provider-hosted MCP server.",
+  categories: [
+    "commerce"
+  ],
+  featured: false,
+  branding: {
+    logoUrl: "/brands/apps/ticket-tailor.svg",
+    darkLogoUrl: "/brands/apps/ticket-tailor-dark.svg"
+  },
+  urlPatterns: [
+    "https://mcp.tickettailor.ai/*"
+  ],
+  docsUrl: "https://developers.tickettailor.com/docs/mcp/authentication/",
+  redirectConstraints: "https-or-loopback-http",
+  methods: [
+    {
+      key: "mcp-oauth",
+      transport: "mcp_remote",
+      auth: "oauth",
+      ownershipModes: [
+        "dcr"
+      ],
+      whenToUse: "Use browser sign-in for the provider-hosted MCP server.",
+      defaults: {
+        serverUrl: "https://mcp.tickettailor.ai/mcp"
+      },
+      guidanceMd: "Connect Ticket Tailor in the browser. A Ticket Tailor account; the provider may request an API key during its hosted authorization prompt.",
+      riskTier: "S3",
+      label: "Sign in with Ticket Tailor",
+      consoleLinks: {
+        docs: "https://developers.tickettailor.com/docs/mcp/authentication/"
+      },
+      warnings: [
+        "A Ticket Tailor account; the provider may request an API key during its hosted authorization prompt."
+      ]
+    }
+  ]
+};
+
+// ../../shared/src/app-definitions/asana.json
+var asana_default = {
+  schemaVersion: 1,
+  slug: "asana",
+  name: "Asana",
+  description: "Connect Asana's provider-hosted MCP server.",
+  categories: [
+    "productivity"
+  ],
+  featured: false,
+  branding: {
+    logoUrl: "/brands/apps/asana.svg"
+  },
+  urlPatterns: [
+    "https://mcp.asana.com/*"
+  ],
+  docsUrl: "https://developers.asana.com/docs/integrating-with-asanas-mcp-server",
+  redirectConstraints: "https-or-loopback-http",
+  methods: [
+    {
+      key: "mcp-own-oauth",
+      transport: "mcp_remote",
+      auth: "oauth",
+      ownershipModes: [
+        "customer"
+      ],
+      whenToUse: "Register an OAuth app with Asana, then enter its client ID and secret.",
+      defaults: {
+        serverUrl: "https://mcp.asana.com/v2/mcp"
+      },
+      guidanceMd: "Connect Asana in the browser. Create an Asana MCP OAuth app and register Paperclip's callback URI; DCR is not supported.",
+      riskTier: "S3",
+      label: "Use your own OAuth app",
+      consoleLinks: {
+        register: "https://developers.asana.com/docs/integrating-with-asanas-mcp-server",
+        docs: "https://developers.asana.com/docs/integrating-with-asanas-mcp-server"
+      },
+      warnings: [
+        "Create an Asana MCP OAuth app and register Paperclip's callback URI; DCR is not supported."
+      ]
+    }
+  ]
+};
+
+// ../../shared/src/app-definitions/box.json
+var box_default = {
+  schemaVersion: 1,
+  slug: "box",
+  name: "Box",
+  description: "Connect Box's provider-hosted MCP server.",
+  categories: [
+    "content"
+  ],
+  featured: false,
+  branding: {
+    logoUrl: "/brands/apps/box.svg"
+  },
+  urlPatterns: [
+    "https://mcp.box.com/*"
+  ],
+  docsUrl: "https://support.box.com/hc/en-us/articles/43847256139923-Managing-Box-MCP-Servers",
+  redirectConstraints: "https-or-loopback-http",
+  methods: [
+    {
+      key: "mcp-own-oauth",
+      transport: "mcp_remote",
+      auth: "oauth",
+      ownershipModes: [
+        "customer"
+      ],
+      whenToUse: "Register an OAuth app with Box, then enter its client ID and secret.",
+      defaults: {
+        serverUrl: "https://mcp.box.com"
+      },
+      guidanceMd: "Connect Box in the browser. A Box administrator creates the OAuth integration and enables AI access.",
+      riskTier: "S3",
+      label: "Use your own OAuth app",
+      consoleLinks: {
+        register: "https://support.box.com/hc/en-us/articles/43847256139923-Managing-Box-MCP-Servers",
+        docs: "https://support.box.com/hc/en-us/articles/43847256139923-Managing-Box-MCP-Servers"
+      },
+      warnings: [
+        "A Box administrator creates the OAuth integration and enables AI access."
+      ]
+    }
+  ]
+};
+
+// ../../shared/src/app-definitions/mem0.json
+var mem0_default = {
+  schemaVersion: 1,
+  slug: "mem0",
+  name: "Mem0",
+  description: "Connect Mem0's provider-hosted MCP server.",
+  categories: [
+    "ai"
+  ],
+  featured: false,
+  branding: {
+    logoUrl: "/brands/apps/mem0.svg"
+  },
+  urlPatterns: [
+    "https://mcp.mem0.ai/*"
+  ],
+  docsUrl: "https://docs.mem0.ai/platform/mem0-mcp",
+  methods: [
+    {
+      key: "mcp-api-key",
+      transport: "mcp_remote",
+      auth: "api_key",
+      ownershipModes: [
+        "customer"
+      ],
+      whenToUse: "Use a restricted customer-owned key when browser sign-in is not suitable.",
+      defaults: {
+        serverUrl: "https://mcp.mem0.ai/mcp/"
+      },
+      guidanceMd: "Use a customer-created Mem0 key. A Mem0 API key; the live server currently requires the slash-normalized endpoint.",
+      riskTier: "S3",
+      label: "Use an API key",
+      credentialFields: [
+        {
+          key: "authorization",
+          label: "Mem0 API key",
+          type: "password",
+          required: true,
+          placeholder: "m0sk_...",
+          secret: true
+        }
+      ],
+      keyPlacement: {
+        location: "header",
+        name: "Authorization",
+        prefix: "Bearer "
+      },
+      consoleLinks: {
+        keys: "https://docs.mem0.ai/platform/mem0-mcp",
+        docs: "https://docs.mem0.ai/platform/mem0-mcp"
+      },
+      warnings: [
+        "A Mem0 API key; the live server currently requires the slash-normalized endpoint."
+      ]
+    }
+  ]
+};
+
+// ../../shared/src/app-definitions/pagerduty.json
+var pagerduty_default = {
+  schemaVersion: 1,
+  slug: "pagerduty",
+  name: "PagerDuty",
+  description: "Connect PagerDuty's provider-hosted MCP server.",
+  categories: [
+    "developer"
+  ],
+  featured: false,
+  branding: {
+    logoUrl: "/brands/apps/pagerduty.svg"
+  },
+  urlPatterns: [
+    "https://mcp.pagerduty.com/*"
+  ],
+  docsUrl: "https://support.pagerduty.com/main/docs/pagerduty-mcp-server",
+  methods: [
+    {
+      key: "mcp-api-key-us",
+      transport: "mcp_remote",
+      auth: "api_key",
+      ownershipModes: [
+        "customer"
+      ],
+      whenToUse: "Use a restricted customer-owned key when browser sign-in is not suitable.",
+      defaults: {
+        serverUrl: "https://mcp.pagerduty.com/mcp"
+      },
+      guidanceMd: "Use a customer-created PagerDuty key. A PagerDuty API token; choose the regional endpoint that hosts the account.",
+      riskTier: "S4",
+      label: "US service region",
+      credentialFields: [
+        {
+          key: "authorization",
+          label: "PagerDuty API key",
+          type: "password",
+          required: true,
+          placeholder: "Paste your PagerDuty user API token",
+          secret: true
+        }
+      ],
+      keyPlacement: {
+        location: "header",
+        name: "Authorization",
+        prefix: "Token token="
+      },
+      consoleLinks: {
+        keys: "https://support.pagerduty.com/main/docs/pagerduty-mcp-server",
+        docs: "https://support.pagerduty.com/main/docs/pagerduty-mcp-server"
+      },
+      warnings: [
+        "A PagerDuty API token; choose the regional endpoint that hosts the account."
+      ]
+    },
+    {
+      key: "mcp-api-key-eu",
+      transport: "mcp_remote",
+      auth: "api_key",
+      ownershipModes: [
+        "customer"
+      ],
+      whenToUse: "Use a restricted customer-owned key when browser sign-in is not suitable.",
+      defaults: {
+        serverUrl: "https://mcp.eu.pagerduty.com/mcp"
+      },
+      guidanceMd: "Use a customer-created PagerDuty key. A PagerDuty API token; choose the regional endpoint that hosts the account.",
+      riskTier: "S4",
+      label: "EU service region",
+      credentialFields: [
+        {
+          key: "authorization",
+          label: "PagerDuty API key",
+          type: "password",
+          required: true,
+          placeholder: "Paste your PagerDuty user API token",
+          secret: true
+        }
+      ],
+      keyPlacement: {
+        location: "header",
+        name: "Authorization",
+        prefix: "Token token="
+      },
+      consoleLinks: {
+        keys: "https://support.pagerduty.com/main/docs/pagerduty-mcp-server",
+        docs: "https://support.pagerduty.com/main/docs/pagerduty-mcp-server"
+      },
+      warnings: [
+        "A PagerDuty API token; choose the regional endpoint that hosts the account."
+      ]
+    }
+  ]
+};
+
+// ../../shared/src/app-definitions/similarweb.json
+var similarweb_default = {
+  schemaVersion: 1,
+  slug: "similarweb",
+  name: "Similarweb",
+  description: "Connect Similarweb's provider-hosted MCP server.",
+  categories: [
+    "analytics"
+  ],
+  featured: false,
+  branding: {
+    logoUrl: "/brands/apps/similarweb.svg",
+    darkLogoUrl: "/brands/apps/similarweb-dark.svg"
+  },
+  urlPatterns: [
+    "https://mcp.similarweb.com/*"
+  ],
+  docsUrl: "https://developers.similarweb.com/docs/similarweb-mcp",
+  methods: [
+    {
+      key: "mcp-api-key",
+      transport: "mcp_remote",
+      auth: "api_key",
+      ownershipModes: [
+        "customer"
+      ],
+      whenToUse: "Use a restricted customer-owned key when browser sign-in is not suitable.",
+      defaults: {
+        serverUrl: "https://mcp.similarweb.com"
+      },
+      guidanceMd: "Use a customer-created Similarweb key. A Similarweb subscription with API access and an API key.",
+      riskTier: "S2",
+      label: "Use an API key",
+      credentialFields: [
+        {
+          key: "authorization",
+          label: "Similarweb API key",
+          type: "password",
+          required: true,
+          placeholder: "Paste your Similarweb API key",
+          secret: true
+        }
+      ],
+      keyPlacement: {
+        location: "header",
+        name: "api-key",
+        prefix: null
+      },
+      consoleLinks: {
+        keys: "https://developers.similarweb.com/docs/similarweb-mcp",
+        docs: "https://developers.similarweb.com/docs/similarweb-mcp"
+      },
+      warnings: [
+        "A Similarweb subscription with API access and an API key."
+      ]
+    }
+  ]
+};
+
+// ../../shared/src/app-definitions/xero.json
+var xero_default = {
+  schemaVersion: 1,
+  slug: "xero",
+  name: "Xero",
+  description: "Connect Xero's provider-hosted MCP server.",
+  categories: [
+    "commerce"
+  ],
+  featured: false,
+  branding: {
+    logoUrl: "/brands/apps/xero.svg"
+  },
+  urlPatterns: [
+    "https://mcp.xero.com/*"
+  ],
+  docsUrl: "https://developer.xero.com/ai",
+  redirectConstraints: "https-or-loopback-http",
+  methods: [
+    {
+      key: "mcp-own-oauth",
+      transport: "mcp_remote",
+      auth: "oauth",
+      ownershipModes: [
+        "customer"
+      ],
+      whenToUse: "Register an OAuth app with Xero, then enter its client ID and secret.",
+      defaults: {
+        serverUrl: "https://mcp.xero.com/mcp",
+        scopesHint: [
+          "openid",
+          "profile",
+          "email",
+          "offline_access",
+          "accounting.settings",
+          "accounting.invoices.read",
+          "accounting.reports.aged.read",
+          "accounting.reports.balancesheet.read",
+          "accounting.reports.profitandloss.read"
+        ]
+      },
+      guidanceMd: "Connect Xero in the browser. Create a Xero OAuth app and confirm the applicable AI and data-use terms before connecting.",
+      riskTier: "S4",
+      label: "Use your own OAuth app",
+      consoleLinks: {
+        register: "https://developer.xero.com/ai",
+        docs: "https://developer.xero.com/ai"
+      },
+      warnings: [
+        "Create a Xero OAuth app and confirm the applicable AI and data-use terms before connecting."
+      ]
+    }
+  ]
+};
+
+// ../../shared/src/app-definitions/gmail.json
+var gmail_default = {
+  schemaVersion: 1,
+  slug: "gmail",
+  name: "Gmail",
+  description: "Search and read Gmail messages and create drafts without enabling mail sending.",
+  categories: [
+    "communication",
+    "productivity"
+  ],
+  featured: true,
+  branding: {
+    logoUrl: "/brands/apps/gmail.svg"
+  },
+  urlPatterns: [
+    "https://gmailmcp.googleapis.com/*"
+  ],
+  docsUrl: "https://developers.google.com/workspace/gmail/api/reference/mcp",
+  setupPrerequisite: {
+    title: "Google Developer Preview access required",
+    description: "Google must register both the Workspace email used to authorize Paperclip and the Google Cloud project that owns the OAuth client. Registration is limited to those emails and projects; it does not enable unrelated Paperclip customers.",
+    steps: [
+      "Apply with the Workspace email that will sign in and the Google Cloud project that owns the OAuth client.",
+      "Wait for the Google Group notification and then Google's final project-registration email, usually within a couple of days.",
+      "Add every additional tester email or Cloud project through Google's member request forms before connecting."
+    ],
+    actionLabel: "Apply or verify Developer Preview enrollment",
+    actionUrl: "https://developers.google.com/workspace/preview"
+  },
+  redirectConstraints: "https-or-loopback-http",
+  methods: [
+    {
+      key: "paperclip-read",
+      label: "Connect with Paperclip",
+      transport: "mcp_remote",
+      auth: "oauth",
+      oauthStrategy: "paperclip_cloud_connector",
+      connectorProfile: "gmail.read",
+      capabilityProfile: {
+        key: "read",
+        label: "Read only",
+        description: "Search and read messages, threads, drafts, and labels."
+      },
+      grantKinds: [
+        "user",
+        "organization"
+      ],
+      ownershipModes: [
+        "platform_shared"
+      ],
+      whenToUse: "Use Paperclip-managed Google OAuth for read-only Gmail access.",
+      defaults: {
+        serverUrl: "https://gmailmcp.googleapis.com/mcp/v1",
+        scopesHint: [
+          "https://www.googleapis.com/auth/gmail.readonly"
+        ]
+      },
+      guidanceMd: "Connect Gmail with read-only access. Sending, deleting, moving, and relabeling mail are not enabled.",
+      warnings: [
+        "Google Workspace MCP servers are in Developer Preview."
+      ],
+      riskTier: "S3"
+    },
+    {
+      key: "customer-read-oauth",
+      label: "Use your own Google OAuth app",
+      transport: "mcp_remote",
+      auth: "oauth",
+      capabilityProfile: {
+        key: "read",
+        label: "Read only",
+        description: "Search and read messages, threads, drafts, and labels."
+      },
+      grantKinds: [
+        "user",
+        "organization"
+      ],
+      ownershipModes: [
+        "customer"
+      ],
+      whenToUse: "Use a customer-owned Google OAuth client for read-only Gmail access.",
+      defaults: {
+        serverUrl: "https://gmailmcp.googleapis.com/mcp/v1",
+        authorizationEndpoint: "https://accounts.google.com/o/oauth2/v2/auth",
+        tokenEndpoint: "https://oauth2.googleapis.com/token",
+        metadataUrl: "https://accounts.google.com/.well-known/openid-configuration",
+        scopesHint: [
+          "https://www.googleapis.com/auth/gmail.readonly"
+        ],
+        oauthAuthorizationParams: {
+          access_type: "offline",
+          prompt: "consent"
+        }
+      },
+      guidanceMd: "Enable the Gmail and Gmail MCP APIs in your Google Cloud project, then register Paperclip's callback URI.",
+      consoleLinks: {
+        register: "https://console.cloud.google.com/auth/clients",
+        docs: "https://developers.google.com/workspace/guides/configure-mcp-servers"
+      },
+      warnings: [
+        "Google Workspace MCP servers are in Developer Preview."
+      ],
+      riskTier: "S3"
+    },
+    {
+      key: "paperclip-draft",
+      label: "Connect with Paperclip",
+      transport: "mcp_remote",
+      auth: "oauth",
+      oauthStrategy: "paperclip_cloud_connector",
+      connectorProfile: "gmail.draft",
+      capabilityProfile: {
+        key: "draft",
+        label: "Read & create drafts",
+        description: "Read Gmail and create drafts for review in Gmail."
+      },
+      grantKinds: [
+        "user",
+        "organization"
+      ],
+      ownershipModes: [
+        "platform_shared"
+      ],
+      whenToUse: "Use Paperclip-managed Google OAuth to read Gmail and create drafts.",
+      defaults: {
+        serverUrl: "https://gmailmcp.googleapis.com/mcp/v1",
+        scopesHint: [
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/gmail.compose"
+        ]
+      },
+      guidanceMd: "Connect Gmail to search and read mail and create drafts. Sending mail is permanently disabled.",
+      warnings: [
+        "Draft creation requires approval. Sending mail is not enabled.",
+        "Google Workspace MCP servers are in Developer Preview."
+      ],
+      riskTier: "S4"
+    },
+    {
+      key: "customer-draft-oauth",
+      label: "Use your own Google OAuth app",
+      transport: "mcp_remote",
+      auth: "oauth",
+      capabilityProfile: {
+        key: "draft",
+        label: "Read & create drafts",
+        description: "Read Gmail and create drafts for review in Gmail."
+      },
+      grantKinds: [
+        "user",
+        "organization"
+      ],
+      ownershipModes: [
+        "customer"
+      ],
+      whenToUse: "Use a customer-owned Google OAuth client to read Gmail and create drafts.",
+      defaults: {
+        serverUrl: "https://gmailmcp.googleapis.com/mcp/v1",
+        authorizationEndpoint: "https://accounts.google.com/o/oauth2/v2/auth",
+        tokenEndpoint: "https://oauth2.googleapis.com/token",
+        metadataUrl: "https://accounts.google.com/.well-known/openid-configuration",
+        scopesHint: [
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/gmail.compose"
+        ],
+        oauthAuthorizationParams: {
+          access_type: "offline",
+          prompt: "consent"
+        }
+      },
+      guidanceMd: "Enable the Gmail and Gmail MCP APIs in your Google Cloud project, then register Paperclip's callback URI.",
+      consoleLinks: {
+        register: "https://console.cloud.google.com/auth/clients",
+        docs: "https://developers.google.com/workspace/guides/configure-mcp-servers"
+      },
+      warnings: [
+        "Draft creation requires approval. Sending mail is not enabled.",
+        "Google Workspace MCP servers are in Developer Preview."
+      ],
+      riskTier: "S4"
+    }
+  ]
+};
+
+// ../../shared/src/app-definitions/google-drive.json
+var google_drive_default = {
+  schemaVersion: 1,
+  slug: "google-drive",
+  name: "Google Drive",
+  description: "Search, read, create, and copy files in Google Drive.",
+  categories: [
+    "content",
+    "productivity"
+  ],
+  featured: true,
+  branding: {
+    logoUrl: "/brands/apps/google-drive.svg"
+  },
+  urlPatterns: [
+    "https://drivemcp.googleapis.com/*",
+    "https://drive.google.com/*"
+  ],
+  docsUrl: "https://developers.google.com/workspace/drive/api/reference/mcp",
+  setupPrerequisite: {
+    title: "Google Developer Preview access required",
+    description: "Google must register both the Workspace email used to authorize Paperclip and the Google Cloud project that owns the OAuth client. Registration is limited to those emails and projects; it does not enable unrelated Paperclip customers.",
+    steps: [
+      "Apply with the Workspace email that will sign in and the Google Cloud project that owns the OAuth client.",
+      "Wait for the Google Group notification and then Google's final project-registration email, usually within a couple of days.",
+      "Add every additional tester email or Cloud project through Google's member request forms before connecting."
+    ],
+    actionLabel: "Apply or verify Developer Preview enrollment",
+    actionUrl: "https://developers.google.com/workspace/preview"
+  },
+  redirectConstraints: "https-or-loopback-http",
+  methods: [
+    {
+      key: "paperclip-read",
+      label: "Connect with Paperclip",
+      transport: "mcp_remote",
+      auth: "oauth",
+      oauthStrategy: "paperclip_cloud_connector",
+      connectorProfile: "drive.read",
+      capabilityProfile: {
+        key: "read",
+        label: "Read only",
+        description: "Search and read files and metadata."
+      },
+      grantKinds: [
+        "user",
+        "organization"
+      ],
+      ownershipModes: [
+        "platform_shared"
+      ],
+      whenToUse: "Use Paperclip-managed OAuth for read-only Drive access.",
+      defaults: {
+        serverUrl: "https://drivemcp.googleapis.com/mcp/v1",
+        scopesHint: [
+          "https://www.googleapis.com/auth/drive.readonly"
+        ]
+      },
+      guidanceMd: "Connect Google Drive to search and read files. Google's Developer Preview Program must register the signed-in Workspace account and Google Cloud project before tools can run.",
+      warnings: [
+        "Before connecting, enroll the signed-in Workspace account and Google Cloud project in Google's Developer Preview Program and wait for the registration confirmation."
+      ],
+      riskTier: "S3"
+    },
+    {
+      key: "customer-read-oauth",
+      label: "Use your own Google OAuth app",
+      transport: "mcp_remote",
+      auth: "oauth",
+      capabilityProfile: {
+        key: "read",
+        label: "Read only",
+        description: "Search and read files and metadata."
+      },
+      grantKinds: [
+        "user",
+        "organization"
+      ],
+      ownershipModes: [
+        "customer"
+      ],
+      whenToUse: "Use a customer-owned OAuth client for read-only Drive access.",
+      defaults: {
+        serverUrl: "https://drivemcp.googleapis.com/mcp/v1",
+        authorizationEndpoint: "https://accounts.google.com/o/oauth2/v2/auth",
+        tokenEndpoint: "https://oauth2.googleapis.com/token",
+        metadataUrl: "https://accounts.google.com/.well-known/openid-configuration",
+        scopesHint: [
+          "https://www.googleapis.com/auth/drive.readonly"
+        ],
+        oauthAuthorizationParams: {
+          access_type: "offline",
+          prompt: "consent"
+        }
+      },
+      guidanceMd: "Enroll the Workspace account and Google Cloud project in Google's Developer Preview Program, enable the Drive and Drive MCP APIs, then register Paperclip's callback URI.",
+      consoleLinks: {
+        register: "https://console.cloud.google.com/auth/clients",
+        docs: "https://developers.google.com/workspace/guides/configure-mcp-servers"
+      },
+      warnings: [
+        "Before connecting, enroll the signed-in Workspace account and Google Cloud project in Google's Developer Preview Program and wait for the registration confirmation."
+      ],
+      riskTier: "S3"
+    },
+    {
+      key: "paperclip-write",
+      label: "Connect with Paperclip",
+      transport: "mcp_remote",
+      auth: "oauth",
+      oauthStrategy: "paperclip_cloud_connector",
+      connectorProfile: "drive.write",
+      capabilityProfile: {
+        key: "write",
+        label: "Read & create",
+        description: "Read files and create or copy files."
+      },
+      grantKinds: [
+        "user",
+        "organization"
+      ],
+      ownershipModes: [
+        "platform_shared"
+      ],
+      whenToUse: "Use Paperclip-managed OAuth for Drive read and create access.",
+      defaults: {
+        serverUrl: "https://drivemcp.googleapis.com/mcp/v1",
+        scopesHint: [
+          "https://www.googleapis.com/auth/drive.readonly",
+          "https://www.googleapis.com/auth/drive.file"
+        ]
+      },
+      guidanceMd: "Connect Google Drive to read files and create or copy app-accessible files. Google's Developer Preview Program must register the signed-in Workspace account and Google Cloud project before tools can run.",
+      warnings: [
+        "File creation and copying require approval.",
+        "Before connecting, enroll the signed-in Workspace account and Google Cloud project in Google's Developer Preview Program and wait for the registration confirmation."
+      ],
+      riskTier: "S4"
+    },
+    {
+      key: "customer-write-oauth",
+      label: "Use your own Google OAuth app",
+      transport: "mcp_remote",
+      auth: "oauth",
+      capabilityProfile: {
+        key: "write",
+        label: "Read & create",
+        description: "Read files and create or copy files."
+      },
+      grantKinds: [
+        "user",
+        "organization"
+      ],
+      ownershipModes: [
+        "customer"
+      ],
+      whenToUse: "Use a customer-owned OAuth client for Drive read and create access.",
+      defaults: {
+        serverUrl: "https://drivemcp.googleapis.com/mcp/v1",
+        authorizationEndpoint: "https://accounts.google.com/o/oauth2/v2/auth",
+        tokenEndpoint: "https://oauth2.googleapis.com/token",
+        metadataUrl: "https://accounts.google.com/.well-known/openid-configuration",
+        scopesHint: [
+          "https://www.googleapis.com/auth/drive.readonly",
+          "https://www.googleapis.com/auth/drive.file"
+        ],
+        oauthAuthorizationParams: {
+          access_type: "offline",
+          prompt: "consent"
+        }
+      },
+      guidanceMd: "Enroll the Workspace account and Google Cloud project in Google's Developer Preview Program, enable the Drive and Drive MCP APIs, then register Paperclip's callback URI.",
+      consoleLinks: {
+        register: "https://console.cloud.google.com/auth/clients",
+        docs: "https://developers.google.com/workspace/guides/configure-mcp-servers"
+      },
+      warnings: [
+        "File creation and copying require approval.",
+        "Before connecting, enroll the signed-in Workspace account and Google Cloud project in Google's Developer Preview Program and wait for the registration confirmation."
+      ],
+      riskTier: "S4"
+    }
+  ]
+};
+
+// ../../shared/src/app-definitions/google-docs.json
+var google_docs_default = {
+  schemaVersion: 1,
+  slug: "google-docs",
+  name: "Google Docs",
+  description: "Read and update Google Docs documents.",
+  categories: [
+    "content",
+    "productivity"
+  ],
+  featured: true,
+  branding: {
+    logoUrl: "/brands/apps/google-docs.svg"
+  },
+  urlPatterns: [
+    "https://docsmcp.googleapis.com/*",
+    "https://docs.google.com/document/*"
+  ],
+  docsUrl: "https://developers.google.com/workspace/docs/api/reference/mcp",
+  setupPrerequisite: {
+    title: "Google Developer Preview access required",
+    description: "Google must register both the Workspace email used to authorize Paperclip and the Google Cloud project that owns the OAuth client. Registration is limited to those emails and projects; it does not enable unrelated Paperclip customers.",
+    steps: [
+      "Apply with the Workspace email that will sign in and the Google Cloud project that owns the OAuth client.",
+      "Wait for the Google Group notification and then Google's final project-registration email, usually within a couple of days.",
+      "Add every additional tester email or Cloud project through Google's member request forms before connecting."
+    ],
+    actionLabel: "Apply or verify Developer Preview enrollment",
+    actionUrl: "https://developers.google.com/workspace/preview"
+  },
+  redirectConstraints: "https-or-loopback-http",
+  methods: [
+    {
+      key: "paperclip-read",
+      label: "Connect with Paperclip",
+      transport: "mcp_remote",
+      auth: "oauth",
+      oauthStrategy: "paperclip_cloud_connector",
+      connectorProfile: "docs.read",
+      capabilityProfile: {
+        key: "read",
+        label: "Read only",
+        description: "Read document text and structure."
+      },
+      grantKinds: [
+        "user",
+        "organization"
+      ],
+      ownershipModes: [
+        "platform_shared"
+      ],
+      whenToUse: "Use Paperclip-managed OAuth for read-only Docs access.",
+      defaults: {
+        serverUrl: "https://docsmcp.googleapis.com/mcp/v1",
+        scopesHint: [
+          "https://www.googleapis.com/auth/drive.readonly",
+          "https://www.googleapis.com/auth/documents.readonly"
+        ]
+      },
+      guidanceMd: "Connect Google Docs to read documents.",
+      warnings: [
+        "Google Workspace MCP servers are in Developer Preview."
+      ],
+      riskTier: "S3"
+    },
+    {
+      key: "customer-read-oauth",
+      label: "Use your own Google OAuth app",
+      transport: "mcp_remote",
+      auth: "oauth",
+      capabilityProfile: {
+        key: "read",
+        label: "Read only",
+        description: "Read document text and structure."
+      },
+      grantKinds: [
+        "user",
+        "organization"
+      ],
+      ownershipModes: [
+        "customer"
+      ],
+      whenToUse: "Use a customer-owned OAuth client for read-only Docs access.",
+      defaults: {
+        serverUrl: "https://docsmcp.googleapis.com/mcp/v1",
+        authorizationEndpoint: "https://accounts.google.com/o/oauth2/v2/auth",
+        tokenEndpoint: "https://oauth2.googleapis.com/token",
+        metadataUrl: "https://accounts.google.com/.well-known/openid-configuration",
+        scopesHint: [
+          "https://www.googleapis.com/auth/drive.readonly",
+          "https://www.googleapis.com/auth/documents.readonly"
+        ],
+        oauthAuthorizationParams: {
+          access_type: "offline",
+          prompt: "consent"
+        }
+      },
+      guidanceMd: "Enable the Drive, Docs, and Docs MCP APIs, then register Paperclip's callback URI.",
+      consoleLinks: {
+        register: "https://console.cloud.google.com/auth/clients",
+        docs: "https://developers.google.com/workspace/guides/configure-mcp-servers"
+      },
+      warnings: [
+        "Google Workspace MCP servers are in Developer Preview."
+      ],
+      riskTier: "S3"
+    },
+    {
+      key: "paperclip-write",
+      label: "Connect with Paperclip",
+      transport: "mcp_remote",
+      auth: "oauth",
+      oauthStrategy: "paperclip_cloud_connector",
+      connectorProfile: "docs.write",
+      capabilityProfile: {
+        key: "write",
+        label: "Read & edit",
+        description: "Read and update documents."
+      },
+      grantKinds: [
+        "user",
+        "organization"
+      ],
+      ownershipModes: [
+        "platform_shared"
+      ],
+      whenToUse: "Use Paperclip-managed OAuth to read and update Docs.",
+      defaults: {
+        serverUrl: "https://docsmcp.googleapis.com/mcp/v1",
+        scopesHint: [
+          "https://www.googleapis.com/auth/drive.readonly",
+          "https://www.googleapis.com/auth/drive.file",
+          "https://www.googleapis.com/auth/documents"
+        ]
+      },
+      guidanceMd: "Connect Google Docs to read and update documents.",
+      warnings: [
+        "Document updates require approval.",
+        "Google Workspace MCP servers are in Developer Preview."
+      ],
+      riskTier: "S4"
+    },
+    {
+      key: "customer-write-oauth",
+      label: "Use your own Google OAuth app",
+      transport: "mcp_remote",
+      auth: "oauth",
+      capabilityProfile: {
+        key: "write",
+        label: "Read & edit",
+        description: "Read and update documents."
+      },
+      grantKinds: [
+        "user",
+        "organization"
+      ],
+      ownershipModes: [
+        "customer"
+      ],
+      whenToUse: "Use a customer-owned OAuth client to read and update Docs.",
+      defaults: {
+        serverUrl: "https://docsmcp.googleapis.com/mcp/v1",
+        authorizationEndpoint: "https://accounts.google.com/o/oauth2/v2/auth",
+        tokenEndpoint: "https://oauth2.googleapis.com/token",
+        metadataUrl: "https://accounts.google.com/.well-known/openid-configuration",
+        scopesHint: [
+          "https://www.googleapis.com/auth/drive.readonly",
+          "https://www.googleapis.com/auth/drive.file",
+          "https://www.googleapis.com/auth/documents"
+        ],
+        oauthAuthorizationParams: {
+          access_type: "offline",
+          prompt: "consent"
+        }
+      },
+      guidanceMd: "Enable the Drive, Docs, and Docs MCP APIs, then register Paperclip's callback URI.",
+      consoleLinks: {
+        register: "https://console.cloud.google.com/auth/clients",
+        docs: "https://developers.google.com/workspace/guides/configure-mcp-servers"
+      },
+      warnings: [
+        "Document updates require approval.",
+        "Google Workspace MCP servers are in Developer Preview."
+      ],
+      riskTier: "S4"
+    }
+  ]
+};
+
+// ../../shared/src/app-definitions/google-sheets.json
+var google_sheets_default = {
+  schemaVersion: 1,
+  slug: "google-sheets",
+  name: "Google Sheets",
+  description: "Read and update Google Sheets spreadsheets.",
+  categories: [
+    "data",
+    "productivity"
+  ],
+  featured: true,
+  branding: {
+    logoUrl: "/brands/apps/google-sheets.svg"
+  },
+  urlPatterns: [
+    "https://sheetsmcp.googleapis.com/*",
+    "https://docs.google.com/spreadsheets/*",
+    "https://sheets.google.com/*"
+  ],
+  docsUrl: "https://developers.google.com/workspace/sheets/api/reference/mcp",
+  setupPrerequisite: {
+    title: "Google Developer Preview access required",
+    description: "Google must register both the Workspace email used to authorize Paperclip and the Google Cloud project that owns the OAuth client. Registration is limited to those emails and projects; it does not enable unrelated Paperclip customers.",
+    steps: [
+      "Apply with the Workspace email that will sign in and the Google Cloud project that owns the OAuth client.",
+      "Wait for the Google Group notification and then Google's final project-registration email, usually within a couple of days.",
+      "Add every additional tester email or Cloud project through Google's member request forms before connecting."
+    ],
+    actionLabel: "Apply or verify Developer Preview enrollment",
+    actionUrl: "https://developers.google.com/workspace/preview"
+  },
+  redirectConstraints: "https-or-loopback-http",
+  methods: [
+    {
+      key: "paperclip-read",
+      label: "Connect with Paperclip",
+      transport: "mcp_remote",
+      auth: "oauth",
+      oauthStrategy: "paperclip_cloud_connector",
+      connectorProfile: "sheets.read",
+      capabilityProfile: {
+        key: "read",
+        label: "Read only",
+        description: "Read spreadsheet values and structure."
+      },
+      grantKinds: [
+        "user",
+        "organization"
+      ],
+      ownershipModes: [
+        "platform_shared"
+      ],
+      whenToUse: "Use Paperclip-managed OAuth for read-only Sheets access.",
+      defaults: {
+        serverUrl: "https://sheetsmcp.googleapis.com/mcp/v1",
+        scopesHint: [
+          "https://www.googleapis.com/auth/drive.readonly",
+          "https://www.googleapis.com/auth/spreadsheets.readonly"
+        ]
+      },
+      guidanceMd: "Connect Google Sheets to read spreadsheets.",
+      warnings: [
+        "Google Workspace MCP servers are in Developer Preview."
+      ],
+      riskTier: "S3"
+    },
+    {
+      key: "customer-read-oauth",
+      label: "Use your own Google OAuth app",
+      transport: "mcp_remote",
+      auth: "oauth",
+      capabilityProfile: {
+        key: "read",
+        label: "Read only",
+        description: "Read spreadsheet values and structure."
+      },
+      grantKinds: [
+        "user",
+        "organization"
+      ],
+      ownershipModes: [
+        "customer"
+      ],
+      whenToUse: "Use a customer-owned OAuth client for read-only Sheets access.",
+      defaults: {
+        serverUrl: "https://sheetsmcp.googleapis.com/mcp/v1",
+        authorizationEndpoint: "https://accounts.google.com/o/oauth2/v2/auth",
+        tokenEndpoint: "https://oauth2.googleapis.com/token",
+        metadataUrl: "https://accounts.google.com/.well-known/openid-configuration",
+        scopesHint: [
+          "https://www.googleapis.com/auth/drive.readonly",
+          "https://www.googleapis.com/auth/spreadsheets.readonly"
+        ],
+        oauthAuthorizationParams: {
+          access_type: "offline",
+          prompt: "consent"
+        }
+      },
+      guidanceMd: "Enable the Drive, Sheets, and Sheets MCP APIs, then register Paperclip's callback URI.",
+      consoleLinks: {
+        register: "https://console.cloud.google.com/auth/clients",
+        docs: "https://developers.google.com/workspace/guides/configure-mcp-servers"
+      },
+      warnings: [
+        "Google Workspace MCP servers are in Developer Preview."
+      ],
+      riskTier: "S3"
+    },
+    {
+      key: "paperclip-write",
+      label: "Connect with Paperclip",
+      transport: "mcp_remote",
+      auth: "oauth",
+      oauthStrategy: "paperclip_cloud_connector",
+      connectorProfile: "sheets.write",
+      capabilityProfile: {
+        key: "write",
+        label: "Read & edit",
+        description: "Read and update spreadsheet values, formulas, and dimensions."
+      },
+      grantKinds: [
+        "user",
+        "organization"
+      ],
+      ownershipModes: [
+        "platform_shared"
+      ],
+      whenToUse: "Use Paperclip-managed OAuth to read and update Sheets.",
+      defaults: {
+        serverUrl: "https://sheetsmcp.googleapis.com/mcp/v1",
+        scopesHint: [
+          "https://www.googleapis.com/auth/drive.readonly",
+          "https://www.googleapis.com/auth/drive.file",
+          "https://www.googleapis.com/auth/spreadsheets"
+        ]
+      },
+      guidanceMd: "Connect Google Sheets to read and update spreadsheets.",
+      warnings: [
+        "Spreadsheet updates require approval.",
+        "Google Workspace MCP servers are in Developer Preview."
+      ],
+      riskTier: "S4"
+    },
+    {
+      key: "customer-write-oauth",
+      label: "Use your own Google OAuth app",
+      transport: "mcp_remote",
+      auth: "oauth",
+      capabilityProfile: {
+        key: "write",
+        label: "Read & edit",
+        description: "Read and update spreadsheet values, formulas, and dimensions."
+      },
+      grantKinds: [
+        "user",
+        "organization"
+      ],
+      ownershipModes: [
+        "customer"
+      ],
+      whenToUse: "Use a customer-owned OAuth client to read and update Sheets.",
+      defaults: {
+        serverUrl: "https://sheetsmcp.googleapis.com/mcp/v1",
+        authorizationEndpoint: "https://accounts.google.com/o/oauth2/v2/auth",
+        tokenEndpoint: "https://oauth2.googleapis.com/token",
+        metadataUrl: "https://accounts.google.com/.well-known/openid-configuration",
+        scopesHint: [
+          "https://www.googleapis.com/auth/drive.readonly",
+          "https://www.googleapis.com/auth/drive.file",
+          "https://www.googleapis.com/auth/spreadsheets"
+        ],
+        oauthAuthorizationParams: {
+          access_type: "offline",
+          prompt: "consent"
+        }
+      },
+      guidanceMd: "Enable the Drive, Sheets, and Sheets MCP APIs, then register Paperclip's callback URI.",
+      consoleLinks: {
+        register: "https://console.cloud.google.com/auth/clients",
+        docs: "https://developers.google.com/workspace/guides/configure-mcp-servers"
+      },
+      warnings: [
+        "Spreadsheet updates require approval.",
+        "Google Workspace MCP servers are in Developer Preview."
+      ],
+      riskTier: "S4"
+    },
+    {
+      key: "local",
+      label: "Use the Paperclip robot account",
+      transport: "local_stdio",
+      auth: "none",
+      capabilityProfile: {
+        key: "robot",
+        label: "Share selected sheets",
+        description: "Share only named spreadsheets with the Paperclip robot account."
+      },
+      ownershipModes: [
+        "customer"
+      ],
+      whenToUse: "Share selected spreadsheets with the Paperclip robot account instead of connecting a Google identity.",
+      defaults: {
+        templateKey: "paperclip.google-sheets"
+      },
+      guidanceMd: "Share each spreadsheet with the Paperclip robot email, then paste the sheet links.",
+      riskTier: "S3",
+      requiredResourceFilters: [
+        "spreadsheet"
+      ]
+    }
+  ]
+};
+
+// ../../shared/src/app-definitions/google-slides.json
+var google_slides_default = {
+  schemaVersion: 1,
+  slug: "google-slides",
+  name: "Google Slides",
+  description: "Read and update Google Slides presentations.",
+  categories: [
+    "content",
+    "productivity"
+  ],
+  featured: true,
+  branding: {
+    logoUrl: "/brands/apps/google-slides.svg"
+  },
+  urlPatterns: [
+    "https://slidesmcp.googleapis.com/*",
+    "https://docs.google.com/presentation/*"
+  ],
+  docsUrl: "https://developers.google.com/workspace/slides/api/reference/mcp",
+  setupPrerequisite: {
+    title: "Google Developer Preview access required",
+    description: "Google must register both the Workspace email used to authorize Paperclip and the Google Cloud project that owns the OAuth client. Registration is limited to those emails and projects; it does not enable unrelated Paperclip customers.",
+    steps: [
+      "Apply with the Workspace email that will sign in and the Google Cloud project that owns the OAuth client.",
+      "Wait for the Google Group notification and then Google's final project-registration email, usually within a couple of days.",
+      "Add every additional tester email or Cloud project through Google's member request forms before connecting."
+    ],
+    actionLabel: "Apply or verify Developer Preview enrollment",
+    actionUrl: "https://developers.google.com/workspace/preview"
+  },
+  redirectConstraints: "https-or-loopback-http",
+  methods: [
+    {
+      key: "paperclip-read",
+      label: "Connect with Paperclip",
+      transport: "mcp_remote",
+      auth: "oauth",
+      oauthStrategy: "paperclip_cloud_connector",
+      connectorProfile: "slides.read",
+      capabilityProfile: {
+        key: "read",
+        label: "Read only",
+        description: "Read presentation slides and content."
+      },
+      grantKinds: [
+        "user",
+        "organization"
+      ],
+      ownershipModes: [
+        "platform_shared"
+      ],
+      whenToUse: "Use Paperclip-managed OAuth for read-only Slides access.",
+      defaults: {
+        serverUrl: "https://slidesmcp.googleapis.com/mcp/v1",
+        scopesHint: [
+          "https://www.googleapis.com/auth/drive.readonly",
+          "https://www.googleapis.com/auth/presentations.readonly"
+        ]
+      },
+      guidanceMd: "Connect Google Slides to read presentations.",
+      warnings: [
+        "Google Workspace MCP servers are in Developer Preview."
+      ],
+      riskTier: "S3"
+    },
+    {
+      key: "customer-read-oauth",
+      label: "Use your own Google OAuth app",
+      transport: "mcp_remote",
+      auth: "oauth",
+      capabilityProfile: {
+        key: "read",
+        label: "Read only",
+        description: "Read presentation slides and content."
+      },
+      grantKinds: [
+        "user",
+        "organization"
+      ],
+      ownershipModes: [
+        "customer"
+      ],
+      whenToUse: "Use a customer-owned OAuth client for read-only Slides access.",
+      defaults: {
+        serverUrl: "https://slidesmcp.googleapis.com/mcp/v1",
+        authorizationEndpoint: "https://accounts.google.com/o/oauth2/v2/auth",
+        tokenEndpoint: "https://oauth2.googleapis.com/token",
+        metadataUrl: "https://accounts.google.com/.well-known/openid-configuration",
+        scopesHint: [
+          "https://www.googleapis.com/auth/drive.readonly",
+          "https://www.googleapis.com/auth/presentations.readonly"
+        ],
+        oauthAuthorizationParams: {
+          access_type: "offline",
+          prompt: "consent"
+        }
+      },
+      guidanceMd: "Enable the Drive, Slides, and Slides MCP APIs, then register Paperclip's callback URI.",
+      consoleLinks: {
+        register: "https://console.cloud.google.com/auth/clients",
+        docs: "https://developers.google.com/workspace/guides/configure-mcp-servers"
+      },
+      warnings: [
+        "Google Workspace MCP servers are in Developer Preview."
+      ],
+      riskTier: "S3"
+    },
+    {
+      key: "paperclip-write",
+      label: "Connect with Paperclip",
+      transport: "mcp_remote",
+      auth: "oauth",
+      oauthStrategy: "paperclip_cloud_connector",
+      connectorProfile: "slides.write",
+      capabilityProfile: {
+        key: "write",
+        label: "Read & edit",
+        description: "Read and update presentations."
+      },
+      grantKinds: [
+        "user",
+        "organization"
+      ],
+      ownershipModes: [
+        "platform_shared"
+      ],
+      whenToUse: "Use Paperclip-managed OAuth to read and update Slides.",
+      defaults: {
+        serverUrl: "https://slidesmcp.googleapis.com/mcp/v1",
+        scopesHint: [
+          "https://www.googleapis.com/auth/drive.readonly",
+          "https://www.googleapis.com/auth/drive.file",
+          "https://www.googleapis.com/auth/presentations"
+        ]
+      },
+      guidanceMd: "Connect Google Slides to read and update presentations.",
+      warnings: [
+        "Presentation updates require approval.",
+        "Google Workspace MCP servers are in Developer Preview."
+      ],
+      riskTier: "S4"
+    },
+    {
+      key: "customer-write-oauth",
+      label: "Use your own Google OAuth app",
+      transport: "mcp_remote",
+      auth: "oauth",
+      capabilityProfile: {
+        key: "write",
+        label: "Read & edit",
+        description: "Read and update presentations."
+      },
+      grantKinds: [
+        "user",
+        "organization"
+      ],
+      ownershipModes: [
+        "customer"
+      ],
+      whenToUse: "Use a customer-owned OAuth client to read and update Slides.",
+      defaults: {
+        serverUrl: "https://slidesmcp.googleapis.com/mcp/v1",
+        authorizationEndpoint: "https://accounts.google.com/o/oauth2/v2/auth",
+        tokenEndpoint: "https://oauth2.googleapis.com/token",
+        metadataUrl: "https://accounts.google.com/.well-known/openid-configuration",
+        scopesHint: [
+          "https://www.googleapis.com/auth/drive.readonly",
+          "https://www.googleapis.com/auth/drive.file",
+          "https://www.googleapis.com/auth/presentations"
+        ],
+        oauthAuthorizationParams: {
+          access_type: "offline",
+          prompt: "consent"
+        }
+      },
+      guidanceMd: "Enable the Drive, Slides, and Slides MCP APIs, then register Paperclip's callback URI.",
+      consoleLinks: {
+        register: "https://console.cloud.google.com/auth/clients",
+        docs: "https://developers.google.com/workspace/guides/configure-mcp-servers"
+      },
+      warnings: [
+        "Presentation updates require approval.",
+        "Google Workspace MCP servers are in Developer Preview."
+      ],
+      riskTier: "S4"
+    }
+  ]
+};
+
+// ../../shared/src/app-definitions/google-calendar.json
+var google_calendar_default = {
+  schemaVersion: 1,
+  slug: "google-calendar",
+  name: "Google Calendar",
+  description: "Read calendars and manage Google Calendar events.",
+  categories: [
+    "productivity"
+  ],
+  featured: true,
+  branding: {
+    logoUrl: "/brands/apps/google-calendar.svg"
+  },
+  urlPatterns: [
+    "https://calendarmcp.googleapis.com/*",
+    "https://calendar.google.com/*"
+  ],
+  docsUrl: "https://developers.google.com/workspace/calendar/api/reference/mcp",
+  setupPrerequisite: {
+    title: "Google Developer Preview access required",
+    description: "Google must register both the Workspace email used to authorize Paperclip and the Google Cloud project that owns the OAuth client. Registration is limited to those emails and projects; it does not enable unrelated Paperclip customers.",
+    steps: [
+      "Apply with the Workspace email that will sign in and the Google Cloud project that owns the OAuth client.",
+      "Wait for the Google Group notification and then Google's final project-registration email, usually within a couple of days.",
+      "Add every additional tester email or Cloud project through Google's member request forms before connecting."
+    ],
+    actionLabel: "Apply or verify Developer Preview enrollment",
+    actionUrl: "https://developers.google.com/workspace/preview"
+  },
+  redirectConstraints: "https-or-loopback-http",
+  methods: [
+    {
+      key: "paperclip-read",
+      label: "Connect with Paperclip",
+      transport: "mcp_remote",
+      auth: "oauth",
+      oauthStrategy: "paperclip_cloud_connector",
+      connectorProfile: "calendar.read",
+      capabilityProfile: {
+        key: "read",
+        label: "Read only",
+        description: "Read calendars, events, and availability."
+      },
+      grantKinds: [
+        "user",
+        "organization"
+      ],
+      ownershipModes: [
+        "platform_shared"
+      ],
+      whenToUse: "Use Paperclip-managed OAuth for read-only Calendar access.",
+      defaults: {
+        serverUrl: "https://calendarmcp.googleapis.com/mcp/v1",
+        scopesHint: [
+          "https://www.googleapis.com/auth/calendar.calendarlist.readonly",
+          "https://www.googleapis.com/auth/calendar.events.freebusy",
+          "https://www.googleapis.com/auth/calendar.events.readonly"
+        ]
+      },
+      guidanceMd: "Connect Google Calendar to read schedules and availability.",
+      warnings: [
+        "Google Workspace MCP servers are in Developer Preview."
+      ],
+      riskTier: "S3"
+    },
+    {
+      key: "customer-read-oauth",
+      label: "Use your own Google OAuth app",
+      transport: "mcp_remote",
+      auth: "oauth",
+      capabilityProfile: {
+        key: "read",
+        label: "Read only",
+        description: "Read calendars, events, and availability."
+      },
+      grantKinds: [
+        "user",
+        "organization"
+      ],
+      ownershipModes: [
+        "customer"
+      ],
+      whenToUse: "Use a customer-owned OAuth client for read-only Calendar access.",
+      defaults: {
+        serverUrl: "https://calendarmcp.googleapis.com/mcp/v1",
+        authorizationEndpoint: "https://accounts.google.com/o/oauth2/v2/auth",
+        tokenEndpoint: "https://oauth2.googleapis.com/token",
+        metadataUrl: "https://accounts.google.com/.well-known/openid-configuration",
+        scopesHint: [
+          "https://www.googleapis.com/auth/calendar.calendarlist.readonly",
+          "https://www.googleapis.com/auth/calendar.events.freebusy",
+          "https://www.googleapis.com/auth/calendar.events.readonly"
+        ],
+        oauthAuthorizationParams: {
+          access_type: "offline",
+          prompt: "consent"
+        }
+      },
+      guidanceMd: "Enable the Calendar and Calendar MCP APIs, then register Paperclip's callback URI.",
+      consoleLinks: {
+        register: "https://console.cloud.google.com/auth/clients",
+        docs: "https://developers.google.com/workspace/guides/configure-mcp-servers"
+      },
+      warnings: [
+        "Google Workspace MCP servers are in Developer Preview."
+      ],
+      riskTier: "S3"
+    },
+    {
+      key: "paperclip-write",
+      label: "Connect with Paperclip",
+      transport: "mcp_remote",
+      auth: "oauth",
+      oauthStrategy: "paperclip_cloud_connector",
+      connectorProfile: "calendar.write",
+      capabilityProfile: {
+        key: "write",
+        label: "Read & manage",
+        description: "Create, update, respond to, and delete events."
+      },
+      grantKinds: [
+        "user",
+        "organization"
+      ],
+      ownershipModes: [
+        "platform_shared"
+      ],
+      whenToUse: "Use Paperclip-managed OAuth to read and manage Calendar events.",
+      defaults: {
+        serverUrl: "https://calendarmcp.googleapis.com/mcp/v1",
+        scopesHint: [
+          "https://www.googleapis.com/auth/calendar.calendarlist.readonly",
+          "https://www.googleapis.com/auth/calendar.events.freebusy",
+          "https://www.googleapis.com/auth/calendar.events"
+        ]
+      },
+      guidanceMd: "Connect Google Calendar to read and manage events.",
+      warnings: [
+        "All event mutations require approval.",
+        "Google Workspace MCP servers are in Developer Preview."
+      ],
+      riskTier: "S4"
+    },
+    {
+      key: "customer-write-oauth",
+      label: "Use your own Google OAuth app",
+      transport: "mcp_remote",
+      auth: "oauth",
+      capabilityProfile: {
+        key: "write",
+        label: "Read & manage",
+        description: "Create, update, respond to, and delete events."
+      },
+      grantKinds: [
+        "user",
+        "organization"
+      ],
+      ownershipModes: [
+        "customer"
+      ],
+      whenToUse: "Use a customer-owned OAuth client to read and manage Calendar events.",
+      defaults: {
+        serverUrl: "https://calendarmcp.googleapis.com/mcp/v1",
+        authorizationEndpoint: "https://accounts.google.com/o/oauth2/v2/auth",
+        tokenEndpoint: "https://oauth2.googleapis.com/token",
+        metadataUrl: "https://accounts.google.com/.well-known/openid-configuration",
+        scopesHint: [
+          "https://www.googleapis.com/auth/calendar.calendarlist.readonly",
+          "https://www.googleapis.com/auth/calendar.events.freebusy",
+          "https://www.googleapis.com/auth/calendar.events"
+        ],
+        oauthAuthorizationParams: {
+          access_type: "offline",
+          prompt: "consent"
+        }
+      },
+      guidanceMd: "Enable the Calendar and Calendar MCP APIs, then register Paperclip's callback URI.",
+      consoleLinks: {
+        register: "https://console.cloud.google.com/auth/clients",
+        docs: "https://developers.google.com/workspace/guides/configure-mcp-servers"
+      },
+      warnings: [
+        "All event mutations require approval.",
+        "Google Workspace MCP servers are in Developer Preview."
+      ],
+      riskTier: "S4"
+    }
+  ]
+};
+
+// ../../shared/src/app-definitions/google-chat.json
+var google_chat_default = {
+  schemaVersion: 1,
+  slug: "google-chat",
+  name: "Google Chat",
+  description: "Search and read Google Chat conversations and send messages.",
+  categories: [
+    "communication",
+    "productivity"
+  ],
+  featured: false,
+  branding: {
+    logoUrl: "/brands/apps/google-chat.svg"
+  },
+  urlPatterns: [
+    "https://chatmcp.googleapis.com/*",
+    "https://chat.google.com/*"
+  ],
+  docsUrl: "https://developers.google.com/workspace/chat/api/reference/mcp",
+  setupPrerequisite: {
+    title: "Google Developer Preview access required",
+    description: "Google must register both the Workspace email used to authorize Paperclip and the Google Cloud project that owns the OAuth client. Registration is limited to those emails and projects; it does not enable unrelated Paperclip customers.",
+    steps: [
+      "Apply with the Workspace email that will sign in and the Google Cloud project that owns the OAuth client.",
+      "Wait for the Google Group notification and then Google's final project-registration email, usually within a couple of days.",
+      "Add every additional tester email or Cloud project through Google's member request forms before connecting."
+    ],
+    actionLabel: "Apply or verify Developer Preview enrollment",
+    actionUrl: "https://developers.google.com/workspace/preview"
+  },
+  redirectConstraints: "https-or-loopback-http",
+  methods: [
+    {
+      key: "paperclip-read",
+      label: "Connect with Paperclip",
+      transport: "mcp_remote",
+      auth: "oauth",
+      oauthStrategy: "paperclip_cloud_connector",
+      connectorProfile: "chat.read",
+      capabilityProfile: {
+        key: "read",
+        label: "Read only",
+        description: "Search conversations and read messages."
+      },
+      grantKinds: [
+        "user",
+        "organization"
+      ],
+      ownershipModes: [
+        "platform_shared"
+      ],
+      whenToUse: "Use Paperclip-managed OAuth for read-only Chat access.",
+      defaults: {
+        serverUrl: "https://chatmcp.googleapis.com/mcp/v1",
+        scopesHint: [
+          "https://www.googleapis.com/auth/chat.spaces.readonly",
+          "https://www.googleapis.com/auth/chat.memberships.readonly",
+          "https://www.googleapis.com/auth/chat.messages.readonly",
+          "https://www.googleapis.com/auth/chat.users.readstate.readonly"
+        ]
+      },
+      guidanceMd: "Connect Google Chat to search conversations and read messages.",
+      warnings: [
+        "Google Workspace MCP servers are in Developer Preview."
+      ],
+      riskTier: "S3"
+    },
+    {
+      key: "customer-read-oauth",
+      label: "Use your own Google OAuth app",
+      transport: "mcp_remote",
+      auth: "oauth",
+      capabilityProfile: {
+        key: "read",
+        label: "Read only",
+        description: "Search conversations and read messages."
+      },
+      grantKinds: [
+        "user",
+        "organization"
+      ],
+      ownershipModes: [
+        "customer"
+      ],
+      whenToUse: "Use a customer-owned OAuth client for read-only Chat access.",
+      defaults: {
+        serverUrl: "https://chatmcp.googleapis.com/mcp/v1",
+        authorizationEndpoint: "https://accounts.google.com/o/oauth2/v2/auth",
+        tokenEndpoint: "https://oauth2.googleapis.com/token",
+        metadataUrl: "https://accounts.google.com/.well-known/openid-configuration",
+        scopesHint: [
+          "https://www.googleapis.com/auth/chat.spaces.readonly",
+          "https://www.googleapis.com/auth/chat.memberships.readonly",
+          "https://www.googleapis.com/auth/chat.messages.readonly",
+          "https://www.googleapis.com/auth/chat.users.readstate.readonly"
+        ],
+        oauthAuthorizationParams: {
+          access_type: "offline",
+          prompt: "consent"
+        }
+      },
+      guidanceMd: "Enable the Chat and Chat MCP APIs, configure a Chat app, then register Paperclip's callback URI.",
+      consoleLinks: {
+        register: "https://console.cloud.google.com/auth/clients",
+        docs: "https://developers.google.com/workspace/guides/configure-mcp-servers"
+      },
+      warnings: [
+        "A Google Chat app must be configured in the Cloud project.",
+        "Google Workspace MCP servers are in Developer Preview."
+      ],
+      riskTier: "S3"
+    },
+    {
+      key: "paperclip-write",
+      label: "Connect with Paperclip",
+      transport: "mcp_remote",
+      auth: "oauth",
+      oauthStrategy: "paperclip_cloud_connector",
+      connectorProfile: "chat.write",
+      capabilityProfile: {
+        key: "write",
+        label: "Read & send",
+        description: "Read Chat and send messages."
+      },
+      grantKinds: [
+        "user",
+        "organization"
+      ],
+      ownershipModes: [
+        "platform_shared"
+      ],
+      whenToUse: "Use Paperclip-managed OAuth to read Chat and send messages.",
+      defaults: {
+        serverUrl: "https://chatmcp.googleapis.com/mcp/v1",
+        scopesHint: [
+          "https://www.googleapis.com/auth/chat.spaces.readonly",
+          "https://www.googleapis.com/auth/chat.memberships.readonly",
+          "https://www.googleapis.com/auth/chat.messages.readonly",
+          "https://www.googleapis.com/auth/chat.users.readstate.readonly",
+          "https://www.googleapis.com/auth/chat.messages.create"
+        ]
+      },
+      guidanceMd: "Connect Google Chat to read conversations and send approved messages.",
+      warnings: [
+        "Sending messages requires approval.",
+        "Google Workspace MCP servers are in Developer Preview."
+      ],
+      riskTier: "S4"
+    },
+    {
+      key: "customer-write-oauth",
+      label: "Use your own Google OAuth app",
+      transport: "mcp_remote",
+      auth: "oauth",
+      capabilityProfile: {
+        key: "write",
+        label: "Read & send",
+        description: "Read Chat and send messages."
+      },
+      grantKinds: [
+        "user",
+        "organization"
+      ],
+      ownershipModes: [
+        "customer"
+      ],
+      whenToUse: "Use a customer-owned OAuth client to read Chat and send messages.",
+      defaults: {
+        serverUrl: "https://chatmcp.googleapis.com/mcp/v1",
+        authorizationEndpoint: "https://accounts.google.com/o/oauth2/v2/auth",
+        tokenEndpoint: "https://oauth2.googleapis.com/token",
+        metadataUrl: "https://accounts.google.com/.well-known/openid-configuration",
+        scopesHint: [
+          "https://www.googleapis.com/auth/chat.spaces.readonly",
+          "https://www.googleapis.com/auth/chat.memberships.readonly",
+          "https://www.googleapis.com/auth/chat.messages.readonly",
+          "https://www.googleapis.com/auth/chat.users.readstate.readonly",
+          "https://www.googleapis.com/auth/chat.messages.create"
+        ],
+        oauthAuthorizationParams: {
+          access_type: "offline",
+          prompt: "consent"
+        }
+      },
+      guidanceMd: "Enable the Chat and Chat MCP APIs, configure a Chat app, then register Paperclip's callback URI.",
+      consoleLinks: {
+        register: "https://console.cloud.google.com/auth/clients",
+        docs: "https://developers.google.com/workspace/guides/configure-mcp-servers"
+      },
+      warnings: [
+        "Sending messages requires approval.",
+        "A Google Chat app must be configured in the Cloud project.",
+        "Google Workspace MCP servers are in Developer Preview."
+      ],
+      riskTier: "S4"
+    }
+  ]
+};
+
+// ../../shared/src/app-definitions/google-people.json
+var google_people_default = {
+  schemaVersion: 1,
+  slug: "google-people",
+  name: "Google People",
+  description: "Search contacts and directory profiles with the Google People API.",
+  categories: [
+    "communication",
+    "productivity"
+  ],
+  featured: false,
+  branding: {
+    logoUrl: "/brands/apps/google-people.svg"
+  },
+  urlPatterns: [
+    "https://people.googleapis.com/*"
+  ],
+  docsUrl: "https://developers.google.com/people/api/mcp",
+  setupPrerequisite: {
+    title: "Google Developer Preview access required",
+    description: "Google must register both the Workspace email used to authorize Paperclip and the Google Cloud project that owns the OAuth client. Registration is limited to those emails and projects; it does not enable unrelated Paperclip customers.",
+    steps: [
+      "Apply with the Workspace email that will sign in and the Google Cloud project that owns the OAuth client.",
+      "Wait for the Google Group notification and then Google's final project-registration email, usually within a couple of days.",
+      "Add every additional tester email or Cloud project through Google's member request forms before connecting."
+    ],
+    actionLabel: "Apply or verify Developer Preview enrollment",
+    actionUrl: "https://developers.google.com/workspace/preview"
+  },
+  redirectConstraints: "https-or-loopback-http",
+  methods: [
+    {
+      key: "paperclip-read",
+      label: "Connect with Paperclip",
+      transport: "mcp_remote",
+      auth: "oauth",
+      oauthStrategy: "paperclip_cloud_connector",
+      connectorProfile: "people.read",
+      capabilityProfile: {
+        key: "read",
+        label: "Read contacts",
+        description: "Search contacts, directory people, and your profile."
+      },
+      grantKinds: [
+        "user",
+        "organization"
+      ],
+      ownershipModes: [
+        "platform_shared"
+      ],
+      whenToUse: "Use Paperclip-managed OAuth for Google People access.",
+      defaults: {
+        serverUrl: "https://people.googleapis.com/mcp/v1",
+        scopesHint: [
+          "https://www.googleapis.com/auth/directory.readonly",
+          "https://www.googleapis.com/auth/userinfo.profile",
+          "https://www.googleapis.com/auth/contacts.readonly"
+        ]
+      },
+      guidanceMd: "Connect Google People to search contacts and directory profiles.",
+      warnings: [
+        "Google Workspace MCP servers are in Developer Preview."
+      ],
+      riskTier: "S3"
+    },
+    {
+      key: "customer-read-oauth",
+      label: "Use your own Google OAuth app",
+      transport: "mcp_remote",
+      auth: "oauth",
+      capabilityProfile: {
+        key: "read",
+        label: "Read contacts",
+        description: "Search contacts, directory people, and your profile."
+      },
+      grantKinds: [
+        "user",
+        "organization"
+      ],
+      ownershipModes: [
+        "customer"
+      ],
+      whenToUse: "Use a customer-owned OAuth client for Google People access.",
+      defaults: {
+        serverUrl: "https://people.googleapis.com/mcp/v1",
+        authorizationEndpoint: "https://accounts.google.com/o/oauth2/v2/auth",
+        tokenEndpoint: "https://oauth2.googleapis.com/token",
+        metadataUrl: "https://accounts.google.com/.well-known/openid-configuration",
+        scopesHint: [
+          "https://www.googleapis.com/auth/directory.readonly",
+          "https://www.googleapis.com/auth/userinfo.profile",
+          "https://www.googleapis.com/auth/contacts.readonly"
+        ],
+        oauthAuthorizationParams: {
+          access_type: "offline",
+          prompt: "consent"
+        }
+      },
+      guidanceMd: "Enable the People and People MCP APIs, then register Paperclip's callback URI.",
+      consoleLinks: {
+        register: "https://console.cloud.google.com/auth/clients",
+        docs: "https://developers.google.com/workspace/guides/configure-mcp-servers"
+      },
+      warnings: [
+        "Directory search availability depends on your Workspace account.",
+        "Google Workspace MCP servers are in Developer Preview."
+      ],
+      riskTier: "S3"
+    }
+  ]
+};
+
+// ../../shared/src/app-definitions/google-workspace-search.json
+var google_workspace_search_default = {
+  schemaVersion: 1,
+  slug: "google-workspace-search",
+  name: "Google Workspace Search",
+  description: "Search Gmail, Drive, Calendar, and Chat through one read-only Google Workspace search tool.",
+  categories: [
+    "data",
+    "productivity"
+  ],
+  featured: false,
+  branding: {
+    logoUrl: "/brands/apps/google-workspace-search.svg"
+  },
+  urlPatterns: [
+    "https://workspacemcp.googleapis.com/*"
+  ],
+  docsUrl: "https://developers.google.com/workspace/guides/universal-search-mcp",
+  setupPrerequisite: {
+    title: "Google Developer Preview access required",
+    description: "Google must register both the Workspace email used to authorize Paperclip and the Google Cloud project that owns the OAuth client. Registration is limited to those emails and projects; it does not enable unrelated Paperclip customers.",
+    steps: [
+      "Apply with the Workspace email that will sign in and the Google Cloud project that owns the OAuth client.",
+      "Wait for the Google Group notification and then Google's final project-registration email, usually within a couple of days.",
+      "Add every additional tester email or Cloud project through Google's member request forms before connecting."
+    ],
+    actionLabel: "Apply or verify Developer Preview enrollment",
+    actionUrl: "https://developers.google.com/workspace/preview"
+  },
+  redirectConstraints: "https-or-loopback-http",
+  methods: [
+    {
+      key: "paperclip-read",
+      label: "Connect with Paperclip",
+      transport: "mcp_remote",
+      auth: "oauth",
+      oauthStrategy: "paperclip_cloud_connector",
+      connectorProfile: "workspace-search.read",
+      capabilityProfile: {
+        key: "read",
+        label: "Search Workspace",
+        description: "Search Gmail, Drive, Calendar, and Chat without write access."
+      },
+      grantKinds: [
+        "user",
+        "organization"
+      ],
+      ownershipModes: [
+        "platform_shared"
+      ],
+      whenToUse: "Use Paperclip-managed OAuth for cross-product Workspace search.",
+      defaults: {
+        serverUrl: "https://workspacemcp.googleapis.com/mcp/v1",
+        scopesHint: [
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/drive.readonly",
+          "https://www.googleapis.com/auth/calendar.readonly",
+          "https://www.googleapis.com/auth/chat.messages.readonly"
+        ]
+      },
+      guidanceMd: "Connect Google Workspace Search for one read-only search tool spanning Gmail, Drive, Calendar, and Chat.",
+      warnings: [
+        "This requests read access to all four supported search corpora.",
+        "Google Workspace MCP servers are in Developer Preview."
+      ],
+      riskTier: "S3"
+    },
+    {
+      key: "customer-read-oauth",
+      label: "Use your own Google OAuth app",
+      transport: "mcp_remote",
+      auth: "oauth",
+      capabilityProfile: {
+        key: "read",
+        label: "Search Workspace",
+        description: "Search Gmail, Drive, Calendar, and Chat without write access."
+      },
+      grantKinds: [
+        "user",
+        "organization"
+      ],
+      ownershipModes: [
+        "customer"
+      ],
+      whenToUse: "Use a customer-owned OAuth client for cross-product Workspace search.",
+      defaults: {
+        serverUrl: "https://workspacemcp.googleapis.com/mcp/v1",
+        authorizationEndpoint: "https://accounts.google.com/o/oauth2/v2/auth",
+        tokenEndpoint: "https://oauth2.googleapis.com/token",
+        metadataUrl: "https://accounts.google.com/.well-known/openid-configuration",
+        scopesHint: [
+          "https://www.googleapis.com/auth/gmail.readonly",
+          "https://www.googleapis.com/auth/drive.readonly",
+          "https://www.googleapis.com/auth/calendar.readonly",
+          "https://www.googleapis.com/auth/chat.messages.readonly"
+        ],
+        oauthAuthorizationParams: {
+          access_type: "offline",
+          prompt: "consent"
+        }
+      },
+      guidanceMd: "Enable the Gmail, Drive, Calendar, Chat, and Workspace MCP APIs, then register Paperclip's callback URI.",
+      consoleLinks: {
+        register: "https://console.cloud.google.com/auth/clients",
+        docs: "https://developers.google.com/workspace/guides/universal-search-mcp"
+      },
+      warnings: [
+        "This requests read access to all four supported search corpora.",
+        "Google Workspace MCP servers are in Developer Preview."
+      ],
+      riskTier: "S3"
+    }
+  ]
+};
+
+// ../../shared/src/app-definitions/openai.json
+var openai_default = {
+  schemaVersion: 1,
+  slug: "openai",
+  name: "OpenAI",
+  description: "Connect OpenAI accounts for your agents.",
+  categories: [
+    "ai"
+  ],
+  branding: {
+    logoUrl: "/brands/apps/openai.svg",
+    darkLogoUrl: "/brands/apps/openai-dark.svg"
+  },
+  urlPatterns: [
+    "https://api.openai.com/*"
+  ],
+  methods: [
+    {
+      key: "ai-subscription",
+      label: "OpenAI subscription",
+      purpose: "ai",
+      transport: "runtime_auth",
+      auth: "oauth",
+      ai: {
+        provider: "openai",
+        method: "subscription"
+      },
+      grantKinds: [
+        "user",
+        "organization"
+      ],
+      ownershipModes: [
+        "customer"
+      ],
+      whenToUse: "Authenticate an agent with this account.",
+      guidanceMd: "Use your personal account or an explicitly shared company account.",
+      riskTier: "S3"
+    },
+    {
+      key: "ai-api_key",
+      label: "OpenAI API key",
+      purpose: "ai",
+      transport: "runtime_auth",
+      auth: "api_key",
+      ai: {
+        provider: "openai",
+        method: "api_key"
+      },
+      grantKinds: [
+        "user",
+        "organization"
+      ],
+      ownershipModes: [
+        "customer"
+      ],
+      whenToUse: "Authenticate an agent with this account.",
+      guidanceMd: "Use your personal account or an explicitly shared company account.",
+      riskTier: "S3",
+      credentialFields: [
+        {
+          key: "apiKey",
+          label: "API key",
+          type: "password",
+          required: true,
+          placeholder: "Enter API key",
+          secret: true
+        }
+      ],
+      keyPlacement: {
+        location: "env",
+        name: "OPENAI_API_KEY"
+      }
+    }
+  ]
+};
+
+// ../../shared/src/app-definitions/openrouter.json
+var openrouter_default = {
+  schemaVersion: 1,
+  slug: "openrouter",
+  name: "OpenRouter",
+  description: "Connect OpenRouter accounts for your agents.",
+  categories: [
+    "ai"
+  ],
+  branding: {
+    logoUrl: "/brands/apps/openrouter.svg",
+    darkLogoUrl: "/brands/apps/openrouter-dark.svg"
+  },
+  urlPatterns: [
+    "https://openrouter.ai/api/*"
+  ],
+  methods: [
+    {
+      key: "ai-api_key",
+      label: "OpenRouter API key",
+      purpose: "ai",
+      transport: "runtime_auth",
+      auth: "api_key",
+      ai: {
+        provider: "openrouter",
+        method: "api_key"
+      },
+      grantKinds: [
+        "user",
+        "organization"
+      ],
+      ownershipModes: [
+        "customer"
+      ],
+      whenToUse: "Authenticate an agent with this account.",
+      guidanceMd: "Use your personal account or an explicitly shared company account.",
+      riskTier: "S3",
+      credentialFields: [
+        {
+          key: "apiKey",
+          label: "API key",
+          type: "password",
+          required: true,
+          placeholder: "Enter API key",
+          secret: true
+        }
+      ],
+      keyPlacement: {
+        location: "env",
+        name: "OPENROUTER_API_KEY"
+      }
+    }
+  ]
+};
+
+// ../../shared/src/app-definitions/xai.json
+var xai_default = {
+  schemaVersion: 1,
+  slug: "xai",
+  name: "Grok",
+  description: "Connect Grok accounts for your agents.",
+  categories: [
+    "ai"
+  ],
+  branding: {
+    logoUrl: "/brands/apps/xai.svg",
+    darkLogoUrl: "/brands/apps/xai-dark.svg"
+  },
+  urlPatterns: [
+    "https://api.x.ai/*"
+  ],
+  methods: [
+    {
+      key: "ai-subscription",
+      label: "Grok subscription",
+      purpose: "ai",
+      transport: "runtime_auth",
+      auth: "oauth",
+      ai: {
+        provider: "xai",
+        method: "subscription"
+      },
+      grantKinds: [
+        "user",
+        "organization"
+      ],
+      ownershipModes: [
+        "customer"
+      ],
+      whenToUse: "Authenticate an agent with this account.",
+      guidanceMd: "Use your personal account or an explicitly shared company account.",
+      riskTier: "S3"
+    },
+    {
+      key: "ai-api_key",
+      label: "Grok API key",
+      purpose: "ai",
+      transport: "runtime_auth",
+      auth: "api_key",
+      ai: {
+        provider: "xai",
+        method: "api_key"
+      },
+      grantKinds: [
+        "user",
+        "organization"
+      ],
+      ownershipModes: [
+        "customer"
+      ],
+      whenToUse: "Authenticate an agent with this account.",
+      guidanceMd: "Use your personal account or an explicitly shared company account.",
+      riskTier: "S3",
+      credentialFields: [
+        {
+          key: "apiKey",
+          label: "API key",
+          type: "password",
+          required: true,
+          placeholder: "Enter API key",
+          secret: true
+        }
+      ],
+      keyPlacement: {
+        location: "env",
+        name: "XAI_API_KEY"
       }
     }
   ]
 };
 
 // ../../shared/src/app-definitions.generated.ts
-var APP_DEFINITIONS = [zapier_default, github_default, slack_default, notion_default, linear_default, google_sheets_default, context7_default, oauth_generic_default, api_key_generic_default, sentry_default, vercel_default, anthropic_default];
+var APP_DEFINITIONS = [agentmail_default, zapier_default, github_default, slack_default, microsoft_teams_default, imessage_photon_default, telegram_default, discord_default, notion_default, posthog_default, linear_default, context7_default, shopify_default, composio_default, oauth_generic_default, api_key_generic_default, sentry_default, vercel_default, anthropic_default, jira_default, airtable_default, beehiiv_default, bitly_default, candid_default, cloudflare_default, cloudinary_default, coda_default, hugging_face_default, kernel_default, local_falcon_default, make_default, manufact_default, miro_default, netlify_default, oreilly_default, planetscale_default, resend_default, ticktick_default, todoist_default, webflow_default, wix_default, brex_default, clickhouse_default, egnyte_default, embat_default, mixpanel_default, postman_default, razorpay_default, sanity_default, stripe_default, supabase_default, ticket_tailor_default, asana_default, box_default, mem0_default, pagerduty_default, similarweb_default, xero_default, gmail_default, google_drive_default, google_docs_default, google_sheets_default, google_slides_default, google_calendar_default, google_chat_default, google_people_default, google_workspace_search_default, openai_default, openrouter_default, xai_default];
+
+// ../../shared/src/self-serve-mcp-research.json
+var self_serve_mcp_research_default = {
+  schemaVersion: 1,
+  verifiedAt: "2026-08-26",
+  entries: [
+    { slug: "jira", name: "Jira", wave: 1, status: "self_serve", docsUrl: "https://support.atlassian.com/atlassian-rovo-mcp-server/docs/getting-started-with-the-atlassian-remote-mcp-server/", serverUrl: "https://mcp.atlassian.com/v1/mcp/authv2", authMode: "dcr_cimd", prerequisite: "An active Jira or Confluence site; tenant policy may require an administrator to approve the client.", riskTier: "S3" },
+    { slug: "airtable", name: "Airtable", wave: 1, status: "self_serve", docsUrl: "https://support.airtable.com/articles/9897799762-using-the-airtable-mcp-server", serverUrl: "https://mcp.airtable.com/mcp", authMode: "dcr", prerequisite: "An Airtable account; enterprise administrators may need to allowlist the client.", riskTier: "S3" },
+    { slug: "beehiiv", name: "beehiiv", wave: 1, status: "self_serve", docsUrl: "https://www.beehiiv.com/features/mcp/getting-started", serverUrl: "https://mcp.beehiiv.com/mcp", authMode: "dcr", prerequisite: "A beehiiv account; the subscription plan controls available write capabilities.", riskTier: "S3" },
+    { slug: "bitly", name: "Bitly", wave: 1, status: "self_serve", docsUrl: "https://dev.bitly.com/bitly-mcp/overview/quickstart/", serverUrl: "https://api-ssl.bitly.com/v4/mcp", authMode: "dcr_or_api_key", prerequisite: "A Bitly account with either browser authorization or an API token.", riskTier: "S2" },
+    { slug: "candid", name: "Candid", wave: 1, status: "self_serve", docsUrl: "https://learning.candid.org/getting-started-with-the-candid-mcp-connector/375441", serverUrl: "https://mcp.candid.org/mcp", authMode: "dcr", prerequisite: "A Candid account with access to the MCP connector.", riskTier: "S2" },
+    { slug: "cloudflare", name: "Cloudflare", wave: 1, status: "self_serve", docsUrl: "https://developers.cloudflare.com/agents/model-context-protocol/cloudflare/servers-for-cloudflare/", serverUrl: "https://mcp.cloudflare.com/mcp", authMode: "dcr_or_api_key", prerequisite: "A Cloudflare account with access to the resources being connected.", riskTier: "S3" },
+    { slug: "cloudinary", name: "Cloudinary", wave: 1, status: "self_serve", docsUrl: "https://cloudinary.com/documentation/cloudinary_llm_mcp", serverUrl: "https://asset-management.mcp.cloudinary.com/mcp", authMode: "dcr", prerequisite: "A Cloudinary account; authorization is limited by the signed-in user's roles.", riskTier: "S3" },
+    { slug: "coda", name: "Coda", wave: 1, status: "self_serve", docsUrl: "https://help.coda.io/hc/en-us/articles/44722769665549-Security-recommendations-for-the-Coda-MCP", serverUrl: "https://coda.io/apis/mcp", authMode: "dcr_or_api_key", prerequisite: "A Coda account; the hosted MCP service is currently beta.", riskTier: "S3" },
+    { slug: "hugging-face", name: "Hugging Face", wave: 1, status: "self_serve", docsUrl: "https://huggingface.co/docs/hub/agents-mcp", serverUrl: "https://huggingface.co/mcp?login&gradio=none", authMode: "dcr_cimd", prerequisite: "A Hugging Face account.", riskTier: "S2" },
+    { slug: "kernel", name: "Kernel", wave: 1, status: "self_serve", docsUrl: "https://www.kernel.sh/docs/reference/mcp-server/", serverUrl: "https://mcp.onkernel.com/mcp", authMode: "dcr_or_api_key", prerequisite: "A Kernel account with either browser authorization or an API key.", riskTier: "S3" },
+    { slug: "local-falcon", name: "Local Falcon", wave: 1, status: "self_serve", docsUrl: "https://docs.localfalcon.com/", serverUrl: "https://mcp.localfalcon.com", authMode: "dcr", prerequisite: "A Local Falcon account with MCP access.", riskTier: "S2" },
+    { slug: "make", name: "Make", wave: 1, status: "self_serve", docsUrl: "https://developers.make.com/mcp-server", serverUrl: "https://mcp.make.com", authMode: "dcr", prerequisite: "A Make account and access to the scenarios exposed to MCP.", riskTier: "S3" },
+    { slug: "manufact", name: "Manufact", wave: 1, status: "self_serve", docsUrl: "https://docs.manufact.com/mcp", serverUrl: "https://mcp.manufact.com/mcp", authMode: "dcr", prerequisite: "A Manufact account with MCP access.", riskTier: "S3" },
+    { slug: "miro", name: "Miro", wave: 1, status: "self_serve", docsUrl: "https://help.miro.com/hc/en-us/articles/31625301583890-How-to-enable-Miro-s-MCP-Server-user-guide", serverUrl: "https://mcp.miro.com/", authMode: "dcr", prerequisite: "A Miro account; enterprise administrators may restrict third-party MCP clients.", riskTier: "S3" },
+    { slug: "netlify", name: "Netlify", wave: 1, status: "self_serve", docsUrl: "https://docs.netlify.com/build/build-with-ai/agent-setup-guides/agent-setup-overview/", serverUrl: "https://netlify-mcp.netlify.app/mcp", authMode: "dcr", prerequisite: "A Netlify account with access to the relevant team and sites.", riskTier: "S3" },
+    { slug: "notion", name: "Notion", wave: 1, status: "self_serve", docsUrl: "https://developers.notion.com/guides/mcp/build-mcp-client", serverUrl: "https://mcp.notion.com/mcp", authMode: "dcr", prerequisite: "A Notion account and access to the pages or databases being shared.", riskTier: "S3" },
+    { slug: "oreilly", name: "O'Reilly", wave: 1, status: "self_serve", docsUrl: "https://learning.oreilly.com/apidocs/mcp/content/", serverUrl: "https://api.oreilly.com/api/content-discovery/v1/mcp/", authMode: "dcr_or_api_key", prerequisite: "An O'Reilly Learning subscription with MCP or API access.", riskTier: "S2" },
+    { slug: "planetscale", name: "PlanetScale", wave: 1, status: "self_serve", docsUrl: "https://planetscale.com/docs/connect/mcp", serverUrl: "https://mcp.pscale.dev/mcp/planetscale", authMode: "dcr", prerequisite: "A PlanetScale account; database and branch access are chosen during authorization.", riskTier: "S4" },
+    { slug: "posthog", name: "PostHog", wave: 1, status: "self_serve", docsUrl: "https://posthog.com/docs/model-context-protocol", serverUrl: "https://mcp.posthog.com/mcp", authMode: "dcr_or_api_key", prerequisite: "A PostHog account; personal API keys and optional organization or project pinning are supported as alternatives and advanced controls.", riskTier: "S3" },
+    { slug: "resend", name: "Resend", wave: 1, status: "self_serve", docsUrl: "https://resend.com/changelog/remote-mcp-server", serverUrl: "https://mcp.resend.com/mcp", authMode: "dcr", prerequisite: "A Resend account with access to the relevant domains.", riskTier: "S3" },
+    { slug: "sentry", name: "Sentry", wave: 1, status: "self_serve", docsUrl: "https://mcp.sentry.dev/.well-known/oauth-authorization-server", serverUrl: "https://mcp.sentry.dev/mcp", authMode: "dcr_cimd", prerequisite: "A Sentry account with access to the relevant organizations and projects.", riskTier: "S3" },
+    { slug: "ticktick", name: "TickTick", wave: 1, status: "self_serve", docsUrl: "https://help.ticktick.com/articles/7438129581631995904", serverUrl: "https://mcp.ticktick.com", authMode: "dcr", prerequisite: "A TickTick account with MCP access.", riskTier: "S3" },
+    { slug: "todoist", name: "Todoist", wave: 1, status: "self_serve", docsUrl: "https://developer.todoist.com/", serverUrl: "https://ai.todoist.net/mcp", authMode: "dcr", prerequisite: "A Todoist account.", riskTier: "S3" },
+    { slug: "webflow", name: "Webflow", wave: 1, status: "self_serve", docsUrl: "https://developers.webflow.com/mcp/reference/getting-started", serverUrl: "https://mcp.webflow.com/mcp", authMode: "dcr", prerequisite: "A Webflow account; workspace and site roles constrain accessible sites.", riskTier: "S3" },
+    { slug: "wix", name: "Wix", wave: 1, status: "self_serve", docsUrl: "https://www.wix.com/studio/developers/mcp-server", serverUrl: "https://mcp.wix.com/mcp", authMode: "dcr", prerequisite: "A Wix account with access to the relevant sites.", riskTier: "S3" },
+    { slug: "brex", name: "Brex", wave: 2, status: "self_serve", docsUrl: "https://www.brex.com/support/using-brex-in-ai-apps", serverUrl: "https://api.brex.com/mcp", authMode: "dcr", prerequisite: "Brex early access and an administrator enabling the integration; financial actions require explicit approval.", riskTier: "S4" },
+    { slug: "clickhouse", name: "ClickHouse", wave: 2, status: "self_serve", docsUrl: "https://clickhouse.com/blog/announcing-managed-clickstack-mcp-server", serverUrl: "https://mcp.clickhouse.cloud/clickstack", authMode: "dcr", prerequisite: "A ClickHouse Cloud ClickStack service and its service ID.", riskTier: "S4" },
+    { slug: "egnyte", name: "Egnyte", wave: 2, status: "self_serve", docsUrl: "https://developers.egnyte.com/docs/Remote_MCP_Server", serverUrl: "https://mcp-server.egnyte.com/mcp", authMode: "dcr", prerequisite: "An eligible Egnyte plan and administrator approval for external LLM access.", riskTier: "S3" },
+    { slug: "embat", name: "Embat", wave: 2, status: "self_serve", docsUrl: "https://tellme.embat.io/.well-known/oauth-protected-resource/mcp", serverUrl: "https://tellme.embat.io/mcp", authMode: "dcr_cimd", prerequisite: "An Embat account; pilot the connection because provider setup documentation is sparse.", riskTier: "S4" },
+    { slug: "mixpanel", name: "Mixpanel", wave: 2, status: "self_serve", docsUrl: "https://mixpanel.com/blog/mixpanel-mcp-server/", serverUrl: "https://mcp.mixpanel.com/mcp", authMode: "dcr", prerequisite: "A Mixpanel account; the hosted MCP server is currently beta.", riskTier: "S3" },
+    { slug: "postman", name: "Postman", wave: 2, status: "self_serve", docsUrl: "https://learning.postman.com/latest-v-12/docs/reference/postman-api/postman-mcp-server/postman-mcp-remote-server", serverUrl: "https://mcp.postman.com/minimal", authMode: "dcr_or_api_key", prerequisite: "A Postman account; OAuth is available for US endpoints and API keys are required for EU endpoints.", riskTier: "S3" },
+    { slug: "razorpay", name: "Razorpay", wave: 2, status: "self_serve", docsUrl: "https://razorpay.com/docs/mcp-server/oauth/", serverUrl: "https://mcp.razorpay.com/mcp", authMode: "dcr_or_api_key", prerequisite: "A Razorpay account; financial or destructive actions always require explicit approval.", riskTier: "S4" },
+    { slug: "sanity", name: "Sanity", wave: 2, status: "self_serve", docsUrl: "https://www.sanity.io/docs/ai/mcp-server", serverUrl: "https://mcp.sanity.io", authMode: "dcr_or_api_key", prerequisite: "A Sanity account with access to the relevant projects and datasets.", riskTier: "S3" },
+    { slug: "stripe", name: "Stripe", wave: 2, status: "self_serve", docsUrl: "https://docs.stripe.com/mcp", serverUrl: "https://mcp.stripe.com", authMode: "dcr_or_api_key", prerequisite: "A Stripe account; the server is public preview and payment actions require explicit approval.", riskTier: "S4" },
+    { slug: "supabase", name: "Supabase", wave: 2, status: "self_serve", docsUrl: "https://supabase.com/docs/guides/ai-tools/mcp", serverUrl: "https://mcp.supabase.com/mcp", authMode: "dcr_or_api_key", prerequisite: "A Supabase account; use a development project and review write actions before connecting production data.", riskTier: "S4" },
+    { slug: "ticket-tailor", name: "Ticket Tailor", wave: 2, status: "self_serve", docsUrl: "https://developers.tickettailor.com/docs/mcp/authentication/", serverUrl: "https://mcp.tickettailor.ai/mcp", authMode: "dcr", prerequisite: "A Ticket Tailor account; the provider may request an API key during its hosted authorization prompt.", riskTier: "S3" },
+    { slug: "asana", name: "Asana", wave: 3, status: "self_serve", docsUrl: "https://developers.asana.com/docs/integrating-with-asanas-mcp-server", serverUrl: "https://mcp.asana.com/v2/mcp", authMode: "customer_oauth", prerequisite: "Create an Asana MCP OAuth app and register Paperclip's callback URI; DCR is not supported.", riskTier: "S3" },
+    { slug: "box", name: "Box", wave: 3, status: "self_serve", docsUrl: "https://support.box.com/hc/en-us/articles/43847256139923-Managing-Box-MCP-Servers", serverUrl: "https://mcp.box.com", authMode: "customer_oauth", prerequisite: "A Box administrator creates the OAuth integration and enables AI access.", riskTier: "S3" },
+    { slug: "mem0", name: "Mem0", wave: 3, status: "self_serve", docsUrl: "https://docs.mem0.ai/platform/mem0-mcp", serverUrl: "https://mcp.mem0.ai/mcp/", authMode: "api_key", prerequisite: "A Mem0 API key; the live server currently requires the slash-normalized endpoint.", riskTier: "S3" },
+    { slug: "pagerduty", name: "PagerDuty", wave: 3, status: "self_serve", docsUrl: "https://support.pagerduty.com/main/docs/pagerduty-mcp-server", serverUrl: "https://mcp.pagerduty.com/mcp", authMode: "api_key", prerequisite: "A PagerDuty API token; choose the regional endpoint that hosts the account.", riskTier: "S4" },
+    { slug: "similarweb", name: "Similarweb", wave: 3, status: "self_serve", docsUrl: "https://developers.similarweb.com/docs/similarweb-mcp", serverUrl: "https://mcp.similarweb.com", authMode: "api_key", prerequisite: "A Similarweb subscription with API access and an API key.", riskTier: "S2" },
+    { slug: "xero", name: "Xero", wave: 3, status: "self_serve", docsUrl: "https://developer.xero.com/ai", serverUrl: "https://mcp.xero.com/mcp", authMode: "customer_oauth", prerequisite: "Create a Xero OAuth app and confirm the applicable AI and data-use terms before connecting.", riskTier: "S4" },
+    { slug: "zapier", name: "Zapier", wave: 3, status: "self_serve", docsUrl: "https://docs.zapier.com/mcp/quickstart", serverUrl: "https://mcp.zapier.com/", authMode: "generated_url", prerequisite: "Create a Zapier MCP server, choose the actions it exposes, and paste its generated connection URL.", riskTier: "S3" },
+    { slug: "g2", name: "G2", wave: "blocked", status: "blocked", docsUrl: "https://documentation.g2.com/docs/g2-mcp-server", serverUrl: "https://mcp.g2.com/mcp", authMode: "provider_approval", prerequisite: "G2 must enable cross-application token introspection before an independently registered client can work.", riskTier: "S3" },
+    { slug: "vercel", name: "Vercel", wave: "blocked", status: "blocked", docsUrl: "https://vercel.com/docs/agent-resources/vercel-mcp", serverUrl: "https://mcp.vercel.com", authMode: "provider_approval", prerequisite: "Vercel currently reviews and approves MCP clients.", riskTier: "S3" },
+    { slug: "zomato", name: "Zomato", wave: "blocked", status: "blocked", docsUrl: "https://github.com/Zomato/mcp-server-manifest", serverUrl: "https://mcp-server.zomato.com/mcp", authMode: "provider_approval", prerequisite: "Zomato currently limits third-party clients and requires redirect-URI allowlisting.", riskTier: "S3" }
+  ]
+};
+
+// ../../shared/src/self-serve-mcp-research.ts
+var SELF_SERVE_MCP_RESEARCH = self_serve_mcp_research_default;
+var SELF_SERVE_MCP_CANDIDATES = SELF_SERVE_MCP_RESEARCH.entries.filter(
+  (entry) => entry.status === "self_serve"
+);
+var BLOCKED_MCP_PROVIDERS = SELF_SERVE_MCP_RESEARCH.entries.filter(
+  (entry) => entry.status === "blocked"
+);
 
 // ../../shared/src/app-definitions.ts
 var CONNECTABLE_APP_SLUGS = /* @__PURE__ */ new Set([
+  "anthropic",
+  "openai",
+  "openrouter",
+  "xai",
+  "agentmail",
+  ...SELF_SERVE_MCP_CANDIDATES.map((entry) => entry.slug),
   "zapier",
-  "github",
   "slack",
   "notion",
+  "posthog",
   "linear",
   "google-sheets",
-  "context7"
+  "context7",
+  "shopify",
+  "composio",
+  "gmail",
+  "google-drive",
+  "google-docs",
+  "google-slides",
+  "google-calendar",
+  "google-chat",
+  "google-people",
+  "google-workspace-search",
+  "github",
+  "discord",
+  "microsoft-teams",
+  "telegram",
+  "imessage-photon"
 ]);
 var CONNECTABLE_APP_DEFINITIONS = APP_DEFINITIONS.filter(
   (app) => CONNECTABLE_APP_SLUGS.has(app.slug)
 );
+var APP_STORE_HIDDEN_SLUGS = /* @__PURE__ */ new Set([
+  "beehiiv",
+  "bitly",
+  "brex",
+  "candid",
+  "coda",
+  "composio",
+  "context7",
+  "egnyte",
+  "embat",
+  "kernel",
+  "local-falcon",
+  "make",
+  "manufact",
+  "oreilly",
+  "planetscale",
+  "razorpay",
+  "sanity",
+  "similarweb",
+  "ticket-tailor",
+  "ticktick",
+  "xero"
+]);
+var APP_STORE_DEFINITIONS = CONNECTABLE_APP_DEFINITIONS.filter(
+  (app) => !APP_STORE_HIDDEN_SLUGS.has(app.slug)
+);
+
+// ../../shared/src/google-workspace-connectors.ts
+var auth = (scope) => `https://www.googleapis.com/auth/${scope}`;
+var GOOGLE_WORKSPACE_CONNECTOR_PROFILES = {
+  "gmail.read": def("gmail", "https://gmailmcp.googleapis.com/mcp/v1", [auth("gmail.readonly")]),
+  "gmail.draft": def("gmail", "https://gmailmcp.googleapis.com/mcp/v1", [auth("gmail.readonly"), auth("gmail.compose")], ["create_draft"]),
+  "drive.read": def("google-drive", "https://drivemcp.googleapis.com/mcp/v1", [auth("drive.readonly")]),
+  "drive.write": def("google-drive", "https://drivemcp.googleapis.com/mcp/v1", [auth("drive.readonly"), auth("drive.file")], ["copy_file", "create_file"]),
+  "docs.read": def("google-docs", "https://docsmcp.googleapis.com/mcp/v1", [auth("drive.readonly"), auth("documents.readonly")]),
+  "docs.write": def("google-docs", "https://docsmcp.googleapis.com/mcp/v1", [auth("drive.readonly"), auth("drive.file"), auth("documents")], ["update_doc"]),
+  "sheets.read": def("google-sheets", "https://sheetsmcp.googleapis.com/mcp/v1", [auth("drive.readonly"), auth("spreadsheets.readonly")]),
+  "sheets.write": def("google-sheets", "https://sheetsmcp.googleapis.com/mcp/v1", [auth("drive.readonly"), auth("drive.file"), auth("spreadsheets")], ["update_spreadsheet", "update_values", "update_formulas", "insert_dimension"]),
+  "slides.read": def("google-slides", "https://slidesmcp.googleapis.com/mcp/v1", [auth("drive.readonly"), auth("presentations.readonly")]),
+  "slides.write": def("google-slides", "https://slidesmcp.googleapis.com/mcp/v1", [auth("drive.readonly"), auth("drive.file"), auth("presentations")], ["update_presentation"]),
+  "calendar.read": def("google-calendar", "https://calendarmcp.googleapis.com/mcp/v1", [auth("calendar.calendarlist.readonly"), auth("calendar.events.freebusy"), auth("calendar.events.readonly")]),
+  "calendar.write": def("google-calendar", "https://calendarmcp.googleapis.com/mcp/v1", [auth("calendar.calendarlist.readonly"), auth("calendar.events.freebusy"), auth("calendar.events")], ["create_event", "update_event", "delete_event", "respond_to_event"]),
+  "chat.read": def("google-chat", "https://chatmcp.googleapis.com/mcp/v1", [auth("chat.spaces.readonly"), auth("chat.memberships.readonly"), auth("chat.messages.readonly"), auth("chat.users.readstate.readonly")]),
+  "chat.write": def("google-chat", "https://chatmcp.googleapis.com/mcp/v1", [auth("chat.spaces.readonly"), auth("chat.memberships.readonly"), auth("chat.messages.readonly"), auth("chat.users.readstate.readonly"), auth("chat.messages.create")], ["send_message"]),
+  "people.read": def("google-people", "https://people.googleapis.com/mcp/v1", [auth("directory.readonly"), auth("userinfo.profile"), auth("contacts.readonly")]),
+  "workspace-search.read": def("google-workspace-search", "https://workspacemcp.googleapis.com/mcp/v1", [auth("gmail.readonly"), auth("drive.readonly"), auth("calendar.readonly"), auth("chat.messages.readonly")])
+};
+function def(appSlug, serverUrl, scopes, writeTools = []) {
+  return { appSlug, serverUrl, scopes, writeTools };
+}
 
 // ../../shared/src/agent-url-key.ts
 var UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -62604,6 +68033,191 @@ var writeStatusCardSummarySchema = external_exports.object({
   model: external_exports.string().trim().min(1).max(200).optional().nullable()
 });
 
+// ../../shared/src/ai-connections.ts
+var connectionPurposeTransportSchema = external_exports.discriminatedUnion(
+  "connectionPurpose",
+  [
+    external_exports.object({
+      connectionPurpose: external_exports.literal("tool"),
+      transport: external_exports.enum(["mcp_remote", "rest_api", "local_stdio"])
+    }),
+    external_exports.object({
+      connectionPurpose: external_exports.literal("channel"),
+      transport: external_exports.enum(["chat_sdk", "rest_api"]),
+      config: external_exports.object({ provider: external_exports.string().optional() }).passthrough().optional()
+    }).refine(
+      (connection) => connection.transport === "chat_sdk" || connection.config?.provider === "agentmail",
+      { message: "REST channel connections require the AgentMail provider", path: ["config", "provider"] }
+    ),
+    external_exports.object({
+      connectionPurpose: external_exports.literal("ai"),
+      transport: external_exports.literal("runtime_auth")
+    })
+  ]
+);
+var AI_PROVIDERS = [
+  "anthropic",
+  "openai",
+  "openrouter",
+  "xai"
+];
+var aiProviderSchema = external_exports.enum(AI_PROVIDERS);
+var aiAuthMethodSchema = external_exports.enum(["subscription", "api_key"]);
+var requirement = { provider: aiProviderSchema, method: aiAuthMethodSchema };
+var aiConnectionBindingSchema = external_exports.discriminatedUnion("mode", [
+  external_exports.object({
+    provider: aiProviderSchema,
+    // Retained on the wire for older servers during rolling upgrades. The
+    // responsible user's provider default determines the actual run method.
+    method: aiAuthMethodSchema,
+    mode: external_exports.literal("responsible_user")
+  }).strict(),
+  external_exports.object({
+    ...requirement,
+    mode: external_exports.literal("shared"),
+    connectionId: external_exports.string().uuid(),
+    grantId: external_exports.string().uuid()
+  }).strict(),
+  external_exports.object({
+    ...requirement,
+    // Legacy wire format only; human access still applies. New UI never creates it.
+    mode: external_exports.literal("delegated"),
+    connectionId: external_exports.string().uuid(),
+    grantId: external_exports.string().uuid()
+  }).strict()
+]);
+var aiConnectionMetadataSchema = external_exports.object(requirement).strict();
+var AI_CONNECTION_CAPABILITIES = {
+  anthropic: {
+    name: "Claude",
+    methods: {
+      subscription: {
+        adapters: ["claude_local"],
+        envKey: "CLAUDE_CODE_OAUTH_TOKEN"
+      },
+      api_key: { adapters: ["claude_local"], envKey: "ANTHROPIC_API_KEY" }
+    }
+  },
+  openai: {
+    name: "OpenAI",
+    methods: {
+      subscription: { adapters: ["codex_local"], envKey: "CODEX_HOME" },
+      api_key: { adapters: ["codex_local"], envKey: "OPENAI_API_KEY" }
+    }
+  },
+  openrouter: {
+    name: "OpenRouter",
+    methods: {
+      api_key: { adapters: ["opencode_local"], envKey: "OPENROUTER_API_KEY" }
+    }
+  },
+  xai: {
+    name: "Grok",
+    methods: {
+      subscription: { adapters: ["grok_local"], envKey: "GROK_HOME" },
+      api_key: { adapters: ["grok_local"], envKey: "XAI_API_KEY" }
+    }
+  }
+};
+var createAiConnectionSchema = external_exports.object({
+  ...requirement,
+  name: external_exports.string().trim().min(1).max(160),
+  ownership: external_exports.enum(["personal", "shared"]),
+  apiKey: external_exports.string().trim().min(1).max(32768).optional(),
+  loginSessionId: external_exports.string().max(128).optional(),
+  connectionId: external_exports.string().uuid().optional(),
+  agentIds: external_exports.array(external_exports.string().uuid()).max(1e3).default([]),
+  allAgents: external_exports.boolean().default(false)
+}).strict().superRefine((v, ctx) => {
+  if (!AI_CONNECTION_CAPABILITIES[v.provider].methods[v.method])
+    ctx.addIssue({ code: "custom", message: "Unsupported sign-in method" });
+  if (v.method === "api_key" ? !v.apiKey || Boolean(v.loginSessionId) : !v.loginSessionId || Boolean(v.apiKey)) {
+    ctx.addIssue({
+      code: "custom",
+      message: "Provide exactly the credential for the selected sign-in method"
+    });
+  }
+});
+var aiConnectionLoginIntentSchema = external_exports.object({
+  provider: aiProviderSchema,
+  method: external_exports.literal("subscription"),
+  name: external_exports.string().trim().min(1).max(160),
+  ownership: external_exports.enum(["personal", "shared"]),
+  connectionId: external_exports.string().uuid().optional(),
+  agentIds: external_exports.array(external_exports.string().uuid()).max(1e3).default([]),
+  allAgents: external_exports.boolean().default(false)
+}).strict();
+var localAiConnectionSchema = aiConnectionLoginIntentSchema.extend({
+  localSessionId: external_exports.string().uuid().optional()
+});
+var localAiLoginStartSchema = aiConnectionLoginIntentSchema.extend({ restart: external_exports.boolean().optional() });
+
+// ../../shared/src/mcp-remote-headers.ts
+var HTTP_TOKEN_PATTERN = /^[!#$%&'*+\-.^_`|~0-9A-Za-z]+$/;
+var MAX_HEADER_NAME_LENGTH = 128;
+var MAX_HEADER_VALUE_LENGTH = 8192;
+var FORBIDDEN_HEADER_NAMES = /* @__PURE__ */ new Set([
+  "connection",
+  "content-length",
+  "cookie",
+  "cookie2",
+  "expect",
+  "host",
+  "keep-alive",
+  "proxy-authenticate",
+  "proxy-authorization",
+  "proxy-connection",
+  "set-cookie",
+  "set-cookie2",
+  "te",
+  "trailer",
+  "transfer-encoding",
+  "upgrade",
+  "via"
+]);
+var FORBIDDEN_HEADER_PREFIXES = ["proxy-", "sec-", "http2-"];
+var OK = { ok: true };
+function checkMcpRemoteHeaderName(name2) {
+  const trimmed = name2.trim();
+  if (!trimmed) return { ok: false, reason: "empty" };
+  if (trimmed.length > MAX_HEADER_NAME_LENGTH) return { ok: false, reason: "too_long" };
+  if (!HTTP_TOKEN_PATTERN.test(trimmed)) return { ok: false, reason: "invalid_characters" };
+  const lower = trimmed.toLowerCase();
+  if (FORBIDDEN_HEADER_NAMES.has(lower)) return { ok: false, reason: "forbidden" };
+  if (FORBIDDEN_HEADER_PREFIXES.some((prefix) => lower.startsWith(prefix))) {
+    return { ok: false, reason: "forbidden" };
+  }
+  return OK;
+}
+function checkMcpRemoteHeaderValue(value) {
+  if (value.length > MAX_HEADER_VALUE_LENGTH) return { ok: false, reason: "value_too_long" };
+  if (/[\u0000-\u001f\u007f-\u009f]/.test(value)) {
+    return { ok: false, reason: "value_control_characters" };
+  }
+  return OK;
+}
+function mcpRemoteHeaderRejectionMessage(headerName, reason) {
+  switch (reason) {
+    case "empty":
+      return "Header names cannot be blank.";
+    case "too_long":
+      return `Header name "${headerName.slice(0, MAX_HEADER_NAME_LENGTH)}" is too long.`;
+    case "invalid_characters":
+      return `"${headerName.slice(0, MAX_HEADER_NAME_LENGTH)}" is not a valid header name. Use letters, digits, and dashes.`;
+    case "forbidden":
+      return `Paperclip manages the "${headerName}" header and cannot send a custom value for it.`;
+    case "value_too_long":
+      return `The value for "${headerName}" is too long.`;
+    case "value_control_characters":
+      return `The value for "${headerName}" contains line breaks or control characters.`;
+  }
+}
+function mcpRemoteHeaderNameFromConfigPath(configPath) {
+  if (!configPath.startsWith("headers.")) return null;
+  const name2 = configPath.slice("headers.".length).trim();
+  return name2.length > 0 ? name2 : null;
+}
+
 // ../../shared/src/validators/text.ts
 function normalizeEscapedLineBreaks(value) {
   return value.replace(/\\r\\n/g, "\n").replace(/\\n/g, "\n").replace(/\\r/g, "\n");
@@ -62676,7 +68290,12 @@ var issueBlockedInboxStateSchema = external_exports.enum([
   "recovery_open",
   "missing_disposition"
 ]);
-var issueBlockedInboxSeveritySchema = external_exports.enum(["critical", "high", "medium", "low"]);
+var issueBlockedInboxSeveritySchema = external_exports.enum([
+  "critical",
+  "high",
+  "medium",
+  "low"
+]);
 var issueBlockedInboxReasonSchema = external_exports.enum([
   "blocked_by_unassigned_issue",
   "blocked_by_assigned_backlog_issue",
@@ -62737,14 +68356,22 @@ var ISSUE_EXECUTION_WORKSPACE_PREFERENCES = [
 ];
 function isValidExistingBranchName(value) {
   if (value.length === 0 || value.length > 255) return false;
-  if (value.startsWith("-") || value.startsWith("/") || value.startsWith(".")) return false;
-  if (value.endsWith("/") || value.endsWith(".") || value.endsWith(".lock")) return false;
-  if (value.includes("..") || value.includes("//") || value.includes("@{") || value.includes("/.")) return false;
+  if (value.startsWith("-") || value.startsWith("/") || value.startsWith("."))
+    return false;
+  if (value.endsWith("/") || value.endsWith(".") || value.endsWith(".lock"))
+    return false;
+  if (value.includes("..") || value.includes("//") || value.includes("@{") || value.includes("/."))
+    return false;
   if (/[\x00-\x20\x7f~^:?*[\\]/.test(value)) return false;
   return true;
 }
 var executionWorkspaceStrategySchema = external_exports.object({
-  type: external_exports.enum(["project_primary", "git_worktree", "adapter_managed", "cloud_sandbox"]).optional(),
+  type: external_exports.enum([
+    "project_primary",
+    "git_worktree",
+    "adapter_managed",
+    "cloud_sandbox"
+  ]).optional(),
   baseRef: external_exports.string().optional().nullable(),
   branchTemplate: external_exports.string().optional().nullable(),
   existingBranch: external_exports.string().trim().refine(isValidExistingBranchName, {
@@ -62784,8 +68411,8 @@ var protectedTaskEgressCidrs = [
 ];
 function ipv4CidrRange(cidr) {
   if (!ipv4CidrPattern.test(cidr)) return null;
-  const [address, prefixText] = cidr.split("/");
-  const addressValue = address.split(".").reduce((value, octet) => value * 256 + Number(octet), 0);
+  const [address2, prefixText] = cidr.split("/");
+  const addressValue = address2.split(".").reduce((value, octet) => value * 256 + Number(octet), 0);
   const prefix = Number(prefixText);
   const blockSize = 2 ** (32 - prefix);
   const start = Math.floor(addressValue / blockSize) * blockSize;
@@ -62806,17 +68433,21 @@ var issueExecutionWorkspaceSettingsSchema = external_exports.object({
   workspaceStrategy: executionWorkspaceStrategySchema.optional().nullable(),
   workspaceRuntime: external_exports.record(external_exports.string(), external_exports.unknown()).optional().nullable(),
   networkEgress: external_exports.object({
-    allowFqdns: external_exports.array(external_exports.string().trim().toLowerCase().regex(
-      /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)*[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/,
-      "Network egress FQDNs must be hostnames without a URL scheme or path"
-    ).max(253)).max(100).optional(),
-    allowCidrs: external_exports.array(external_exports.string().trim().regex(
-      ipv4CidrPattern,
-      "Invalid IPv4 CIDR (must use octets 0-255 and prefix 0-32)"
-    ).max(64).refine(
-      isAllowedTaskEgressCidr,
-      "Task-scoped network egress CIDRs cannot overlap private, loopback, link-local, CGNAT, or multicast ranges"
-    )).max(100).optional()
+    allowFqdns: external_exports.array(
+      external_exports.string().trim().toLowerCase().regex(
+        /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)*[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/,
+        "Network egress FQDNs must be hostnames without a URL scheme or path"
+      ).max(253)
+    ).max(100).optional(),
+    allowCidrs: external_exports.array(
+      external_exports.string().trim().regex(
+        ipv4CidrPattern,
+        "Invalid IPv4 CIDR (must use octets 0-255 and prefix 0-32)"
+      ).max(64).refine(
+        isAllowedTaskEgressCidr,
+        "Task-scoped network egress CIDRs cannot overlap private, loopback, link-local, CGNAT, or multicast ranges"
+      )
+    ).max(100).optional()
   }).strict().optional().nullable()
 }).strict().superRefine((settings, ctx) => {
   if (settings.workspaceStrategy?.existingBranch && settings.mode !== "isolated_workspace") {
@@ -62828,7 +68459,6 @@ var issueExecutionWorkspaceSettingsSchema = external_exports.object({
   }
 });
 var issueAssigneeAdapterOverridesSchema = external_exports.object({
-  modelProfile: external_exports.enum(MODEL_PROFILE_KEYS).optional(),
   adapterConfig: external_exports.record(external_exports.string(), external_exports.unknown()).optional(),
   useProjectWorkspace: external_exports.boolean().optional()
 }).strict();
@@ -62840,18 +68470,34 @@ var issueExecutionStagePrincipalBaseSchema = external_exports.object({
 var issueExecutionStagePrincipalSchema = issueExecutionStagePrincipalBaseSchema.superRefine((value, ctx) => {
   if (value.type === "agent") {
     if (!value.agentId) {
-      ctx.addIssue({ code: external_exports.ZodIssueCode.custom, message: "Agent participants require agentId", path: ["agentId"] });
+      ctx.addIssue({
+        code: external_exports.ZodIssueCode.custom,
+        message: "Agent participants require agentId",
+        path: ["agentId"]
+      });
     }
     if (value.userId) {
-      ctx.addIssue({ code: external_exports.ZodIssueCode.custom, message: "Agent participants cannot set userId", path: ["userId"] });
+      ctx.addIssue({
+        code: external_exports.ZodIssueCode.custom,
+        message: "Agent participants cannot set userId",
+        path: ["userId"]
+      });
     }
     return;
   }
   if (!value.userId) {
-    ctx.addIssue({ code: external_exports.ZodIssueCode.custom, message: "User participants require userId", path: ["userId"] });
+    ctx.addIssue({
+      code: external_exports.ZodIssueCode.custom,
+      message: "User participants require userId",
+      path: ["userId"]
+    });
   }
   if (value.agentId) {
-    ctx.addIssue({ code: external_exports.ZodIssueCode.custom, message: "User participants cannot set agentId", path: ["agentId"] });
+    ctx.addIssue({
+      code: external_exports.ZodIssueCode.custom,
+      message: "User participants cannot set agentId",
+      path: ["agentId"]
+    });
   }
 });
 var issueExecutionStageParticipantSchema = issueExecutionStagePrincipalBaseSchema.extend({
@@ -62859,18 +68505,34 @@ var issueExecutionStageParticipantSchema = issueExecutionStagePrincipalBaseSchem
 }).superRefine((value, ctx) => {
   if (value.type === "agent") {
     if (!value.agentId) {
-      ctx.addIssue({ code: external_exports.ZodIssueCode.custom, message: "Agent participants require agentId", path: ["agentId"] });
+      ctx.addIssue({
+        code: external_exports.ZodIssueCode.custom,
+        message: "Agent participants require agentId",
+        path: ["agentId"]
+      });
     }
     if (value.userId) {
-      ctx.addIssue({ code: external_exports.ZodIssueCode.custom, message: "Agent participants cannot set userId", path: ["userId"] });
+      ctx.addIssue({
+        code: external_exports.ZodIssueCode.custom,
+        message: "Agent participants cannot set userId",
+        path: ["userId"]
+      });
     }
     return;
   }
   if (!value.userId) {
-    ctx.addIssue({ code: external_exports.ZodIssueCode.custom, message: "User participants require userId", path: ["userId"] });
+    ctx.addIssue({
+      code: external_exports.ZodIssueCode.custom,
+      message: "User participants require userId",
+      path: ["userId"]
+    });
   }
   if (value.agentId) {
-    ctx.addIssue({ code: external_exports.ZodIssueCode.custom, message: "User participants cannot set agentId", path: ["agentId"] });
+    ctx.addIssue({
+      code: external_exports.ZodIssueCode.custom,
+      message: "User participants cannot set agentId",
+      path: ["agentId"]
+    });
   }
 });
 var issueExecutionStageSchema = external_exports.object({
@@ -62967,6 +68629,12 @@ var RESOLVE_ISSUE_RECOVERY_ACTION_OUTCOMES = [
   "cancelled"
 ];
 var resolveIssueRecoveryActionSchema = external_exports.object({
+  executionReconciliation: external_exports.object({
+    runId: external_exports.string().guid(),
+    providerStopped: external_exports.literal(true),
+    actionOutcome: external_exports.enum(["completed", "not_performed", "mixed"]),
+    outcomeEvidence: external_exports.string().trim().min(20).max(12e3)
+  }).strict().optional(),
   actionId: external_exports.string().guid().optional(),
   outcome: external_exports.enum(RESOLVE_ISSUE_RECOVERY_ACTION_OUTCOMES),
   sourceIssueStatus: external_exports.enum(["todo", "done", "in_review", "blocked"]),
@@ -63021,7 +68689,8 @@ function resolveCreateIssueStatusDefault(input) {
 }
 function withCreateIssueStatusDefault(schema) {
   return external_exports.preprocess((input) => {
-    if (!input || typeof input !== "object" || Array.isArray(input)) return input;
+    if (!input || typeof input !== "object" || Array.isArray(input))
+      return input;
     const raw = input;
     if (raw.status !== void 0) return input;
     return {
@@ -63083,8 +68752,11 @@ function requireBlockedStatusForUnblockDescriptor(value, ctx) {
   }
 }
 var createIssueDuplicateGuardSchema = {
+  initialPlan: external_exports.string().min(1).max(2e5).optional().nullable(),
   idempotencyKey: external_exports.string().trim().min(1).max(255).optional().nullable(),
-  allowDuplicate: external_exports.boolean().describe("Bypasses recent-title duplicate detection; idempotency keys always replay their original issue").optional().default(false)
+  allowDuplicate: external_exports.boolean().describe(
+    "Bypasses recent-title duplicate detection; idempotency keys always replay their original issue"
+  ).optional().default(false)
 };
 var onboardingFirstTaskMarkerSchema = {
   onboardingFirstTask: external_exports.boolean().optional()
@@ -63104,14 +68776,16 @@ var upsertIssueWatchdogSchema = external_exports.object({
   agentId: external_exports.string().guid(),
   instructions: multilineTextSchema.optional().nullable()
 }).strict();
-var createChildIssueSchema = withCreateIssueStatusDefault(createIssueBaseSchema.omit({
-  parentId: true,
-  inheritExecutionWorkspaceFromIssueId: true,
-  watchdogDiscovery: true
-}).extend({
-  acceptanceCriteria: external_exports.array(external_exports.string().trim().min(1).max(500)).max(20).optional(),
-  blockParentUntilDone: external_exports.boolean().optional().default(false)
-})).superRefine(requireBlockedStatusForUnblockDescriptor);
+var createChildIssueSchema = withCreateIssueStatusDefault(
+  createIssueBaseSchema.omit({
+    parentId: true,
+    inheritExecutionWorkspaceFromIssueId: true,
+    watchdogDiscovery: true
+  }).extend({
+    acceptanceCriteria: external_exports.array(external_exports.string().trim().min(1).max(500)).max(20).optional(),
+    blockParentUntilDone: external_exports.boolean().optional().default(false)
+  })
+).superRefine(requireBlockedStatusForUnblockDescriptor);
 var createAcceptedPlanDecompositionSchema = external_exports.object({
   acceptedPlanRevisionId: external_exports.string().guid(),
   children: external_exports.array(createChildIssueSchema).min(1).max(25)
@@ -63119,6 +68793,9 @@ var createAcceptedPlanDecompositionSchema = external_exports.object({
 var createIssueLabelSchema = external_exports.object({
   name: external_exports.string().trim().min(1).max(48),
   color: external_exports.string().regex(/^#(?:[0-9a-fA-F]{6})$/, "Color must be a 6-digit hex value")
+});
+var issueCommentAttachmentIdsSchema = external_exports.array(external_exports.string().uuid()).max(20).refine((ids) => new Set(ids).size === ids.length, {
+  message: "Attachment ids must be unique"
 });
 var updateIssueSchema = objectWithoutDefaults(
   createIssueBaseSchema.omit({
@@ -63130,12 +68807,17 @@ var updateIssueSchema = objectWithoutDefaults(
   requestDepth: issueRequestDepthInputSchema.optional(),
   assigneeAgentId: external_exports.string().trim().min(1).optional().nullable(),
   comment: multilineTextSchema.pipe(external_exports.string().min(1)).optional(),
+  commentClientRequestId: external_exports.string().uuid().optional(),
+  /** Only valid with a comment; the route binds these in the update transaction. */
+  attachmentIds: issueCommentAttachmentIdsSchema.optional(),
   onBehalfOfUserId: external_exports.string().trim().min(1).optional().nullable(),
   reviewInteractionId: external_exports.string().guid().optional(),
   reviewRequest: issueReviewRequestSchema.optional().nullable(),
   reopen: external_exports.boolean().optional(),
   resume: external_exports.boolean().optional(),
   interrupt: external_exports.boolean().optional(),
+  /** Assignment-only handoff; the following structured goal action owns the wake. */
+  deferWakeForGoal: external_exports.boolean().optional(),
   hiddenAt: external_exports.string().datetime().nullable().optional()
 });
 var stalledReviewDecisionSchema = external_exports.object({
@@ -63221,12 +68903,15 @@ var issueCommentMetadataSectionSchema = external_exports.object({
 }).strict();
 var issueCommentMetadataSchema = external_exports.object({
   version: external_exports.literal(1),
+  sourceChannel: external_exports.literal("imessage-photon").optional(),
   sourceRunId: external_exports.string().guid().nullable().optional(),
   authorizationReason: external_exports.string().trim().min(1).max(160).nullable().optional(),
   sections: external_exports.array(issueCommentMetadataSectionSchema).min(1).max(20)
 }).strict();
 var addIssueCommentSchema = external_exports.object({
+  clientRequestId: external_exports.string().uuid().optional(),
   body: multilineTextSchema.pipe(external_exports.string().min(1)),
+  attachmentIds: issueCommentAttachmentIdsSchema.optional(),
   onBehalfOfUserId: external_exports.string().trim().min(1).optional().nullable(),
   authorType: issueCommentAuthorTypeSchema.optional(),
   presentation: issueCommentPresentationSchema.nullable().optional(),
@@ -63235,18 +68920,76 @@ var addIssueCommentSchema = external_exports.object({
   resume: external_exports.boolean().optional(),
   interrupt: external_exports.boolean().optional()
 });
-var issueThreadInteractionStatusSchema = external_exports.enum(ISSUE_THREAD_INTERACTION_STATUSES);
-var issueThreadInteractionKindSchema = external_exports.enum(ISSUE_THREAD_INTERACTION_KINDS);
+var issueThreadInteractionStatusSchema = external_exports.enum(
+  ISSUE_THREAD_INTERACTION_STATUSES
+);
+var issueThreadInteractionKindSchema = external_exports.enum(
+  ISSUE_THREAD_INTERACTION_KINDS
+);
 var issueThreadInteractionCanonicalResolverPolicySchema = external_exports.enum(ISSUE_THREAD_INTERACTION_CANONICAL_RESOLVER_POLICIES).describe("Canonical resolver audience: anyone, not_creator, or human_only.");
 var issueThreadInteractionResolverPolicySchema = external_exports.enum(ISSUE_THREAD_INTERACTION_RESOLVER_POLICIES).describe(
   "Resolver audience. Use anyone, not_creator, or human_only; board_or_agents and board_only are deprecated compatibility aliases."
 );
-var issueThreadInteractionResolverPolicyProvenanceSchema = external_exports.enum(ISSUE_THREAD_INTERACTION_RESOLVER_POLICY_PROVENANCES);
-var issueThreadInteractionEffectiveResolverPolicySourceSchema = external_exports.enum(ISSUE_THREAD_INTERACTION_EFFECTIVE_RESOLVER_POLICY_SOURCES);
+var issueThreadInteractionResolverPolicyProvenanceSchema = external_exports.enum(
+  ISSUE_THREAD_INTERACTION_RESOLVER_POLICY_PROVENANCES
+);
+var issueThreadInteractionEffectiveResolverPolicySourceSchema = external_exports.enum(
+  ISSUE_THREAD_INTERACTION_EFFECTIVE_RESOLVER_POLICY_SOURCES
+);
 var issueThreadInteractionContinuationPolicySchema = external_exports.enum(
   ISSUE_THREAD_INTERACTION_CONTINUATION_POLICIES
 );
-var issueDocumentKeySchema = external_exports.string().trim().min(1).max(64).regex(/^[a-z0-9][a-z0-9_-]*$/, "Document key must be lowercase letters, numbers, _ or -");
+var connectionIntentPhaseSchema = external_exports.enum([
+  "requested",
+  "authorizing",
+  "needs_retry"
+]);
+var connectionIntentBrandAssetSchema = external_exports.string().max(2048).refine((value) => {
+  if (/^\/brands\/apps\/[a-z0-9][a-z0-9._-]*\.(?:svg|png)$/i.test(value))
+    return true;
+  try {
+    return new URL(value).protocol === "https:";
+  } catch {
+    return false;
+  }
+}, "Connection intent brand assets must be HTTPS URLs or local app brand paths");
+var connectionIntentPayloadSchema = external_exports.object({
+  purpose: external_exports.literal("ai").optional(),
+  version: external_exports.literal(1),
+  serviceSlug: external_exports.string().trim().min(1).max(120),
+  serviceName: external_exports.string().trim().min(1).max(160),
+  serviceLogoUrl: connectionIntentBrandAssetSchema.nullable().optional(),
+  serviceDarkLogoUrl: connectionIntentBrandAssetSchema.nullable().optional(),
+  requestingAgentId: external_exports.string().guid(),
+  requestingAgentName: external_exports.string().trim().min(1).max(160),
+  phase: connectionIntentPhaseSchema
+}).strict();
+var connectionIntentResultSchema = external_exports.object({
+  version: external_exports.literal(1),
+  outcome: external_exports.enum(["connected", "declined", "superseded", "expired"]),
+  connectionId: external_exports.string().guid().nullable().optional(),
+  reason: external_exports.string().trim().max(4e3).nullable().optional(),
+  supersededByInteractionId: external_exports.string().guid().nullable().optional()
+}).strict().superRefine((value, ctx) => {
+  if (value.outcome === "connected" && !value.connectionId) {
+    ctx.addIssue({
+      code: external_exports.ZodIssueCode.custom,
+      path: ["connectionId"],
+      message: "Connected intents require a connection id"
+    });
+  }
+  if (value.outcome === "superseded" && !value.supersededByInteractionId) {
+    ctx.addIssue({
+      code: external_exports.ZodIssueCode.custom,
+      path: ["supersededByInteractionId"],
+      message: "Superseded intents require the replacement interaction id"
+    });
+  }
+});
+var issueDocumentKeySchema = external_exports.string().trim().min(1).max(64).regex(
+  /^[a-z0-9][a-z0-9_-]*$/,
+  "Document key must be lowercase letters, numbers, _ or -"
+);
 var suggestedTaskDraftSchema = external_exports.object({
   clientKey: external_exports.string().trim().min(1).max(120),
   parentClientKey: external_exports.string().trim().min(1).max(120).nullable().optional(),
@@ -63299,34 +69042,138 @@ var suggestTasksResultCreatedTaskSchema = external_exports.object({
 });
 var suggestTasksResultSchema = external_exports.object({
   version: external_exports.literal(1),
-  outcome: external_exports.enum(["withdrawn", "issue_closed", "addressee_deleted"]).optional(),
+  outcome: external_exports.enum(["skipped", "withdrawn", "issue_closed", "addressee_deleted"]).optional(),
   reason: external_exports.string().trim().max(4e3).nullable().optional(),
   createdTasks: external_exports.array(suggestTasksResultCreatedTaskSchema).max(50).optional(),
   skippedClientKeys: external_exports.array(external_exports.string().trim().min(1).max(120)).max(50).optional(),
   rejectionReason: external_exports.string().trim().max(4e3).nullable().optional()
 });
 var askUserQuestionsQuestionOptionSchema = external_exports.object({
-  id: external_exports.string().trim().min(1).max(120),
-  label: external_exports.string().trim().min(1).max(120),
-  description: external_exports.string().trim().max(500).nullable().optional(),
+  id: external_exports.string().trim().min(1).max(160),
+  label: external_exports.string().trim().min(1).max(1e3),
+  description: external_exports.string().trim().max(4e3).nullable().optional(),
   freeText: external_exports.boolean().optional().describe(
     `When true, selecting this option reveals an inline text field; the typed value is returned as the question's otherText. Use this for a real "I'll describe it" choice instead of authoring a dead option that does nothing. At most one free-text option per question.`
   )
 });
 var askUserQuestionsQuestionSchema = external_exports.object({
-  id: external_exports.string().trim().min(1).max(120),
-  prompt: external_exports.string().trim().min(1).max(500),
-  helpText: external_exports.string().trim().max(1e3).nullable().optional(),
+  id: external_exports.string().trim().min(1).max(160),
+  prompt: external_exports.string().trim().min(1).max(4e3),
+  helpText: external_exports.string().trim().max(4e3).nullable().optional(),
   selectionMode: external_exports.enum(["single", "multi"]),
   required: external_exports.boolean().optional(),
-  options: external_exports.array(askUserQuestionsQuestionOptionSchema).min(1).max(10)
+  allowOther: external_exports.boolean().optional(),
+  options: external_exports.array(askUserQuestionsQuestionOptionSchema).min(1).max(129)
+});
+var paperclipQuestionOptionSchema = external_exports.object({
+  id: external_exports.string().min(1).max(160),
+  label: external_exports.string().min(1).max(1e3),
+  description: external_exports.string().max(4e3).optional(),
+  recommended: external_exports.boolean().optional()
+});
+var paperclipQuestionSchema = external_exports.object({
+  id: external_exports.string().min(1).max(160),
+  header: external_exports.string().max(1e3).optional(),
+  prompt: external_exports.string().min(1).max(4e3),
+  helpText: external_exports.string().max(4e3).optional(),
+  required: external_exports.boolean(),
+  answerMode: external_exports.enum(["single_select", "multi_select", "text"]),
+  options: external_exports.array(paperclipQuestionOptionSchema).max(128).optional(),
+  customAnswer: external_exports.object({
+    enabled: external_exports.literal(true),
+    label: external_exports.string().max(1e3).optional(),
+    placeholder: external_exports.string().max(1e3).optional()
+  }).optional(),
+  textValidation: external_exports.object({
+    minLength: external_exports.number().int().min(0).max(1e5).optional(),
+    maxLength: external_exports.number().int().min(0).max(1e5).optional(),
+    pattern: external_exports.string().max(1e3).optional(),
+    inputType: external_exports.enum(["text", "number", "integer"]).optional(),
+    minimum: external_exports.number().finite().optional(),
+    maximum: external_exports.number().finite().optional()
+  }).optional()
+}).superRefine((value, ctx) => {
+  if (value.answerMode === "text" && value.options && value.options.length > 0) {
+    ctx.addIssue({
+      code: external_exports.ZodIssueCode.custom,
+      message: "text questions cannot define options",
+      path: ["options"]
+    });
+  }
+  if (value.answerMode !== "text" && (!value.options || value.options.length === 0)) {
+    ctx.addIssue({
+      code: external_exports.ZodIssueCode.custom,
+      message: "select questions require options",
+      path: ["options"]
+    });
+  }
+  if (value.answerMode === "text" && value.customAnswer) {
+    ctx.addIssue({
+      code: external_exports.ZodIssueCode.custom,
+      message: "text questions cannot define customAnswer",
+      path: ["customAnswer"]
+    });
+  }
+  if (value.textValidation?.minLength !== void 0 && value.textValidation.maxLength !== void 0 && value.textValidation.minLength > value.textValidation.maxLength) {
+    ctx.addIssue({
+      code: external_exports.ZodIssueCode.custom,
+      message: "minLength cannot exceed maxLength",
+      path: ["textValidation"]
+    });
+  }
+  if (value.textValidation?.minimum !== void 0 && value.textValidation.maximum !== void 0 && value.textValidation.minimum > value.textValidation.maximum) {
+    ctx.addIssue({
+      code: external_exports.ZodIssueCode.custom,
+      message: "minimum cannot exceed maximum",
+      path: ["textValidation"]
+    });
+  }
+  if (value.textValidation?.pattern !== void 0) {
+    try {
+      new RegExp(value.textValidation.pattern);
+    } catch {
+      ctx.addIssue({
+        code: external_exports.ZodIssueCode.custom,
+        message: "pattern must be a valid regular expression",
+        path: ["textValidation", "pattern"]
+      });
+    }
+  }
+  const optionIds = value.options?.map((option) => option.id) ?? [];
+  if (new Set(optionIds).size !== optionIds.length) {
+    ctx.addIssue({
+      code: external_exports.ZodIssueCode.custom,
+      message: "option ids must be unique",
+      path: ["options"]
+    });
+  }
+});
+var paperclipQuestionSetPayloadSchema = external_exports.object({
+  schema: external_exports.literal("paperclip.question_set.v1"),
+  title: external_exports.string().max(1e3).optional(),
+  description: external_exports.string().max(4e3).optional(),
+  submitLabel: external_exports.string().max(200).optional(),
+  questions: external_exports.array(paperclipQuestionSchema).min(1).max(64)
+}).superRefine((value, ctx) => {
+  const questionIds = value.questions.map((question) => question.id);
+  if (new Set(questionIds).size !== questionIds.length) {
+    ctx.addIssue({
+      code: external_exports.ZodIssueCode.custom,
+      message: "question ids must be unique",
+      path: ["questions"]
+    });
+  }
 });
 var askUserQuestionsPayloadSchema = external_exports.object({
   version: external_exports.literal(1),
   title: external_exports.string().trim().max(240).nullable().optional(),
   submitLabel: external_exports.string().trim().max(120).nullable().optional(),
   supersedeOnUserComment: external_exports.boolean().optional(),
-  questions: external_exports.array(askUserQuestionsQuestionSchema).min(1).max(10)
+  questions: external_exports.array(askUserQuestionsQuestionSchema).min(1).max(64),
+  /** Exact canonical presentation retained for a recovered harness request. */
+  questionSet: paperclipQuestionSetPayloadSchema.optional(),
+  /** Stable correlation for draft handoff from a live runtime request. */
+  runtimeRequestId: external_exports.string().trim().min(1).max(255).nullable().optional()
 }).superRefine((value, ctx) => {
   const seenQuestionIds = /* @__PURE__ */ new Set();
   for (const [questionIndex, question] of value.questions.entries()) {
@@ -63355,7 +69202,13 @@ var askUserQuestionsPayloadSchema = external_exports.object({
           ctx.addIssue({
             code: external_exports.ZodIssueCode.custom,
             message: "A question may declare at most one free-text option",
-            path: ["questions", questionIndex, "options", optionIndex, "freeText"]
+            path: [
+              "questions",
+              questionIndex,
+              "options",
+              optionIndex,
+              "freeText"
+            ]
           });
         }
       }
@@ -63363,15 +69216,15 @@ var askUserQuestionsPayloadSchema = external_exports.object({
   }
 });
 var askUserQuestionsAnswerSchema = external_exports.object({
-  questionId: external_exports.string().trim().min(1).max(120),
-  optionIds: external_exports.array(external_exports.string().trim().min(1).max(120)).max(20),
-  otherText: multilineTextSchema.pipe(external_exports.string().trim().max(4e3)).nullable().optional()
+  questionId: external_exports.string().trim().min(1).max(160),
+  optionIds: external_exports.array(external_exports.string().trim().min(1).max(160)).max(129),
+  otherText: multilineTextSchema.pipe(external_exports.string().trim().max(1e5)).nullable().optional()
 });
 var askUserQuestionsResultSchema = external_exports.object({
   version: external_exports.literal(1),
-  outcome: external_exports.enum(["withdrawn", "issue_closed", "addressee_deleted"]).optional(),
+  outcome: external_exports.enum(["skipped", "withdrawn", "issue_closed", "addressee_deleted"]).optional(),
   reason: external_exports.string().trim().max(4e3).nullable().optional(),
-  answers: external_exports.array(askUserQuestionsAnswerSchema).max(20),
+  answers: external_exports.array(askUserQuestionsAnswerSchema).max(64),
   cancelled: external_exports.literal(true).optional(),
   cancellationReason: external_exports.string().trim().max(4e3).nullable().optional(),
   expirationReason: external_exports.enum(["superseded_by_comment", "superseded_by_newer_interaction"]).optional(),
@@ -63417,7 +69270,8 @@ var requestConfirmationToolActionPayloadSchema = external_exports.object({
   connectionId: external_exports.string().guid().nullable(),
   applicationId: external_exports.string().guid().nullable(),
   appDisplayName: external_exports.string().trim().min(1).max(500).nullable(),
-  risk: external_exports.enum(["write", "destructive"]),
+  risk: external_exports.enum(["read", "write", "destructive"]),
+  rememberActionScope: external_exports.string().trim().min(1).max(1e3).optional(),
   previewMarkdown: external_exports.string().trim().min(1).max(2e4),
   argumentsSummaryJson: external_exports.string().max(2e4),
   argumentsHash: external_exports.string().trim().min(1).max(255),
@@ -63551,6 +69405,7 @@ var requestConfirmationResumeFailureSchema = external_exports.object({
 });
 var requestConfirmationToolActionResultSchema = external_exports.object({
   version: external_exports.literal(1),
+  rememberedAction: external_exports.boolean().optional(),
   status: external_exports.enum(["approved", "executing", "executed", "failed", "expired"]),
   errorCode: external_exports.string().trim().min(1).max(120).nullable().optional(),
   errorMessage: external_exports.string().trim().min(1).max(4e3).nullable().optional(),
@@ -63575,6 +69430,7 @@ var requestConfirmationResultSchema = external_exports.object({
     "superseded_by_comment",
     "superseded_by_newer_request",
     "stale_target",
+    "skipped",
     "withdrawn",
     "issue_closed",
     "addressee_deleted"
@@ -63603,7 +69459,11 @@ var requestCheckboxConfirmationResultSchema = requestConfirmationResultSchema.ex
     seenOptionIds.add(optionId);
   }
 });
-var requestItemVerdictValueSchema = external_exports.enum(["approve", "reject", "defer"]);
+var requestItemVerdictValueSchema = external_exports.enum([
+  "approve",
+  "reject",
+  "defer"
+]);
 var requestItemVerdictsItemSchema = external_exports.object({
   id: external_exports.string().trim().min(1).max(120),
   label: external_exports.string().trim().min(1).max(120),
@@ -63700,7 +69560,16 @@ var requestItemVerdictsResultItemSchema = external_exports.object({
 });
 var requestItemVerdictsResultSchema = external_exports.object({
   version: external_exports.literal(1),
-  outcome: external_exports.enum(["resolved", "superseded_by_comment", "stale_target", "cancelled", "withdrawn", "issue_closed", "addressee_deleted"]),
+  outcome: external_exports.enum([
+    "resolved",
+    "superseded_by_comment",
+    "stale_target",
+    "cancelled",
+    "skipped",
+    "withdrawn",
+    "issue_closed",
+    "addressee_deleted"
+  ]),
   reason: external_exports.string().trim().max(4e3).nullable().optional(),
   complete: external_exports.boolean(),
   items: external_exports.array(requestItemVerdictsResultItemSchema).max(REQUEST_ITEM_VERDICTS_ITEM_LIMIT),
@@ -63721,7 +69590,8 @@ var requestItemVerdictsResultSchema = external_exports.object({
 });
 var createIssueThreadInteractionCommon = {
   resolverPolicy: issueThreadInteractionResolverPolicySchema.optional(),
-  addresseeAgentId: external_exports.string().guid().nullable().optional()
+  addresseeAgentId: external_exports.string().guid().nullable().optional(),
+  addresseeUserId: external_exports.string().trim().min(1).nullable().optional()
 };
 var createIssueThreadInteractionSchema = external_exports.discriminatedUnion("kind", [
   external_exports.object({
@@ -63781,6 +69651,7 @@ var createIssueThreadInteractionSchema = external_exports.discriminatedUnion("ki
   })
 ]);
 var acceptIssueThreadInteractionSchema = external_exports.object({
+  rememberAction: external_exports.boolean().optional(),
   selectedClientKeys: external_exports.array(external_exports.string().trim().min(1).max(120)).min(1).max(50).optional(),
   selectedOptionIds: external_exports.array(external_exports.string().trim().min(1).max(120)).max(REQUEST_CHECKBOX_CONFIRMATION_OPTION_LIMIT).optional()
 }).superRefine((value, ctx) => {
@@ -63815,6 +69686,9 @@ var rejectIssueThreadInteractionSchema = external_exports.object({
 var cancelIssueThreadInteractionSchema = external_exports.object({
   reason: external_exports.string().trim().max(4e3).optional()
 });
+var skipIssueThreadInteractionSchema = external_exports.object({
+  reason: external_exports.string().trim().max(4e3).optional()
+});
 var withdrawIssueThreadInteractionSchema = external_exports.object({
   reason: external_exports.string().trim().max(4e3).optional()
 });
@@ -63823,11 +69697,13 @@ var respondIssueThreadInteractionSchema = external_exports.object({
   summaryMarkdown: multilineTextSchema.pipe(external_exports.string().max(2e4)).nullable().optional()
 });
 var submitIssueThreadInteractionVerdictsSchema = external_exports.object({
-  verdicts: external_exports.array(external_exports.object({
-    id: external_exports.string().trim().min(1).max(120),
-    verdict: requestItemVerdictValueSchema,
-    reason: external_exports.string().trim().max(4e3).nullable().optional()
-  })).min(1).max(REQUEST_ITEM_VERDICTS_ITEM_LIMIT)
+  verdicts: external_exports.array(
+    external_exports.object({
+      id: external_exports.string().trim().min(1).max(120),
+      verdict: requestItemVerdictValueSchema,
+      reason: external_exports.string().trim().max(4e3).nullable().optional()
+    })
+  ).min(1).max(REQUEST_ITEM_VERDICTS_ITEM_LIMIT)
 }).superRefine((value, ctx) => {
   const itemIds = /* @__PURE__ */ new Set();
   for (const [index, verdict] of value.verdicts.entries()) {
@@ -64461,7 +70337,8 @@ var sandboxProviderCapabilitiesSchema = external_exports.object({
   independentControlCommands: external_exports.boolean().optional(),
   incrementalSessionOutput: external_exports.boolean().optional(),
   concurrentSyncOperations: external_exports.boolean().optional(),
-  duplexCommandStream: external_exports.boolean().optional()
+  duplexCommandStream: external_exports.boolean().optional(),
+  runnerWebSocketIngress: external_exports.boolean().optional()
 }).strict();
 var pluginEnvironmentDriverDeclarationSchema = external_exports.object({
   driverKey: external_exports.string().min(1).regex(
@@ -65273,14 +71150,40 @@ var listPluginStateSchema = external_exports.object({
 // ../../shared/src/validators/tool-access.ts
 var toolApplicationTypeSchema = external_exports.enum(TOOL_APPLICATION_TYPES);
 var toolApplicationStatusSchema = external_exports.enum(TOOL_APPLICATION_STATUSES);
-var toolConnectionTransportSchema = external_exports.enum(["mcp_remote", "rest_api", "local_stdio"]);
+var toolConnectionTransportSchema = external_exports.enum(["mcp_remote", "rest_api", "local_stdio", "chat_sdk"]);
+var toolConnectionPurposeSchema = external_exports.enum(["tool", "channel"]);
 var toolConnectionAuthKindSchema = external_exports.enum(["oauth", "api_key", "none"]);
 var toolConnectionOwnershipSchema = external_exports.enum(["platform_shared", "platform_provisioned", "customer", "dcr"]);
-var connectionGrantKindSchema = external_exports.enum(["workspace", "user"]);
+var toolConnectionCredentialSourceSchema = external_exports.enum(["paperclip_vault", "vercel_connect"]);
+var vercelConnectCredentialSummarySchema = external_exports.object({
+  provider: external_exports.literal("vercel_connect"),
+  connectorId: external_exports.string().trim().min(1).max(255),
+  connectorUid: external_exports.string().trim().min(1).max(255),
+  service: external_exports.string().trim().min(1).max(255),
+  connectorType: external_exports.string().trim().min(1).max(255),
+  principalMode: external_exports.enum(["app", "user"]),
+  headerName: external_exports.string().trim().min(1).max(160),
+  headerPrefix: external_exports.string().max(120).nullable().optional(),
+  scopes: external_exports.array(external_exports.string().trim().min(1).max(500)).max(50)
+}).strict();
+var vercelConnectGrantSummarySchema = external_exports.object({
+  provider: external_exports.literal("vercel_connect"),
+  subjectType: external_exports.enum(["app", "user"]),
+  installationId: external_exports.string().trim().min(1).max(255).optional(),
+  tenantId: external_exports.string().trim().min(1).max(255).optional(),
+  tokenId: external_exports.string().trim().min(1).max(255).optional(),
+  expiresAt: external_exports.string().datetime({ offset: true }).optional(),
+  lastVerifiedAt: external_exports.string().datetime({ offset: true }).optional()
+}).strict();
+var connectionGrantKindSchema = external_exports.enum(["organization", "user", "agent"]);
 var connectionGrantStatusSchema = external_exports.enum(["active", "revoked", "expired", "needs_reauthorization"]);
+var createConnectionGrantDelegationSchema = external_exports.object({
+  agentId: external_exports.string().guid()
+});
+var toolConnectionCredentialPolicySchema = external_exports.enum(["shared", "per_user", "per_user_with_fallback", "per_agent"]);
 var toolConnectionStatusSchema = external_exports.enum(["draft", "active", "disabled", "archived"]);
 var toolConnectionInstallTargetTypeSchema = external_exports.enum(["company", "agent"]);
-var toolCredentialPlacementSchema = external_exports.enum(["header", "env"]);
+var toolCredentialPlacementSchema = external_exports.enum(["header", "env", "url"]);
 var toolConnectionKindSchema = external_exports.enum(TOOL_CONNECTION_KINDS);
 var toolConnectionHealthStatusSchema = external_exports.enum(TOOL_CONNECTION_HEALTH_STATUSES);
 var toolCatalogEntryKindSchema = external_exports.enum(TOOL_CATALOG_ENTRY_KINDS);
@@ -65371,8 +71274,10 @@ var createToolConnectionSchema = external_exports.object({
   applicationId: external_exports.string().guid().optional(),
   applicationName: external_exports.string().trim().min(1).max(160).optional(),
   name: external_exports.string().trim().min(1).max(160),
+  connectionPurpose: toolConnectionPurposeSchema.default("tool"),
   transport: toolConnectionTransportSchema.optional(),
   authKind: toolConnectionAuthKindSchema.default("none"),
+  credentialPolicy: toolConnectionCredentialPolicySchema.optional(),
   ownership: toolConnectionOwnershipSchema.default("customer"),
   status: toolConnectionStatusSchema.optional(),
   connectionKind: toolConnectionKindSchema.default("managed"),
@@ -65392,11 +71297,37 @@ var connectionGrantSchema = external_exports.object({
   connectionId: external_exports.string().guid(),
   kind: connectionGrantKindSchema,
   subjectUserId: external_exports.string().nullable(),
+  subjectAgentId: external_exports.string().guid().nullable().optional(),
   providerTenant: external_exports.object({
     name: external_exports.string().trim().min(1).max(200).optional(),
-    externalId: external_exports.string().trim().min(1).max(400).optional()
+    externalId: external_exports.string().trim().min(1).max(400).optional(),
+    oauth: external_exports.object({
+      strategy: external_exports.string().trim().min(1).max(100).optional(),
+      accessTokenExpiresAt: external_exports.string().datetime().nullable().optional(),
+      scopes: external_exports.array(external_exports.string().trim().min(1).max(500)).max(20).optional(),
+      tokenType: external_exports.string().trim().min(1).max(100).optional(),
+      refreshTokenExpiresAt: external_exports.string().datetime().optional(),
+      refreshedAt: external_exports.string().datetime().optional()
+    }).optional(),
+    github: external_exports.object({
+      userId: external_exports.string().regex(/^[1-9][0-9]{0,30}$/),
+      login: external_exports.string().trim().min(1).max(100),
+      avatarUrl: external_exports.string().url().max(2e3).optional(),
+      installationCount: external_exports.number().int().nonnegative(),
+      repositoryCount: external_exports.number().int().nonnegative(),
+      repositorySelection: external_exports.enum(["all", "selected", "mixed", "none"]),
+      installationIds: external_exports.array(external_exports.string().regex(/^[1-9][0-9]{0,30}$/)).max(100),
+      installationOwnerLogins: external_exports.array(external_exports.string().trim().min(1).max(100)).max(100),
+      installationUrl: external_exports.string().url().max(2e3).optional(),
+      managementUrl: external_exports.string().url().max(2e3).optional(),
+      appSlug: external_exports.string().regex(/^[a-z0-9-]{1,100}$/).optional(),
+      lastAccessRefreshAt: external_exports.string().datetime().optional(),
+      lastWebhookAt: external_exports.string().datetime().optional(),
+      webhookHealth: external_exports.enum(["pending", "healthy", "unhealthy"]).optional()
+    }).optional()
   }).nullable(),
   credentialSecretRefs: external_exports.array(toolCredentialSecretRefSchema),
+  externalCredential: vercelConnectGrantSummarySchema.nullable().optional(),
   status: connectionGrantStatusSchema,
   isDefault: external_exports.boolean(),
   createdByAgentId: external_exports.string().guid().nullable(),
@@ -65408,8 +71339,12 @@ var connectionGrantSchema = external_exports.object({
   createdAt: external_exports.coerce.date(),
   updatedAt: external_exports.coerce.date()
 }).superRefine((grant, ctx) => {
-  if (grant.kind === "user" !== Boolean(grant.subjectUserId)) {
-    ctx.addIssue({ code: external_exports.ZodIssueCode.custom, path: ["subjectUserId"], message: "User grants require a subject user; workspace grants must not have one" });
+  const validSubject = grant.kind === "user" && Boolean(grant.subjectUserId) && !grant.subjectAgentId || grant.kind === "agent" && Boolean(grant.subjectAgentId) && !grant.subjectUserId || grant.kind === "organization" && !grant.subjectUserId && !grant.subjectAgentId;
+  if (!validSubject) {
+    ctx.addIssue({ code: external_exports.ZodIssueCode.custom, path: ["kind"], message: "User and agent grants require exactly their matching subject; organization grants cannot have a subject" });
+  }
+  if (grant.externalCredential && grant.credentialSecretRefs.length > 0) {
+    ctx.addIssue({ code: external_exports.ZodIssueCode.custom, path: ["credentialSecretRefs"], message: "External grants cannot also contain Paperclip secret references" });
   }
 });
 var putToolConnectionInstallsSchema = external_exports.object({
@@ -65417,6 +71352,9 @@ var putToolConnectionInstallsSchema = external_exports.object({
     targetType: toolConnectionInstallTargetTypeSchema,
     targetId: external_exports.string().trim().min(1).max(200)
   })).max(1e3)
+}).strict();
+var replaceConnectionGrantMembersSchema = external_exports.object({
+  memberUserIds: external_exports.array(external_exports.string().trim().min(1).max(500)).max(1e3)
 }).strict();
 var connectionTokenIssuancePathSchema = external_exports.enum(CONNECTION_TOKEN_ISSUANCE_PATHS);
 var connectionTokenScopeSchema = external_exports.union([
@@ -65458,21 +71396,117 @@ var createToolStdioCommandTemplateSchema = external_exports.object({
 var disableToolStdioCommandTemplateSchema = external_exports.object({
   reason: external_exports.string().trim().max(1e3).optional().nullable()
 });
+var GENERIC_MCP_AUTH_MODES = ["auto", "none", "bearer", "custom_headers", "oauth"];
+var genericMcpAuthModeSchema = external_exports.enum(GENERIC_MCP_AUTH_MODES);
+var genericMcpOAuthClientSchema = external_exports.object({
+  clientId: external_exports.string().trim().min(1).max(4096),
+  clientSecret: external_exports.string().min(1).max(16384).optional()
+}).strict();
+function rejectUnsafeHeaderCredentials(credentialValues, ctx, path2) {
+  for (const [configPath, value] of Object.entries(credentialValues)) {
+    const headerName = mcpRemoteHeaderNameFromConfigPath(configPath);
+    if (configPath.startsWith("headers.") && !headerName) {
+      ctx.addIssue({
+        code: external_exports.ZodIssueCode.custom,
+        path: [...path2, configPath],
+        message: "Header names cannot be blank."
+      });
+      continue;
+    }
+    if (!headerName) continue;
+    const nameCheck = checkMcpRemoteHeaderName(headerName);
+    if (!nameCheck.ok) {
+      ctx.addIssue({
+        code: external_exports.ZodIssueCode.custom,
+        path: [...path2, configPath],
+        message: mcpRemoteHeaderRejectionMessage(headerName, nameCheck.reason)
+      });
+      continue;
+    }
+    const valueCheck = checkMcpRemoteHeaderValue(value);
+    if (!valueCheck.ok) {
+      ctx.addIssue({
+        code: external_exports.ZodIssueCode.custom,
+        path: [...path2, configPath],
+        message: mcpRemoteHeaderRejectionMessage(headerName, valueCheck.reason)
+      });
+    }
+  }
+}
 var connectToolAppSchema = external_exports.object({
   galleryKey: external_exports.string().trim().min(1).max(120).optional(),
+  connectionMethodKey: external_exports.string().trim().min(1).max(120).optional(),
   link: external_exports.string().trim().url().max(2e3).optional(),
   name: external_exports.string().trim().min(1).max(160).optional(),
   credentialValues: external_exports.record(external_exports.string().trim().min(1).max(200), external_exports.string().min(1)).optional(),
   configValues: external_exports.record(external_exports.string().trim().min(1).max(200), external_exports.unknown()).optional(),
-  applicationId: external_exports.string().guid().optional()
+  applicationId: external_exports.string().guid().optional(),
+  /** Pending connection request this setup should resolve after authorization. */
+  interactionId: external_exports.string().uuid().optional(),
+  /** Exact draft to continue after an interrupted setup. */
+  resumeConnectionId: external_exports.string().guid().optional(),
+  /** Exact configured connection to reauthorize without replacing its identity. */
+  reconnectConnectionId: external_exports.string().guid().optional(),
+  authMode: genericMcpAuthModeSchema.optional(),
+  oauthClient: genericMcpOAuthClientSchema.optional(),
+  credentialSource: external_exports.enum(["paperclip_vault", "vercel_connect"]).optional(),
+  vercelConnect: external_exports.object({ connector: external_exports.string().trim().min(1).max(255) }).strict().optional(),
+  /**
+   * Which identity this credential becomes (PAP-17835). `user` means "Just me":
+   * the credential is committed to the caller's own personal grant and never to
+   * the connection row's shared secret refs or the default organization grant.
+   * Omitted keeps the historical shared-credential behaviour.
+   */
+  grantKind: connectionGrantKindSchema.optional(),
+  /** Same-company agent that owns a dedicated provider identity. */
+  subjectAgentId: external_exports.string().guid().optional()
+}).superRefine((value, ctx) => {
+  if (value.configValues) rejectSensitiveConfigKeys(value.configValues, ctx, ["configValues"]);
+  if (value.credentialValues) rejectUnsafeHeaderCredentials(value.credentialValues, ctx, ["credentialValues"]);
+  if (value.grantKind === "agent" !== Boolean(value.subjectAgentId)) {
+    ctx.addIssue({ code: external_exports.ZodIssueCode.custom, path: ["subjectAgentId"], message: "subjectAgentId is required exactly for an agent grant" });
+  }
+  if (value.authMode && value.galleryKey) {
+    ctx.addIssue({
+      code: external_exports.ZodIssueCode.custom,
+      path: ["authMode"],
+      message: "Authentication mode selection applies to a pasted URL, not a gallery app"
+    });
+  }
+  if (value.resumeConnectionId && value.reconnectConnectionId) {
+    ctx.addIssue({ code: external_exports.ZodIssueCode.custom, path: ["reconnectConnectionId"], message: "Choose resume or reconnect, not both" });
+  }
+  if (value.resumeConnectionId && !value.galleryKey) {
+    ctx.addIssue({
+      code: external_exports.ZodIssueCode.custom,
+      path: ["resumeConnectionId"],
+      message: "Only gallery app setup can resume a draft connection"
+    });
+  }
+  const source = value.credentialSource ?? "paperclip_vault";
+  if (source === "vercel_connect") {
+    if (!value.vercelConnect) {
+      ctx.addIssue({ code: external_exports.ZodIssueCode.custom, path: ["vercelConnect"], message: "A Vercel connector UID is required" });
+    }
+    if (value.credentialValues && Object.keys(value.credentialValues).length > 0) {
+      ctx.addIssue({ code: external_exports.ZodIssueCode.custom, path: ["credentialValues"], message: "Vercel-backed connections cannot include provider credentials" });
+    }
+    if (value.oauthClient) {
+      ctx.addIssue({ code: external_exports.ZodIssueCode.custom, path: ["oauthClient"], message: "Vercel-backed connections cannot include OAuth client credentials" });
+    }
+  } else if (value.vercelConnect) {
+    ctx.addIssue({ code: external_exports.ZodIssueCode.custom, path: ["vercelConnect"], message: "Vercel connector metadata requires the vercel_connect credential source" });
+  }
 }).refine(
-  (value) => Boolean(value.galleryKey) !== Boolean(value.link),
-  { message: "Provide exactly one of galleryKey or link" }
+  (value) => Boolean(value.galleryKey) || Boolean(value.link),
+  { message: "Provide a galleryKey or link" }
 );
 var reconnectToolAppSchema = external_exports.object({
   credentialValues: external_exports.record(external_exports.string().trim().min(1).max(200), external_exports.string().min(1))
 });
 var finishToolAppSchema = external_exports.object({
+  /** Task setup adds access while preserving existing assignments and action policies. */
+  preserveExistingAccess: external_exports.boolean().optional(),
   enabledCatalogEntryIds: external_exports.array(external_exports.string().guid()).max(500).default([]),
   askFirstCatalogEntryIds: external_exports.array(external_exports.string().guid()).max(500).default([]),
   reviewedCatalogEntryIds: external_exports.array(external_exports.string().guid()).max(500).optional(),
@@ -65481,6 +71515,18 @@ var finishToolAppSchema = external_exports.object({
     external_exports.object({ agentIds: external_exports.array(external_exports.string().guid()).min(1).max(250) })
   ])
 });
+var finalizeOAuthAccessSchema = external_exports.object({
+  grantKind: connectionGrantKindSchema
+}).strict();
+var startToolOAuthSchema = external_exports.object({
+  asCurrentUser: external_exports.boolean().optional(),
+  asAgentId: external_exports.string().uuid().optional(),
+  interactionId: external_exports.string().uuid().optional()
+}).strict().superRefine((value, ctx) => {
+  if (value.asCurrentUser && value.asAgentId) {
+    ctx.addIssue({ code: external_exports.ZodIssueCode.custom, path: ["asAgentId"], message: "Choose either the current user or one dedicated agent" });
+  }
+}).default({});
 var upsertToolCatalogEntrySchema = external_exports.object({
   applicationId: external_exports.string().guid(),
   connectionId: external_exports.string().guid(),
@@ -65640,7 +71686,7 @@ var createToolMcpGatewayTokenSchema = external_exports.object({
   subjectType: toolMcpGatewayTokenSubjectTypeSchema.default("gateway_client").optional(),
   subjectId: external_exports.string().trim().min(1).max(240).optional().nullable(),
   clientLabel: external_exports.string().trim().min(1).max(160),
-  ownerNote: external_exports.string().trim().min(1).max(1e3),
+  ownerNote: external_exports.string().trim().max(1e3).default(""),
   allowedActions: external_exports.array(toolMcpGatewayTokenActionSchema).min(1).max(TOOL_MCP_GATEWAY_TOKEN_ACTIONS.length).default(["tools/list", "tools/call"]).optional(),
   expiresAt: external_exports.coerce.date().optional().nullable(),
   expiryOverrideReason: external_exports.string().trim().min(1).max(1e3).optional().nullable()
@@ -65849,6 +71895,7 @@ var toolTrustRuleBatchApprovalSchema = external_exports.object({
   windowSeconds: external_exports.number().int().positive().max(31536e3).optional()
 });
 var createToolTrustRuleFromActionRequestSchema = external_exports.object({
+  argumentMode: external_exports.enum(["exact", "action"]).optional(),
   name: external_exports.string().trim().min(1).max(160).optional(),
   description: external_exports.string().max(4e3).optional().nullable(),
   priority: external_exports.number().int().min(0).max(1e4).default(40),
@@ -65896,13 +71943,39 @@ var toolPolicyTestRequestSchema = external_exports.object({
 });
 
 // ../../shared/src/validators/app-definition.ts
-var field = external_exports.object({ key: external_exports.string().min(1), label: external_exports.string().min(1), type: external_exports.enum(["text", "password", "textarea", "datetime", "select", "checkbox"]), required: external_exports.boolean().optional(), placeholder: external_exports.string().optional(), helperMd: external_exports.string().optional(), secret: external_exports.boolean().optional(), prefix: external_exports.string().optional() }).superRefine((v, c) => {
+var appBrandAssetUrlSchema = external_exports.string().refine((value) => {
+  if (/^\/brands\/apps\/[a-z0-9][a-z0-9._-]*\.(?:svg|png)$/i.test(value)) return true;
+  try {
+    return new URL(value).protocol === "https:";
+  } catch {
+    return false;
+  }
+}, { message: "Brand assets must be HTTPS URLs or local /brands/apps SVG/PNG paths" });
+var field = external_exports.object({ key: external_exports.string().min(1), label: external_exports.string().min(1), type: external_exports.enum(["text", "password", "textarea", "datetime", "select", "checkbox"]), required: external_exports.boolean().optional(), advanced: external_exports.boolean().optional(), hidden: external_exports.boolean().optional(), placeholder: external_exports.string().optional(), helperMd: external_exports.string().optional(), secret: external_exports.boolean().optional(), prefix: external_exports.string().optional(), defaultValue: external_exports.union([external_exports.string(), external_exports.boolean()]).optional(), validation: external_exports.object({ pattern: external_exports.string().optional(), maxLength: external_exports.number().int().positive().optional() }).optional(), options: external_exports.array(external_exports.object({ value: external_exports.string(), label: external_exports.string() })).optional(), transport: external_exports.object({ location: external_exports.enum(["query", "header"]), name: external_exports.string().min(1), format: external_exports.enum(["string", "csv", "boolean"]).optional(), omitFalse: external_exports.boolean().optional() }).optional() }).superRefine((v, c) => {
   if (v.required && v.type !== "checkbox" && !v.placeholder) c.addIssue({ code: "custom", message: "Required fields need placeholders", path: ["placeholder"] });
+  if (v.type === "select" && (!v.options || v.options.length === 0)) c.addIssue({ code: "custom", message: "Select fields need options", path: ["options"] });
+  if (v.hidden && v.defaultValue === void 0) c.addIssue({ code: "custom", message: "Hidden fields need defaults", path: ["defaultValue"] });
 });
-var connectionMethodDefSchema = external_exports.object({ key: external_exports.string().min(1), transport: toolConnectionTransportSchema, auth: external_exports.enum(["oauth", "api_key", "none"]), ownershipModes: external_exports.array(toolConnectionOwnershipSchema).min(1), whenToUse: external_exports.string().min(1), defaults: external_exports.object({ serverUrl: external_exports.string().url().optional(), discoveryUrl: external_exports.string().url().nullable().optional(), serviceHost: external_exports.string().optional(), templateKey: external_exports.string().optional(), authorizationEndpoint: external_exports.string().url().optional(), tokenEndpoint: external_exports.string().url().optional(), metadataUrl: external_exports.string().url().optional(), scopesHint: external_exports.array(external_exports.string()).optional() }).optional(), tenantFields: external_exports.array(field).optional(), extensionFields: external_exports.array(field).optional(), credentialFields: external_exports.array(field).optional(), keyPlacement: external_exports.object({ location: external_exports.enum(["header", "query", "body_json", "env"]), name: external_exports.string().min(1), prefix: external_exports.string().nullable().optional() }).optional(), guidanceMd: external_exports.string().min(1), consoleLinks: external_exports.object({ register: external_exports.string().url().optional(), keys: external_exports.string().url().optional(), settings: external_exports.string().url().optional(), docs: external_exports.string().url().optional() }).optional(), warnings: external_exports.array(external_exports.string()).optional(), variants: external_exports.array(external_exports.object({ key: external_exports.string(), label: external_exports.string(), whenToUse: external_exports.string(), tenantFields: external_exports.array(field).optional() })).optional(), riskTier: external_exports.enum(["S1", "S2", "S3", "S4"]), requiredResourceFilters: external_exports.array(external_exports.string()).optional() }).superRefine((v, c) => {
-  if (v.auth === "api_key" && !v.keyPlacement) c.addIssue({ code: "custom", message: "API-key methods require keyPlacement", path: ["keyPlacement"] });
+var connectionMethodDefSchema = external_exports.object({ key: external_exports.string().min(1), label: external_exports.string().min(1).optional(), purpose: external_exports.union([toolConnectionPurposeSchema, external_exports.literal("ai")]).optional(), provider: external_exports.enum(["slack", "github", "discord", "microsoft-teams", "telegram", "agentmail", "imessage-photon"]).optional(), transport: external_exports.union([toolConnectionTransportSchema, external_exports.literal("runtime_auth")]), ai: aiConnectionMetadataSchema.optional(), auth: external_exports.enum(["oauth", "api_key", "none"]), oauthStrategy: external_exports.enum(["paperclip_cloud_connector", "paperclip_id_connector"]).optional(), connectorProfile: external_exports.string().regex(/^[a-z0-9]+(?:[.-][a-z0-9]+)*$/).optional(), capabilityProfile: external_exports.object({ key: external_exports.string().min(1), label: external_exports.string().min(1), description: external_exports.string().min(1).optional() }).optional(), grantKinds: external_exports.array(connectionGrantKindSchema).min(1).optional(), ownershipModes: external_exports.array(toolConnectionOwnershipSchema).min(1), whenToUse: external_exports.string().min(1), defaults: external_exports.object({ serverUrl: external_exports.string().url().optional(), serverUrlTemplate: external_exports.string().regex(/^https:\/\//).optional(), discoveryUrl: external_exports.string().url().nullable().optional(), serviceHost: external_exports.string().optional(), templateKey: external_exports.string().optional(), authorizationEndpoint: external_exports.string().url().optional(), tokenEndpoint: external_exports.string().url().optional(), metadataUrl: external_exports.string().url().optional(), scopesHint: external_exports.array(external_exports.string()).optional(), oauthAuthorizationParams: external_exports.object({ access_type: external_exports.literal("offline").optional(), prompt: external_exports.literal("consent").optional() }).optional(), toolArgumentDefaults: external_exports.record(external_exports.string(), external_exports.unknown()).optional() }).optional(), tenantFields: external_exports.array(field).optional(), extensionFields: external_exports.array(field).optional(), configRequirements: external_exports.object({ atLeastOneOf: external_exports.array(external_exports.string().min(1)).min(1).optional() }).optional(), credentialFields: external_exports.array(field).optional(), keyPlacement: external_exports.object({ location: external_exports.enum(["header", "query", "body_json", "env"]), name: external_exports.string().min(1), prefix: external_exports.string().nullable().optional() }).optional(), credentialSources: external_exports.object({ vercelConnect: external_exports.object({ services: external_exports.array(external_exports.string().min(1)).min(1), principalModes: external_exports.array(external_exports.enum(["app", "user"])).min(1), scopes: external_exports.array(external_exports.string().min(1)).min(1), header: external_exports.object({ name: external_exports.string().min(1), prefix: external_exports.string().nullable().optional() }) }).optional() }).optional(), guidanceMd: external_exports.string().min(1), consoleLinks: external_exports.object({ register: external_exports.string().url().optional(), keys: external_exports.string().url().optional(), settings: external_exports.string().url().optional(), docs: external_exports.string().url().optional() }).optional(), warnings: external_exports.array(external_exports.string()).optional(), variants: external_exports.array(external_exports.object({ key: external_exports.string(), label: external_exports.string(), whenToUse: external_exports.string(), tenantFields: external_exports.array(field).optional() })).optional(), riskTier: external_exports.enum(["S1", "S2", "S3", "S4"]), requiredResourceFilters: external_exports.array(external_exports.string()).optional() }).superRefine((v, c) => {
+  if (v.transport === "runtime_auth" !== Boolean(v.ai)) c.addIssue({ code: "custom", message: "Runtime authentication requires AI metadata and AI metadata requires runtime_auth", path: ["ai"] });
+  if (v.ai && !AI_CONNECTION_CAPABILITIES[v.ai.provider].methods[v.ai.method]) c.addIssue({ code: "custom", message: "Unsupported AI sign-in method", path: ["ai", "method"] });
+  if (v.ai && v.auth !== (v.ai.method === "subscription" ? "oauth" : "api_key")) c.addIssue({ code: "custom", message: "AI sign-in method must match authentication", path: ["auth"] });
+  const purpose = v.purpose ?? "tool";
+  if (purpose === "ai" !== (v.transport === "runtime_auth")) c.addIssue({ code: "custom", message: "AI methods require runtime_auth and runtime_auth requires AI purpose", path: ["purpose"] });
+  if (v.transport === "chat_sdk" && purpose !== "channel") c.addIssue({ code: "custom", message: "Chat SDK methods must be channel connections", path: ["purpose"] });
+  if (purpose === "channel" && v.transport !== "chat_sdk" && !(v.provider === "agentmail" && v.transport === "rest_api")) c.addIssue({ code: "custom", message: "Channel connections must use the Chat SDK transport", path: ["transport"] });
+  if (purpose === "channel" && !v.provider) c.addIssue({ code: "custom", message: "Channel connections require a chat provider", path: ["provider"] });
+  if (v.auth === "api_key" && !v.keyPlacement && purpose !== "channel") c.addIssue({ code: "custom", message: "API-key tool methods require keyPlacement", path: ["keyPlacement"] });
+  if (v.oauthStrategy && v.auth !== "oauth") c.addIssue({ code: "custom", message: "OAuth strategies require OAuth auth", path: ["oauthStrategy"] });
+  if (v.oauthStrategy && !v.connectorProfile) c.addIssue({ code: "custom", message: "Paperclip Cloud connector methods require connectorProfile", path: ["connectorProfile"] });
+  if (v.connectorProfile && !v.oauthStrategy) c.addIssue({ code: "custom", message: "connectorProfile requires a Paperclip Cloud OAuth strategy", path: ["connectorProfile"] });
+  if (v.credentialSources?.vercelConnect && (v.transport !== "mcp_remote" || v.auth === "none")) c.addIssue({ code: "custom", message: "Vercel Connect requires an authenticated remote MCP method", path: ["credentialSources", "vercelConnect"] });
+  const keys = new Set([...v.tenantFields ?? [], ...v.extensionFields ?? []].map((entry) => entry.key));
+  for (const key of v.configRequirements?.atLeastOneOf ?? []) if (!keys.has(key)) c.addIssue({ code: "custom", message: "Config requirement references an unknown field", path: ["configRequirements", "atLeastOneOf"] });
+  if (v.defaults?.serverUrl && v.defaults.serverUrlTemplate) c.addIssue({ code: "custom", message: "Use either serverUrl or serverUrlTemplate", path: ["defaults"] });
+  for (const placeholder of v.defaults?.serverUrlTemplate?.matchAll(/\{([a-zA-Z0-9_-]+)\}/g) ?? []) if (!keys.has(placeholder[1])) c.addIssue({ code: "custom", message: "Server URL template references an unknown field", path: ["defaults", "serverUrlTemplate"] });
 });
-var appDefinitionSchema = external_exports.object({ schemaVersion: external_exports.literal(1), slug: external_exports.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/), name: external_exports.string().min(1), description: external_exports.string().min(1), categories: external_exports.array(external_exports.enum(["ai", "analytics", "commerce", "communication", "content", "data", "developer", "productivity", "other"])).min(1), featured: external_exports.boolean().optional(), branding: external_exports.object({ logoUrl: external_exports.string().url(), darkLogoUrl: external_exports.string().url().optional(), backgroundColor: external_exports.string().optional(), accentColor: external_exports.string().optional() }), urlPatterns: external_exports.array(external_exports.string()), docsUrl: external_exports.string().url().optional(), redirectConstraints: external_exports.enum(["https-or-loopback-http"]).optional(), methods: external_exports.array(connectionMethodDefSchema).min(1), suggestable: external_exports.boolean().optional(), availability: external_exports.object({ available: external_exports.boolean(), reason: external_exports.string().optional(), robotEmail: external_exports.string().optional() }).optional(), ownershipAvailability: external_exports.object({ platform_shared: external_exports.boolean().optional(), platform_provisioned: external_exports.boolean().optional(), customer: external_exports.boolean().optional(), dcr: external_exports.boolean().optional() }).optional() });
+var appDefinitionSchema = external_exports.object({ schemaVersion: external_exports.literal(1), slug: external_exports.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/), name: external_exports.string().min(1), description: external_exports.string().min(1), categories: external_exports.array(external_exports.enum(["ai", "analytics", "commerce", "communication", "content", "data", "developer", "productivity", "other"])).min(1), featured: external_exports.boolean().optional(), branding: external_exports.object({ logoUrl: appBrandAssetUrlSchema, darkLogoUrl: appBrandAssetUrlSchema.optional(), backgroundColor: external_exports.string().optional(), accentColor: external_exports.string().optional() }), urlPatterns: external_exports.array(external_exports.string()), docsUrl: external_exports.string().url().optional(), setupPrerequisite: external_exports.object({ title: external_exports.string().min(1), description: external_exports.string().min(1), steps: external_exports.array(external_exports.string().min(1)).min(1).optional(), actionLabel: external_exports.string().min(1), actionUrl: external_exports.string().url() }).optional(), redirectConstraints: external_exports.enum(["https-or-loopback-http"]).optional(), methods: external_exports.array(connectionMethodDefSchema).min(1), suggestable: external_exports.boolean().optional(), availability: external_exports.object({ available: external_exports.boolean(), reason: external_exports.string().optional(), robotEmail: external_exports.string().optional() }).optional(), ownershipAvailability: external_exports.object({ platform_shared: external_exports.boolean().optional(), platform_provisioned: external_exports.boolean().optional(), customer: external_exports.boolean().optional(), dcr: external_exports.boolean().optional() }).optional() });
 var appDefinitionsSchema = external_exports.array(appDefinitionSchema).superRefine((v, c) => {
   const s = /* @__PURE__ */ new Set();
   v.forEach((a, i) => {
@@ -65910,6 +71983,219 @@ var appDefinitionsSchema = external_exports.array(appDefinitionSchema).superRefi
     s.add(a.slug);
   });
 });
+
+// ../../shared/src/types/chat-channels.ts
+var CHAT_PROVIDERS = [
+  "slack",
+  "github",
+  "discord",
+  "microsoft-teams",
+  "telegram",
+  "agentmail",
+  "imessage-photon"
+];
+var CHAT_ENDPOINT_STATUSES = [
+  "draft",
+  "verifying",
+  "active",
+  "paused",
+  "attention",
+  "revoked",
+  "archived"
+];
+var CHAT_CONCURRENCY_POLICIES = [
+  "burst",
+  "queue",
+  "debounce",
+  "drop",
+  "concurrent"
+];
+var CHAT_EVENT_KINDS = [
+  "mention",
+  "message",
+  "direct_message",
+  "message_updated",
+  "message_deleted",
+  "message_restored",
+  "reaction_added",
+  "reaction_removed",
+  "action",
+  "modal_submitted",
+  "modal_closed",
+  "slash_command",
+  "file_shared",
+  "installation",
+  "uninstallation",
+  "unknown"
+];
+var CHAT_DELIVERY_STATES = [
+  "received",
+  "filtered",
+  "processing",
+  "processed",
+  "retry",
+  "failed"
+];
+var CHAT_PUBLICATION_STATES = [
+  "pending",
+  "awaiting_consent",
+  "streaming",
+  "published",
+  "retry",
+  "delivery_unknown",
+  "failed",
+  "cancelled"
+];
+var CHAT_FILE_TRANSFER_PHASES = [
+  "consent_pending",
+  "consent_sending",
+  "consent_unknown",
+  "awaiting_consent",
+  "upload_pending",
+  "uploading",
+  "upload_unknown",
+  "file_info_pending",
+  "file_info_sending",
+  "file_info_unknown",
+  "delivered",
+  "declined",
+  "expired",
+  "cancelled",
+  "conflict"
+];
+var CHAT_PRINCIPAL_KINDS = ["user", "bot", "app", "system"];
+var CHAT_IDENTITY_LINK_STATUSES = [
+  "pending",
+  "linked",
+  "revoked",
+  "expired"
+];
+var CHAT_RESOURCE_AVAILABILITIES = [
+  "available",
+  "unavailable",
+  "removed"
+];
+
+// ../../shared/src/validators/chat-channels.ts
+var chatProviderSchema = external_exports.enum(CHAT_PROVIDERS);
+var chatEndpointStatusSchema = external_exports.enum(CHAT_ENDPOINT_STATUSES);
+var chatConcurrencyPolicySchema = external_exports.enum(CHAT_CONCURRENCY_POLICIES);
+var chatEventKindSchema = external_exports.enum(CHAT_EVENT_KINDS);
+var chatDeliveryStateSchema = external_exports.enum(CHAT_DELIVERY_STATES);
+var chatPublicationStateSchema = external_exports.enum(CHAT_PUBLICATION_STATES);
+var chatPrincipalKindSchema = external_exports.enum(CHAT_PRINCIPAL_KINDS);
+var chatIdentityLinkStatusSchema = external_exports.enum(CHAT_IDENTITY_LINK_STATUSES);
+var chatResourceAvailabilitySchema = external_exports.enum(
+  CHAT_RESOURCE_AVAILABILITIES
+);
+var microsoftTeamsCredentialIdSchema = external_exports.string().trim().uuid().refine((value) => value !== "00000000-0000-0000-0000-000000000000", {
+  message: "Microsoft Teams credential IDs cannot be the nil UUID"
+}).transform((value) => value.toLowerCase());
+var chatEndpointCredentialsSchema = external_exports.record(external_exports.string(), external_exports.string().min(1)).superRefine((credentials, ctx) => {
+  for (const key of ["clientId", "tenantId"]) {
+    const value = credentials[key];
+    if (value === void 0) continue;
+    const parsed = microsoftTeamsCredentialIdSchema.safeParse(value);
+    if (parsed.success) continue;
+    ctx.addIssue({
+      code: external_exports.ZodIssueCode.custom,
+      path: [key],
+      message: `${key} must be a canonical Microsoft Entra UUID`
+    });
+  }
+}).transform((credentials) => {
+  const normalized = { ...credentials };
+  for (const key of ["clientId", "tenantId"]) {
+    const value = normalized[key];
+    if (value !== void 0) {
+      normalized[key] = microsoftTeamsCredentialIdSchema.parse(value);
+    }
+  }
+  return normalized;
+});
+var createChatEndpointSchema = external_exports.object({
+  provider: chatProviderSchema.exclude(["agentmail"]),
+  assignedAgentId: external_exports.string().uuid(),
+  applicationId: external_exports.string().uuid().optional(),
+  name: external_exports.string().trim().min(1).max(160).optional()
+}).strict();
+var updateChatEndpointSchema = external_exports.object({
+  allowDirectMessages: external_exports.boolean().optional(),
+  allowGroupChats: external_exports.boolean().optional(),
+  allowUnlinkedPeople: external_exports.boolean().optional()
+}).strict().refine((value) => Object.keys(value).length > 0, {
+  message: "At least one chat endpoint field is required"
+});
+var photonProjectIdSchema = external_exports.string().trim().min(1).max(128).regex(/^[a-zA-Z0-9_-]+$/);
+var photonLineIdSchema = external_exports.string().trim().min(1).max(63).regex(/^[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?$/);
+var photonChannelConfigurationSchema = external_exports.union([
+  external_exports.object({ allocation: external_exports.literal("dedicated").default("dedicated"), projectId: photonProjectIdSchema, lineId: photonLineIdSchema }).strict(),
+  external_exports.object({ allocation: external_exports.literal("shared"), projectId: photonProjectIdSchema }).strict()
+]);
+var inspectPhotonProjectSchema = external_exports.object({
+  projectId: photonProjectIdSchema,
+  projectSecret: external_exports.string().min(1).max(4096)
+}).strict();
+var configureChatEndpointSchema = external_exports.object({
+  action: external_exports.enum([
+    "configure",
+    "verify",
+    "pause",
+    "resume",
+    "reconnect",
+    "remove"
+  ]),
+  credentials: chatEndpointCredentialsSchema.optional(),
+  photon: photonChannelConfigurationSchema.optional()
+}).strict().superRefine((value, ctx) => {
+  if ((value.credentials || value.photon) && value.action !== "configure" && value.action !== "reconnect") {
+    ctx.addIssue({
+      code: external_exports.ZodIssueCode.custom,
+      path: ["credentials"],
+      message: `Credentials are not accepted for the ${value.action} action`
+    });
+  }
+});
+var replaceChatEndpointResourcesSchema = external_exports.object({
+  resources: external_exports.array(
+    external_exports.object({
+      id: external_exports.string().uuid(),
+      enabled: external_exports.boolean()
+    }).strict()
+  ).max(500)
+}).strict();
+var publishChatCommentSchema = external_exports.object({
+  commentId: external_exports.string().uuid()
+}).strict();
+var publishChatBoardMessageSchema = external_exports.object({
+  body: multilineTextSchema.pipe(external_exports.string().trim().min(1).max(1e5)),
+  idempotencyKey: external_exports.string().trim().min(16).max(200),
+  attachmentIds: external_exports.array(external_exports.string().uuid()).max(20).refine((ids) => new Set(ids).size === ids.length, {
+    message: "Attachment ids must be unique"
+  }).optional()
+}).strict();
+var publishChatPublicationSchema = external_exports.union([
+  publishChatCommentSchema,
+  publishChatBoardMessageSchema
+]);
+var resolveChatPublicationSchema = external_exports.object({
+  action: external_exports.enum(["mark_delivered", "retry_anyway", "cancel"]),
+  fileTransfer: external_exports.object({
+    phase: external_exports.enum(CHAT_FILE_TRANSFER_PHASES),
+    version: external_exports.number().int().positive().max(Number.MAX_SAFE_INTEGER)
+  }).strict().optional()
+}).strict();
+var resolveChatActionSchema = external_exports.object({
+  action: external_exports.enum(["mark_delivered", "retry_anyway", "cancel"])
+}).strict();
+var createChatIdentityLinkIntentSchema = external_exports.object({
+  expiresInSeconds: external_exports.number().int().min(300).max(86400).default(1800)
+}).strict().default({ expiresInSeconds: 1800 });
+var confirmChatIdentityLinkSchema = external_exports.object({
+  token: external_exports.string().min(32).max(4096)
+}).strict();
+var replayChatDeliverySchema = external_exports.object({}).strict();
+var chatPublicEndpointIdSchema = external_exports.string().regex(/^[a-zA-Z0-9_-]{32,128}$/);
 
 // ../../shared/src/validators/summary-slot.ts
 var optionalScopeIdSchema = external_exports.string().guid().optional().nullable();
@@ -66003,9 +72289,6 @@ var SMOKE_RUN_STEP_STATUSES = ["pass", "fail", "skipped"];
 var DAILY_RETENTION_PRESETS = [3, 7, 14];
 var WEEKLY_RETENTION_PRESETS = [1, 2, 4];
 var MONTHLY_RETENTION_PRESETS = [1, 3, 6];
-var DEFAULT_ISSUE_GRAPH_LIVENESS_AUTO_RECOVERY_LOOKBACK_HOURS = 24;
-var MIN_ISSUE_GRAPH_LIVENESS_AUTO_RECOVERY_LOOKBACK_HOURS = 1;
-var MAX_ISSUE_GRAPH_LIVENESS_AUTO_RECOVERY_LOOKBACK_HOURS = 24 * 30;
 var DEFAULT_BACKUP_RETENTION = {
   dailyDays: 7,
   weeklyWeeks: 4,
@@ -66084,9 +72367,11 @@ var adapterAuthSessionPromptSchema = external_exports.object({
   code: external_exports.string().min(1)
 }).strict();
 var adapterAuthSessionOwnerResponseSchema = adapterAuthSessionResponseSchema.extend({
-  prompt: adapterAuthSessionPromptSchema.nullable()
+  prompt: adapterAuthSessionPromptSchema.nullable(),
+  aiConnection: aiConnectionLoginIntentSchema.optional()
 }).strict();
 var startAdapterAuthSessionRequestSchema = external_exports.object({
+  aiConnection: aiConnectionLoginIntentSchema.optional(),
   environmentId: external_exports.string().guid(),
   adapterType: external_exports.enum(AGENT_ADAPTER_TYPES),
   ttlSeconds: external_exports.number().int().min(60).max(24 * 60 * 60).optional()
@@ -66102,6 +72387,7 @@ var claudeSetupTokenOverwriteSchema = external_exports.object({
   expectedLatestVersion: external_exports.number().int().min(1)
 }).strict();
 var startClaudeSetupTokenSessionRequestSchema = external_exports.object({
+  aiConnection: aiConnectionLoginIntentSchema.optional(),
   environmentId: external_exports.string().guid(),
   adapterType: external_exports.enum(AGENT_ADAPTER_TYPES),
   overwrite: claudeSetupTokenOverwriteSchema.optional()
@@ -66122,7 +72408,8 @@ var claudeSetupTokenSessionPromptSchema = external_exports.object({
 }).strict();
 var claudeSetupTokenSessionOwnerResponseSchema = claudeSetupTokenSessionResponseSchema.extend({
   panelMode: adapterAuthPanelModeSchema,
-  prompt: claudeSetupTokenSessionPromptSchema.nullable()
+  prompt: claudeSetupTokenSessionPromptSchema.nullable(),
+  aiConnection: aiConnectionLoginIntentSchema.optional()
 }).strict();
 var BROWSER_CODE_MAX_LENGTH = 512;
 var BROWSER_CODE_DISALLOWED_CHAR = /[^\x21-\x7E]/;
@@ -66361,10 +72648,10 @@ var upsertIssueFeedbackVoteSchema = external_exports.object({
 });
 
 // ../../shared/src/validators/instance.ts
-function presetSchema(presets, label) {
+function presetSchema(presets, label2) {
   return external_exports.number().refine(
     (v) => presets.includes(v),
-    { message: `${label} must be one of: ${presets.join(", ")}` }
+    { message: `${label2} must be one of: ${presets.join(", ")}` }
   );
 }
 var backupRetentionPolicySchema = external_exports.object({
@@ -66428,16 +72715,22 @@ var patchInstanceGeneralSettingsSchema = external_exports.object({
 }).partial().strict();
 var instanceExperimentalSettingsSchema = external_exports.object({
   enableEnvironments: external_exports.boolean().default(false),
-  enableNativeRunner: external_exports.boolean().default(false),
+  enableNativeRunner: external_exports.boolean().default(true),
   enableManagedSandboxOnly: external_exports.boolean().default(false),
   enableIsolatedWorkspaces: external_exports.boolean().default(false),
+  enableIsolatedWorkspacesByDefault: external_exports.boolean().default(false),
   enableStreamlinedLeftNavigation: external_exports.boolean().default(true),
-  enableApps: external_exports.boolean().default(false),
+  enableStreamlinedUi: external_exports.boolean().default(true),
+  // Deprecated compatibility key. Apps is a standard product surface and is
+  // always enabled; this remains accepted so older stored rows and managed
+  // configs continue to load during upgrades.
+  enableApps: external_exports.boolean().default(true),
+  enableChatConnectors: external_exports.boolean().default(false),
   enablePipelines: external_exports.boolean().default(false),
   enableCases: external_exports.boolean().default(false),
+  enableAgentChat: external_exports.boolean().default(false),
   enableConferenceRoomChat: external_exports.boolean().default(false),
   enableClassicTaskInterface: external_exports.boolean().default(false),
-  enableTaskWatchdogs: external_exports.boolean().default(false),
   enableIssuePlanDecompositions: external_exports.boolean().default(false),
   enableExperimentalFileViewer: external_exports.boolean().default(false),
   enableExternalObjects: external_exports.boolean().default(false),
@@ -66449,9 +72742,10 @@ var instanceExperimentalSettingsSchema = external_exports.object({
   enableDecisions: external_exports.boolean().default(false),
   enableGoalsSidebarLink: external_exports.boolean().default(false),
   enableServerInfoDebugView: external_exports.boolean().default(false),
+  enablePaperclipDeveloperMode: external_exports.boolean().default(false),
   enableSimplifiedEnglishInteractions: external_exports.boolean().default(false),
+  enableFirstTaskPlanProposal: external_exports.boolean().default(false),
   autoRestartDevServerWhenIdle: external_exports.boolean().default(false),
-  enableIssueGraphLivenessAutoRecovery: external_exports.boolean().default(false),
   enableWorkspaceBranchReconcileForward: external_exports.boolean().default(true),
   enableWorkspaceDirtyQuarantineRepair: external_exports.boolean().default(true),
   enableOwnerInstanceAdmin: external_exports.boolean().default(false),
@@ -66459,10 +72753,12 @@ var instanceExperimentalSettingsSchema = external_exports.object({
   // off the host keeps the file bridge for every run with no manifest change and
   // no redeploy. The host reads this per run before it selects the transport.
   enableSandboxDuplexBridge: external_exports.boolean().default(false),
+  // Deprecated compatibility key. Runner ingress follows enableNativeRunner;
+  // this remains accepted so older stored rows and managed configs keep loading.
+  enableRunnerPreviewIngress: external_exports.boolean().default(false),
   enableWorktreeRunExecution: external_exports.boolean().default(false),
   worktreeRunExecutionActivatedAt: external_exports.string().datetime().nullable().default(null),
-  worktreeRunExecutionActivationInstanceId: external_exports.string().min(1).nullable().default(null),
-  issueGraphLivenessAutoRecoveryLookbackHours: external_exports.number().int().min(MIN_ISSUE_GRAPH_LIVENESS_AUTO_RECOVERY_LOOKBACK_HOURS).max(MAX_ISSUE_GRAPH_LIVENESS_AUTO_RECOVERY_LOOKBACK_HOURS).default(DEFAULT_ISSUE_GRAPH_LIVENESS_AUTO_RECOVERY_LOOKBACK_HOURS)
+  worktreeRunExecutionActivationInstanceId: external_exports.string().min(1).nullable().default(null)
 }).strict();
 var patchInstanceExperimentalSettingsSchema = external_exports.object(
   shapeWithoutDefaults(
@@ -66482,8 +72778,9 @@ var instanceExperimentalSettingsWithManagedSchema = instanceExperimentalSettings
 var patchInstanceSettingsSchema = external_exports.object({
   defaultEnvironmentId: external_exports.string().guid().nullable().optional()
 }).strict();
-var issueGraphLivenessAutoRecoveryRequestSchema = external_exports.object({
-  lookbackHours: external_exports.number().int().min(MIN_ISSUE_GRAPH_LIVENESS_AUTO_RECOVERY_LOOKBACK_HOURS).max(MAX_ISSUE_GRAPH_LIVENESS_AUTO_RECOVERY_LOOKBACK_HOURS).optional()
+var MAX_TASK_DRAIN_TTL_MS = 24 * 60 * 60 * 1e3;
+var startTaskDrainRequestSchema = external_exports.object({
+  ttlMs: external_exports.number().int().positive().max(MAX_TASK_DRAIN_TTL_MS).nullable().optional()
 }).strict();
 var instanceSettingsSchema = external_exports.object({
   id: external_exports.string().guid(),
@@ -66544,9 +72841,7 @@ var recordSmokeRunStepSchema = external_exports.object({
 
 // ../../shared/src/validators/company.ts
 var logoAssetIdSchema = external_exports.string().guid().nullable().optional();
-var brandColorSchema = external_exports.string().regex(/^#[0-9a-fA-F]{6}$/).nullable().optional();
 var feedbackDataSharingTermsVersionSchema = external_exports.string().min(1).nullable().optional();
-var attachmentMaxBytesSchema = external_exports.number().int().min(1).max(MAX_COMPANY_ATTACHMENT_MAX_BYTES);
 var interactionResolverKindGovernanceSchema = external_exports.object({
   defaultPolicy: external_exports.enum(ISSUE_THREAD_INTERACTION_RESOLVER_POLICIES).optional(),
   cap: external_exports.enum(ISSUE_THREAD_INTERACTION_RESOLVER_POLICIES).optional()
@@ -66562,7 +72857,6 @@ var createCompanySchema = external_exports.object({
   name: external_exports.string().min(1),
   description: external_exports.string().optional().nullable(),
   budgetMonthlyCents: external_exports.number().int().nonnegative().optional().default(0),
-  attachmentMaxBytes: attachmentMaxBytesSchema.optional(),
   defaultResponsibleUserId: external_exports.string().min(1).nullable().optional()
 });
 var updateCompanySchema = objectWithoutDefaults(
@@ -66575,18 +72869,15 @@ var updateCompanySchema = objectWithoutDefaults(
     feedbackDataSharingConsentAt: external_exports.coerce.date().nullable().optional(),
     feedbackDataSharingConsentByUserId: external_exports.string().min(1).nullable().optional(),
     feedbackDataSharingTermsVersion: feedbackDataSharingTermsVersionSchema,
-    brandColor: brandColorSchema,
-    logoAssetId: logoAssetIdSchema,
-    attachmentMaxBytes: attachmentMaxBytesSchema.optional()
+    logoAssetId: logoAssetIdSchema
   })
 );
 var updateCompanyBrandingSchema = external_exports.object({
   name: external_exports.string().min(1).optional(),
   description: external_exports.string().nullable().optional(),
-  brandColor: brandColorSchema,
   logoAssetId: logoAssetIdSchema
 }).strict().refine(
-  (value) => value.name !== void 0 || value.description !== void 0 || value.brandColor !== void 0 || value.logoAssetId !== void 0,
+  (value) => value.name !== void 0 || value.description !== void 0 || value.logoAssetId !== void 0,
   "At least one branding field must be provided"
 );
 
@@ -67321,9 +73612,7 @@ var portabilityCompanyManifestEntrySchema = external_exports.object({
   path: external_exports.string().min(1),
   name: external_exports.string().min(1),
   description: external_exports.string().nullable(),
-  brandColor: external_exports.string().nullable(),
   logoPath: external_exports.string().nullable(),
-  attachmentMaxBytes: external_exports.number().int().min(1).max(MAX_COMPANY_ATTACHMENT_MAX_BYTES).nullable().default(null),
   requireBoardApprovalForNewAgents: external_exports.boolean(),
   feedbackDataSharingEnabled: external_exports.boolean().default(false),
   feedbackDataSharingConsentAt: external_exports.string().datetime().nullable().default(null),
@@ -67791,7 +74080,9 @@ var agentSkillSyncSchema = external_exports.object({
 
 // ../../shared/src/validators/agent.ts
 var agentPermissionsSchema = external_exports.object({
-  canCreateAgents: external_exports.boolean().optional().default(false),
+  // No schema default: the server derives the default (enabled unless the
+  // permissions record marks the agent low-trust) when the field is omitted.
+  canCreateAgents: external_exports.boolean().optional(),
   canCreateSkills: external_exports.boolean().optional().default(true),
   trustPreset: trustPresetSchema.optional(),
   authorizationPolicy: trustAuthorizationPolicySchema.optional()
@@ -67826,16 +74117,20 @@ var createAgentInstructionsBundleSchema = external_exports.object({
     message: "instructionsBundle.files must contain at least one file"
   })
 });
-var agentModelProfileConfigSchema = external_exports.object({
-  enabled: external_exports.boolean().optional(),
-  label: external_exports.string().trim().min(1).optional(),
-  adapterConfig: adapterConfigSchema
-}).strict();
 var agentRuntimeConfigSchema = external_exports.object({
-  modelProfiles: external_exports.object({
-    cheap: agentModelProfileConfigSchema.optional()
+  aiConnection: aiConnectionBindingSchema.optional(),
+  debug: external_exports.object({
+    providerTrace: external_exports.literal("raw").optional()
   }).strict().optional()
-}).catchall(external_exports.unknown());
+}).catchall(external_exports.unknown()).superRefine((value, ctx) => {
+  if (Object.prototype.hasOwnProperty.call(value, "modelProfiles")) {
+    ctx.addIssue({
+      code: external_exports.ZodIssueCode.custom,
+      path: ["modelProfiles"],
+      message: "runtimeConfig.modelProfiles is no longer supported"
+    });
+  }
+});
 var createAgentSchema = external_exports.object({
   name: external_exports.string().min(1),
   role: external_exports.enum(AGENT_ROLES).optional().default("general"),
@@ -67860,7 +74155,13 @@ var createAgentSchema = external_exports.object({
   // Claude OAuth token reference to the owner stored value with no new login
   // round trip. The server permits the no-claim bind only for a user actor and
   // only when that owner already has a stored value. It carries no token.
-  applyStoredClaudeLogin: external_exports.boolean().optional()
+  applyStoredClaudeLogin: external_exports.boolean().optional(),
+  // Narrow intent flag set by the onboarding wizard when it hires the very first
+  // agent (the chief of staff). It is not an agent column: the server consumes
+  // it to seed the server-owned chief-of-staff persona over the agent's entry
+  // instruction file instead of the generic default, and honors it only for
+  // board-authored requests. Mirrors onboardingFirstTask on issue create.
+  onboardingFirstAgent: external_exports.boolean().optional()
 });
 var builtInAgentProvisionSchema = external_exports.object({
   adapterType: agentAdapterTypeSchema.optional(),
@@ -67876,7 +74177,7 @@ var createAgentHireSchema = createAgentSchema.extend({
   sourceIssueIds: external_exports.array(external_exports.string().guid()).optional()
 });
 var updateAgentSchema = objectWithoutDefaults(
-  createAgentSchema.omit({ permissions: true })
+  createAgentSchema.omit({ permissions: true, onboardingFirstAgent: true })
 ).partial().extend({
   permissions: external_exports.never().optional(),
   replaceAdapterConfig: external_exports.boolean().optional(),
@@ -67929,17 +74230,41 @@ var wakeAgentSchema = external_exports.object({
   source: external_exports.enum(["timer", "assignment", "on_demand", "automation"]).optional().default("on_demand"),
   triggerDetail: external_exports.enum(["manual", "ping", "callback", "system"]).optional(),
   reason: external_exports.string().optional().nullable(),
+  /** Select an exact failed run; its chat request and actor are server-derived. */
+  failedRunId: external_exports.string().uuid().optional(),
   payload: external_exports.record(external_exports.string(), external_exports.unknown()).optional().nullable(),
   idempotencyKey: external_exports.string().optional().nullable(),
   forceFreshSession: external_exports.preprocess(
     (value) => value === null ? void 0 : value,
     external_exports.boolean().optional().default(false)
-  )
+  ),
+  debug: external_exports.object({
+    providerTrace: external_exports.literal("raw")
+  }).strict().optional()
 });
 var resetAgentSessionSchema = external_exports.object({
   taskKey: external_exports.string().min(1).optional().nullable()
 });
 var testAdapterEnvironmentSchema = external_exports.object({
+  aiConnection: aiConnectionBindingSchema.optional(),
+  /** Saved agent whose redacted environment entries are restored for this probe. */
+  agentId: external_exports.string().guid().optional(),
+  /** One-shot provider keys for a probe. Never persist these in agent config. */
+  testCredentials: external_exports.object({
+    ANTHROPIC_API_KEY: external_exports.string().max(16384),
+    OPENAI_API_KEY: external_exports.string().max(16384),
+    OPENROUTER_API_KEY: external_exports.string().max(16384),
+    GEMINI_API_KEY: external_exports.string().max(16384),
+    XAI_API_KEY: external_exports.string().max(16384),
+    GROQ_API_KEY: external_exports.string().max(16384),
+    OPENCODE_API_KEY: external_exports.string().max(16384),
+    CURSOR_API_KEY: external_exports.string().max(16384),
+    KIMI_MODEL_API_KEY: external_exports.string().max(16384),
+    API_SERVER_KEY: external_exports.string().max(16384),
+    ZAI_API_KEY: external_exports.string().max(16384),
+    KIMI_API_KEY: external_exports.string().max(16384),
+    MINIMAX_API_KEY: external_exports.string().max(16384)
+  }).partial().strict().optional(),
   adapterConfig: adapterConfigSchema.optional().default({}),
   /**
    * Optional environment to run the adapter test inside. When omitted, the
@@ -68052,8 +74377,11 @@ var projectFields = {
   archivedAt: external_exports.string().datetime().optional().nullable()
 };
 var createProjectSchema = external_exports.object({
+  idempotencyKey: external_exports.string().trim().min(1).max(255).optional(),
   ...projectFields,
-  workspace: createProjectWorkspaceSchema.optional()
+  workspace: createProjectWorkspaceSchema.optional(),
+  repositoryIds: external_exports.array(external_exports.string().regex(/^\d+$/)).optional(),
+  repositoryUrls: external_exports.array(external_exports.string().url().max(2e3)).max(100).optional()
 });
 var updateProjectSchema = objectWithoutDefaults(
   external_exports.object(projectFields)
@@ -68308,8 +74636,17 @@ var createFinanceEventSchema = external_exports.object({
 }));
 
 // ../../shared/src/validators/asset.ts
+var ASSET_NAMESPACE_MAX_LENGTH = 120;
+var ASSET_NAMESPACE_PATTERN = /^[a-zA-Z0-9/_.:@|-]+$/;
+var ASSET_NAMESPACE_RULE = `"namespace" must be 1-${ASSET_NAMESPACE_MAX_LENGTH} characters of letters, numbers, or / _ - . : @ |, and cannot contain "." or ".." path segments`;
+function isDotSegment(segment) {
+  return segment === "." || segment === "..";
+}
+function hasNoDotSegments(namespace2) {
+  return !namespace2.split("/").some(isDotSegment);
+}
 var createAssetImageMetadataSchema = external_exports.object({
-  namespace: external_exports.string().trim().min(1).max(120).regex(/^[a-zA-Z0-9/_-]+$/).optional()
+  namespace: external_exports.string().trim().min(1).max(ASSET_NAMESPACE_MAX_LENGTH).regex(ASSET_NAMESPACE_PATTERN, ASSET_NAMESPACE_RULE).refine(hasNoDotSegments, { message: ASSET_NAMESPACE_RULE }).optional()
 });
 
 // ../../shared/src/validators/pipeline.ts
@@ -68568,9 +74905,10 @@ var authSessionSchema = external_exports.object({
     userId: external_exports.string().min(1)
   }),
   user: currentUserProfileSchema,
-  // The Sentry DSN for the current instance, or `null` when the operator has
-  // not set `SENTRY_DSN`. Required, not optional: a missing value must fail
-  // the response schema instead of silently disabling browser error
+  // The front-end Sentry DSN for the current instance, or `null` when the
+  // operator has set neither `SENTRY_DSN_FRONTEND` nor the legacy
+  // `SENTRY_DSN`. Required, not optional: a missing value must fail the
+  // response schema instead of silently disabling browser error
   // monitoring. The browser reads this value to open its own Sentry gate —
   // see `ui/src/lib/sentry.ts`.
   sentryDsn: external_exports.string().min(1).nullable()
@@ -68677,6 +75015,104 @@ var evaluateSkillPolicySchema = external_exports.object({
   principal: external_exports.object({ agentId: external_exports.string().guid() }).strict().optional()
 }).strict();
 
+// ../../shared/src/validators/provider-trace.ts
+var providerTraceDirectionSchema = external_exports.enum([
+  "client_to_provider",
+  "provider_to_client",
+  "provider_stderr"
+]);
+var providerTraceDispositionSchema = external_exports.enum([
+  "mapped",
+  "generic",
+  "ignored",
+  "rejected",
+  "operator_only"
+]);
+var providerTraceFieldMappingSchema = external_exports.object({
+  inputPath: external_exports.string().min(1).optional(),
+  outputPath: external_exports.string().min(1).optional(),
+  action: external_exports.enum([
+    "copied",
+    "renamed",
+    "normalized",
+    "derived",
+    "dropped",
+    "redacted"
+  ]),
+  reason: external_exports.string().optional()
+}).strict();
+var providerTraceStatusSchema = external_exports.enum([
+  "capturing",
+  "complete",
+  "incomplete",
+  "truncated",
+  "deleted",
+  "expired"
+]);
+var sha256DigestSchema = external_exports.string().regex(/^sha256:[a-f0-9]{64}$/i);
+var dateValueSchema = external_exports.union([external_exports.string().datetime(), external_exports.date()]);
+var providerTraceFrameSchema = external_exports.object({
+  kind: external_exports.literal("frame").optional(),
+  schema: external_exports.literal("paperclip.provider_trace_frame.v1"),
+  debugChannel: external_exports.string().min(1),
+  debugSequence: external_exports.number().int().positive(),
+  frameId: external_exports.number().int().positive(),
+  timestamp: external_exports.string().min(1),
+  direction: providerTraceDirectionSchema,
+  transport: external_exports.string().min(1),
+  provider: external_exports.string().min(1),
+  byteLength: external_exports.number().int().nonnegative(),
+  digest: sha256DigestSchema,
+  rawBase64: external_exports.string()
+}).strict();
+var providerTraceInterpretationSchema = external_exports.object({
+  kind: external_exports.literal("interpretation").optional(),
+  schema: external_exports.literal("paperclip.provider_trace_interpretation.v1"),
+  debugChannel: external_exports.string().min(1),
+  debugSequence: external_exports.number().int().positive(),
+  frameId: external_exports.number().int().positive(),
+  stage: external_exports.string().min(1),
+  ruleId: external_exports.string().min(1),
+  disposition: providerTraceDispositionSchema,
+  emittedEventIds: external_exports.array(external_exports.string()),
+  droppedFields: external_exports.array(external_exports.string()),
+  fieldMappings: external_exports.array(providerTraceFieldMappingSchema).optional(),
+  reason: external_exports.string()
+}).strict();
+var providerTraceMetadataSchema = external_exports.object({
+  schema: external_exports.literal("paperclip.provider_trace_metadata.v1"),
+  id: external_exports.string().min(1),
+  runId: external_exports.string().min(1),
+  companyId: external_exports.string().min(1),
+  status: providerTraceStatusSchema,
+  provider: external_exports.string().min(1),
+  frameCount: external_exports.number().int().nonnegative(),
+  byteCount: external_exports.number().int().nonnegative(),
+  digest: sha256DigestSchema.nullable(),
+  reason: external_exports.string().nullable(),
+  requestedBy: external_exports.string().min(1),
+  createdAt: dateValueSchema,
+  expiresAt: dateValueSchema,
+  deletedAt: dateValueSchema.nullable()
+}).strict();
+var runPresentationSourceSchema = external_exports.enum([
+  "existing_issue_comment",
+  "final_agent_message",
+  "semantic_result_summary",
+  "adapter_final_response",
+  "none"
+]);
+var runPresentationDecisionSchema = external_exports.object({
+  schema: external_exports.literal("paperclip.run_presentation_decision.v1"),
+  resolverVersion: external_exports.string().min(1),
+  chosenSource: runPresentationSourceSchema,
+  sourceEventId: external_exports.string().nullable(),
+  commentAction: external_exports.enum(["reuse", "create", "none"]),
+  commentId: external_exports.string().nullable(),
+  activityDisposition: external_exports.literal("collapse"),
+  reasonCodes: external_exports.array(external_exports.string())
+}).strict();
+
 // ../../shared/src/validators/calendar.ts
 var calendarEventTypeSchema = external_exports.enum(["routine", "agent_job", "meeting", "deadline"]);
 var calendarEventStatusSchema = external_exports.enum(["pending", "running", "done", "failed", "upcoming"]);
@@ -68769,6 +75205,58 @@ var updateFinancialTargetSchema = external_exports.object({
   monthTarget: external_exports.number().positive().optional(),
   currency: external_exports.string().optional()
 });
+
+// ../../shared/src/validators/email.ts
+var address = external_exports.string().trim().email().max(320);
+var addresses = external_exports.array(address).max(50);
+var emailEndpointSetupSchema = external_exports.object({
+  assignedAgentId: external_exports.string().uuid(),
+  applicationId: external_exports.string().uuid().optional(),
+  apiKey: external_exports.string().min(1).max(4096).optional(),
+  credentialConnectionId: external_exports.string().uuid().optional(),
+  inboxId: address.optional(),
+  username: external_exports.string().regex(/^[a-zA-Z0-9._-]+$/).max(64).optional(),
+  domain: external_exports.string().max(253).optional(),
+  receiveMode: external_exports.enum(["websocket", "webhook"]).default("websocket"),
+  idempotencyKey: external_exports.string().uuid()
+}).strict().refine((v) => Boolean(v.apiKey) !== Boolean(v.credentialConnectionId), {
+  message: "Supply an API key or a saved connection, not both"
+});
+var emailSendSchema = external_exports.object({
+  endpointId: external_exports.string().uuid(),
+  parentIssueId: external_exports.string().uuid().optional(),
+  conversationId: external_exports.string().uuid().optional(),
+  replyToMessageId: external_exports.string().min(1).max(998).optional(),
+  replyAll: external_exports.boolean().default(false),
+  to: addresses.optional(),
+  cc: addresses.optional(),
+  bcc: addresses.optional(),
+  subject: external_exports.string().trim().min(1).max(998).regex(/^[^\r\n]+$/).optional(),
+  text: external_exports.string().trim().min(1).max(1e5),
+  attachmentIds: external_exports.array(external_exports.string().uuid()).max(20).default([]),
+  idempotencyKey: external_exports.string().uuid()
+}).strict().superRefine((v, ctx) => {
+  const fail = (message) => ctx.addIssue({ code: "custom", message });
+  if (v.conversationId) {
+    if (!v.replyToMessageId) fail("A reply requires its exact message ID");
+    if (v.parentIssueId || v.to || v.cc || v.bcc || v.subject)
+      fail(
+        "Reply recipients come from the original message; use replyAll explicitly"
+      );
+  } else {
+    if (!v.parentIssueId || !v.to?.length || !v.subject)
+      fail("A new email requires a parent task, recipient, and subject");
+    if (v.replyToMessageId || v.replyAll)
+      fail("A new email cannot be a reply");
+  }
+});
+var emailConnectionSchema = external_exports.object({
+  apiKey: external_exports.string().min(1).max(4096),
+  grantKind: external_exports.enum(["user", "organization"]).default("user"),
+  allAgents: external_exports.boolean().default(false),
+  agentIds: external_exports.array(external_exports.string().uuid()).max(500).default([]),
+  idempotencyKey: external_exports.string().uuid()
+}).strict();
 
 // ../../shared/src/api.ts
 var API_PREFIX = "/api";
@@ -69024,10 +75512,13 @@ var INSTANCE_FEATURE_CATALOG = {
   },
   enableNativeRunner: {
     title: "Paperclip Runner",
-    description: "Allow new Codex agents to use the experimental Rust Paperclip Runner transport.",
+    description: "Allow explicitly configured local Codex, OpenCode, and qualified ACPX agents to use the experimental Rust Paperclip Runner, including authenticated sandbox ingress when required. Onboarding remains on legacy adapters.",
     tier: "managed",
     cloudDefault: false,
-    selfHostedDefault: false
+    // On by default for self-hosted instances. Requires a Rust toolchain (or
+    // PAPERCLIP_RUNNER_BINARY) for `pnpm dev`, which builds runnerd whenever
+    // this is on.
+    selfHostedDefault: true
   },
   enableManagedSandboxOnly: {
     title: "Managed Environment Only",
@@ -69043,6 +75534,13 @@ var INSTANCE_FEATURE_CATALOG = {
     cloudDefault: false,
     selfHostedDefault: false
   },
+  enableIsolatedWorkspacesByDefault: {
+    title: "Isolated Workspaces By Default",
+    description: "Treat a project that has no execution workspace policy of its own as if it selected isolated workspaces, so its tasks get a per-task worktree instead of sharing the project checkout. Requires Isolated Workspaces. A project that carries its own policy keeps it.",
+    tier: "managed",
+    cloudDefault: false,
+    selfHostedDefault: false
+  },
   enableStreamlinedLeftNavigation: {
     title: "Streamlined Left Navigation",
     description: "Use the streamlined main sidebar navigation layout.",
@@ -69050,9 +75548,23 @@ var INSTANCE_FEATURE_CATALOG = {
     cloudDefault: true,
     selfHostedDefault: true
   },
+  enableStreamlinedUi: {
+    title: "Streamlined UI",
+    description: "Use the streamlined application shell, shared task collections, focused task detail layout, contextual navigation, and simplified main sidebar.",
+    tier: "preference",
+    cloudDefault: true,
+    selfHostedDefault: true
+  },
   enableApps: {
-    title: "Apps",
-    description: "Show the Apps navigation and allow access to app connections, gateways, and advanced app tooling.",
+    title: "Apps (compatibility)",
+    description: "Deprecated compatibility key. Apps is always enabled; stored and managed values are ignored.",
+    tier: "managed",
+    cloudDefault: true,
+    selfHostedDefault: true
+  },
+  enableChatConnectors: {
+    title: "Chat connectors",
+    description: "Show experimental chat connector setup and Board surfaces. Existing connections keep running when hidden; GitHub and other tool connectors are unaffected.",
     tier: "managed",
     cloudDefault: false,
     selfHostedDefault: false
@@ -69071,6 +75583,13 @@ var INSTANCE_FEATURE_CATALOG = {
     cloudDefault: false,
     selfHostedDefault: false
   },
+  enableAgentChat: {
+    title: "Agent Chat",
+    description: "Persistent task-backed conversations that clarify goals and hand work off to tasks.",
+    tier: "managed",
+    cloudDefault: false,
+    selfHostedDefault: false
+  },
   enableConferenceRoomChat: {
     title: "Conference Room Chat",
     description: "Add the Conference Room team chat, the live activity feed, and the redesigned onboarding; restyles task threads as chat bubbles.",
@@ -69085,15 +75604,8 @@ var INSTANCE_FEATURE_CATALOG = {
     cloudDefault: false,
     selfHostedDefault: false
   },
-  enableTaskWatchdogs: {
-    title: "Task Watchdogs",
-    description: "Show task detail controls for configuring watchdog agents that verify stopped task subtrees and restore live paths when work should continue.",
-    tier: "managed",
-    cloudDefault: false,
-    selfHostedDefault: false
-  },
   enableIssuePlanDecompositions: {
-    title: "Task Plan Decomposition Panel",
+    title: "Task Plan Decomposition",
     description: "Show accepted-plan decomposition history on task detail pages.",
     tier: "managed",
     cloudDefault: false,
@@ -69176,17 +75688,17 @@ var INSTANCE_FEATURE_CATALOG = {
     cloudDefault: false,
     selfHostedDefault: false
   },
-  autoRestartDevServerWhenIdle: {
-    title: "Auto-Restart Dev Server When Idle",
-    description: "In local development, wait for queued and running agent runs to finish, then restart the server automatically when backend changes make the current boot stale.",
+  enablePaperclipDeveloperMode: {
+    title: "Paperclip Developer Mode",
+    description: "Show internal Paperclip maintainer tools and observability links, including Honeycomb trace queries on run pages.",
     tier: "preference",
     cloudDefault: false,
     selfHostedDefault: false
   },
-  enableIssueGraphLivenessAutoRecovery: {
-    title: "Auto-Create Recovery Tasks",
-    description: "Let the heartbeat scheduler create recovery tasks for task dependency chains found inside the configured lookback window.",
-    tier: "managed",
+  autoRestartDevServerWhenIdle: {
+    title: "Auto-Restart Dev Server When Idle",
+    description: "In local development, wait for queued and running agent runs to finish, then restart the server automatically when backend changes make the current boot stale.",
+    tier: "preference",
     cloudDefault: false,
     selfHostedDefault: false
   },
@@ -69218,10 +75730,24 @@ var INSTANCE_FEATURE_CATALOG = {
     cloudDefault: false,
     selfHostedDefault: false
   },
+  enableRunnerPreviewIngress: {
+    title: "Runner Preview Ingress (Deprecated)",
+    description: "Compatibility-only key retained for older managed configs. Runner ingress follows the Paperclip Runner setting.",
+    tier: "managed",
+    cloudDefault: false,
+    selfHostedDefault: false
+  },
   enableWorktreeRunExecution: {
     title: "Worktree Run Execution",
     description: "Let the scheduler execute runs inside an isolated git-worktree preview instance for tasks created after activation.",
     tier: "managed",
+    cloudDefault: false,
+    selfHostedDefault: false
+  },
+  enableFirstTaskPlanProposal: {
+    title: "First task: propose with a plan document",
+    description: "When the user's first request is a single task, the chief of staff writes a short plan document and a checkbox card instead of a one-card confirmation. Applies to organizations created after the toggle is flipped.",
+    tier: "preference",
     cloudDefault: false,
     selfHostedDefault: false
   }
@@ -69240,7 +75766,6 @@ var HIDEABLE_INSTANCE_PAGES = [
   "instance.profile",
   "instance.environments",
   "instance.access",
-  "instance.heartbeats",
   "instance.experimental",
   "instance.plugins",
   "instance.adapters"
@@ -69251,6 +75776,10 @@ var HIDEABLE_COMPANY_PAGES = [
   "company.secrets",
   "company.export",
   "company.import"
+];
+var HIDEABLE_COMPANY_SECTIONS = [
+  "company.secrets.vaults",
+  "company.secrets.proposals"
 ];
 var HIDEABLE_GENERAL_SECTIONS = [
   "instance.general.deploymentStatus",
@@ -69266,9 +75795,19 @@ function experimentalSettingKey(key) {
 var HIDEABLE_SETTING_KEYS = [
   ...HIDEABLE_INSTANCE_PAGES,
   ...HIDEABLE_COMPANY_PAGES,
+  ...HIDEABLE_COMPANY_SECTIONS,
   ...HIDEABLE_GENERAL_SECTIONS,
   ...INSTANCE_FEATURE_KEYS.map(experimentalSettingKey)
 ];
+
+// ../../shared/src/setting-defaults.ts
+var DEFAULTABLE_GENERAL_SETTINGS = [
+  "feedbackDataSharingPreference"
+];
+var defaultableFieldsSchema = instanceGeneralSettingsSchema.pick(
+  Object.fromEntries(DEFAULTABLE_GENERAL_SETTINGS.map((key) => [key, true]))
+).partial();
+var schemaDefaults = instanceGeneralSettingsSchema.parse({});
 
 // ../../shared/src/validators/runtime-exposure.ts
 var runtimeExposureProviderSchema = external_exports.literal("tailscale_https");
@@ -69313,6 +75852,63 @@ var RUNTIME_EXPOSURE_APP_PORT_MAX = 42999;
 var RUNTIME_EXPOSURE_HMR_PORT_OFFSET = 1e4;
 var RUNTIME_EXPOSURE_HMR_PORT_MIN = RUNTIME_EXPOSURE_APP_PORT_MIN + RUNTIME_EXPOSURE_HMR_PORT_OFFSET;
 var RUNTIME_EXPOSURE_HMR_PORT_MAX = RUNTIME_EXPOSURE_APP_PORT_MAX + RUNTIME_EXPOSURE_HMR_PORT_OFFSET;
+
+// ../../shared/src/announcements.ts
+var ANNOUNCEMENT_MANIFEST_MAX_BYTES = 64 * 1024;
+var ANNOUNCEMENT_IMAGE_MAX_BYTES = 2 * 1024 * 1024;
+var ANNOUNCEMENT_ANIMATION_MAX_BYTES = 128 * 1024;
+var ANNOUNCEMENT_APP_ROUTES = [
+  "/dashboard",
+  "/issues",
+  "/projects",
+  "/agents",
+  "/skills",
+  "/apps",
+  "/routines",
+  "/artifacts",
+  "/company/settings"
+];
+var announcementIdSchema = external_exports.string().regex(/^[a-z0-9][a-z0-9-]{0,95}$/);
+var label = external_exports.string().trim().min(1).max(48);
+var httpsUrl = external_exports.string().max(2048).url().refine((value) => {
+  try {
+    const url2 = new URL(value);
+    return url2.protocol === "https:" && !url2.username && !url2.password;
+  } catch {
+    return false;
+  }
+}, "Use an HTTPS URL without credentials");
+var announcementActionSchema = external_exports.discriminatedUnion("kind", [
+  external_exports.object({ kind: external_exports.literal("external"), label, url: httpsUrl }).strict(),
+  external_exports.object({ kind: external_exports.literal("route"), label, path: external_exports.enum(ANNOUNCEMENT_APP_ROUTES) }).strict()
+]);
+var announcementSchema = external_exports.object({
+  id: announcementIdSchema,
+  eyebrow: external_exports.string().trim().min(1).max(48),
+  title: external_exports.string().trim().min(1).max(100),
+  description: external_exports.string().trim().min(1).max(400),
+  image: external_exports.object({
+    // Immutable, content-addressed raster assets beneath the feed directory.
+    path: external_exports.string().regex(/^assets\/[a-f0-9]{64}\.(png|jpg|webp)$/),
+    alt: external_exports.string().max(200)
+  }).strict().optional(),
+  animation: external_exports.object({
+    path: external_exports.string().regex(/^assets\/[a-f0-9]{64}\.html$/),
+    alt: external_exports.string().trim().min(1).max(200)
+  }).strict().optional(),
+  secondaryLink: announcementActionSchema.optional(),
+  primaryAction: announcementActionSchema,
+  expiresAt: external_exports.string().datetime({ offset: true }).optional(),
+  minimumPaperclipVersion: external_exports.string().regex(/^\d+\.\d+\.\d+$/).optional()
+}).strict().refine((value) => !value.animation || Boolean(value.image), {
+  message: "An animation requires a static fallback image",
+  path: ["image"]
+});
+var announcementManifestSchema = external_exports.object({
+  schemaVersion: external_exports.literal(1),
+  announcement: announcementSchema.nullable()
+}).strict();
+var dismissAnnouncementSchema = external_exports.object({ companyId: external_exports.string().uuid() }).strict();
 
 // ../sdk/dist/worker-rpc-host.js
 import fs from "node:fs";
@@ -70361,17 +76957,22 @@ function startWorkerRpcHost(options) {
         }
       },
       loginPty: {
-        output(workerSessionId, chunk) {
+        output(hostRouteId, workerSessionId, chunk) {
+          if (typeof hostRouteId !== "string" || hostRouteId.length === 0)
+            return;
           if (typeof workerSessionId !== "string" || workerSessionId.length === 0)
             return;
           if (typeof chunk !== "string" || chunk.length === 0)
             return;
-          notifyHost(LOGIN_PTY_OUTPUT_NOTIFICATION, { workerSessionId, chunk });
+          notifyHost(LOGIN_PTY_OUTPUT_NOTIFICATION, { hostRouteId, workerSessionId, chunk });
         },
-        exit(workerSessionId, exitCode) {
+        exit(hostRouteId, workerSessionId, exitCode) {
+          if (typeof hostRouteId !== "string" || hostRouteId.length === 0)
+            return;
           if (typeof workerSessionId !== "string" || workerSessionId.length === 0)
             return;
           notifyHost(LOGIN_PTY_EXIT_NOTIFICATION, {
+            hostRouteId,
             workerSessionId,
             exitCode: typeof exitCode === "number" ? exitCode : null
           });
@@ -70530,6 +77131,8 @@ function startWorkerRpcHost(options) {
         return handleEnvironmentRealizeWorkspace(params);
       case "environmentExecute":
         return handleEnvironmentExecute(params);
+      case "environmentRunnerIngressEndpoint":
+        return handleEnvironmentRunnerIngressEndpoint(params);
       case "environmentSyncIn":
         return handleEnvironmentSyncIn(params);
       case "environmentSyncOut":
@@ -70606,6 +77209,9 @@ function startWorkerRpcHost(options) {
       supportedMethods.push("environmentRealizeWorkspace");
     if (plugin2.definition.onEnvironmentExecute)
       supportedMethods.push("environmentExecute");
+    if (plugin2.definition.onEnvironmentRunnerIngressEndpoint) {
+      supportedMethods.push("environmentRunnerIngressEndpoint");
+    }
     if (plugin2.definition.onEnvironmentSyncIn)
       supportedMethods.push("environmentSyncIn");
     if (plugin2.definition.onEnvironmentSyncOut)
@@ -70833,6 +77439,12 @@ function startWorkerRpcHost(options) {
       throw methodNotImplemented("environmentExecute");
     }
     return plugin2.definition.onEnvironmentExecute(params);
+  }
+  async function handleEnvironmentRunnerIngressEndpoint(params) {
+    if (!plugin2.definition.onEnvironmentRunnerIngressEndpoint) {
+      throw methodNotImplemented("environmentRunnerIngressEndpoint");
+    }
+    return plugin2.definition.onEnvironmentRunnerIngressEndpoint(params);
   }
   async function handleEnvironmentSyncIn(params) {
     if (!plugin2.definition.onEnvironmentSyncIn) {
@@ -71080,36 +77692,36 @@ function normalizeAllowlistEntry(value) {
   }
   return ADDRESS_PATTERN.test(trimmed) ? trimmed : null;
 }
-function isAllowedRecipient(address, allowlist) {
+function isAllowedRecipient(address2, allowlist) {
   if (allowlist.length === 0) return false;
-  const domain2 = address.slice(address.indexOf("@"));
-  return allowlist.some((entry) => entry.startsWith("@") ? entry === domain2 : entry === address);
+  const domain2 = address2.slice(address2.indexOf("@"));
+  return allowlist.some((entry) => entry.startsWith("@") ? entry === domain2 : entry === address2);
 }
 function resolveRecipients(values, allowlist, allowAnyRecipient = false) {
   const allowed = [];
   const unparseable = [];
   const rejected = [];
   for (const value of values) {
-    const address = parseAddress(value);
-    if (address == null) {
+    const address2 = parseAddress(value);
+    if (address2 == null) {
       unparseable.push(typeof value === "string" ? value : JSON.stringify(value) ?? String(value));
       continue;
     }
-    if (!allowAnyRecipient && !isAllowedRecipient(address, allowlist)) {
-      if (!rejected.includes(address)) rejected.push(address);
+    if (!allowAnyRecipient && !isAllowedRecipient(address2, allowlist)) {
+      if (!rejected.includes(address2)) rejected.push(address2);
       continue;
     }
-    if (!allowed.includes(address)) allowed.push(address);
+    if (!allowed.includes(address2)) allowed.push(address2);
   }
   return { allowed, unparseable, rejected };
 }
 function sanitizeSubject(value) {
   return value.replace(HEADER_TERMINATORS_GLOBAL, " ").replace(/\s+/g, " ").trim();
 }
-function formatFrom(address, displayName) {
+function formatFrom(address2, displayName) {
   const name2 = displayName == null ? "" : displayName.replace(HEADER_TERMINATORS_GLOBAL, " ").replace(/\s+/g, " ").trim();
-  if (name2.length === 0) return address;
-  return `"${name2.replace(/(["\\])/g, "\\$1")}" <${address}>`;
+  if (name2.length === 0) return address2;
+  return `"${name2.replace(/(["\\])/g, "\\$1")}" <${address2}>`;
 }
 
 // src/config.ts
@@ -71288,7 +77900,7 @@ async function resolvePassword(ctx, config2, companyId) {
 
 // src/manifest.ts
 var PLUGIN_ID = "paperclip.email";
-var PLUGIN_VERSION = "0.2.0";
+var PLUGIN_VERSION = "0.2.1";
 var TOOL_SEND_EMAIL = "send_email";
 var SLOT_COMPANY_SETTINGS = "email-company-settings";
 var EXPORT_COMPANY_SETTINGS = "EmailCompanySettingsPage";
@@ -71536,7 +78148,7 @@ var manifest_default = manifest;
 // src/imap.ts
 var import_nodemailer = __toESM(require_nodemailer(), 1);
 
-// ../../../node_modules/.pnpm/imapflow@2.0.0/node_modules/imapflow/dist/esm/imap-flow.js
+// ../../../node_modules/.pnpm/imapflow@2.0.5/node_modules/imapflow/dist/esm/imap-flow.js
 var import_libmime2 = __toESM(require_libmime(), 1);
 var import_libqp = __toESM(require_libqp(), 1);
 var import_libbase64 = __toESM(require_libbase64(), 1);
@@ -71549,17 +78161,17 @@ import zlib from "node:zlib";
 import { EventEmitter } from "node:events";
 import { PassThrough } from "node:stream";
 
-// ../../../node_modules/.pnpm/imapflow@2.0.0/node_modules/imapflow/dist/esm/logger.js
+// ../../../node_modules/.pnpm/imapflow@2.0.5/node_modules/imapflow/dist/esm/logger.js
 var import_pino = __toESM(require_pino(), 1);
 var logger = (0, import_pino.default)();
 logger.level = "trace";
 var logger_default = logger;
 
-// ../../../node_modules/.pnpm/imapflow@2.0.0/node_modules/imapflow/dist/esm/package-info.js
+// ../../../node_modules/.pnpm/imapflow@2.0.5/node_modules/imapflow/dist/esm/package-info.js
 var name = "imapflow";
-var version2 = "2.0.0";
+var version2 = "2.0.5";
 
-// ../../../node_modules/.pnpm/imapflow@2.0.0/node_modules/imapflow/dist/esm/limited-passthrough.js
+// ../../../node_modules/.pnpm/imapflow@2.0.5/node_modules/imapflow/dist/esm/limited-passthrough.js
 import { Transform } from "node:stream";
 var normalizeByteLimit = (value) => {
   let bytes = Number(value);
@@ -71593,10 +78205,10 @@ var LimitedPassthrough = class extends Transform {
   }
 };
 
-// ../../../node_modules/.pnpm/imapflow@2.0.0/node_modules/imapflow/dist/esm/handler/imap-stream.js
+// ../../../node_modules/.pnpm/imapflow@2.0.5/node_modules/imapflow/dist/esm/handler/imap-stream.js
 import { Transform as Transform2 } from "node:stream";
 
-// ../../../node_modules/.pnpm/imapflow@2.0.0/node_modules/imapflow/dist/esm/handler/limits.js
+// ../../../node_modules/.pnpm/imapflow@2.0.5/node_modules/imapflow/dist/esm/handler/limits.js
 var MAX_LITERAL_SIZE = 1024 * 1024 * 1024;
 var MAX_LINE_SIZE = MAX_LITERAL_SIZE;
 var MAX_RESPONSE_SIZE = 2 * MAX_LITERAL_SIZE;
@@ -71609,7 +78221,7 @@ var createLiteralTooLargeError = (literalSize, maxSize, reason) => {
   return err;
 };
 
-// ../../../node_modules/.pnpm/imapflow@2.0.0/node_modules/imapflow/dist/esm/handler/imap-stream.js
+// ../../../node_modules/.pnpm/imapflow@2.0.5/node_modules/imapflow/dist/esm/handler/imap-stream.js
 var LINE = 1;
 var LITERAL = 2;
 var LF = 10;
@@ -71975,7 +78587,7 @@ var ImapStream = class extends Transform2 {
   }
 };
 
-// ../../../node_modules/.pnpm/imapflow@2.0.0/node_modules/imapflow/dist/esm/handler/imap-formal-syntax.js
+// ../../../node_modules/.pnpm/imapflow@2.0.5/node_modules/imapflow/dist/esm/handler/imap-formal-syntax.js
 function expandRange(start, end) {
   let chars = [];
   for (let i = start; i <= end; i++) {
@@ -72040,7 +78652,7 @@ var imapFormalSyntax = {
 };
 var imap_formal_syntax_default = imapFormalSyntax;
 
-// ../../../node_modules/.pnpm/imapflow@2.0.0/node_modules/imapflow/dist/esm/handler/token-parser.js
+// ../../../node_modules/.pnpm/imapflow@2.0.5/node_modules/imapflow/dist/esm/handler/token-parser.js
 var STATE_ATOM = 1;
 var STATE_LITERAL = 2;
 var STATE_NORMAL = 3;
@@ -72601,7 +79213,7 @@ var TokenParser = class {
   }
 };
 
-// ../../../node_modules/.pnpm/imapflow@2.0.0/node_modules/imapflow/dist/esm/handler/parser-instance.js
+// ../../../node_modules/.pnpm/imapflow@2.0.5/node_modules/imapflow/dist/esm/handler/parser-instance.js
 var ParserInstance = class {
   /**
    * Creates a new ParserInstance for parsing an IMAP response line.
@@ -72788,7 +79400,7 @@ var ParserInstance = class {
   }
 };
 
-// ../../../node_modules/.pnpm/imapflow@2.0.0/node_modules/imapflow/dist/esm/handler/imap-parser.js
+// ../../../node_modules/.pnpm/imapflow@2.0.5/node_modules/imapflow/dist/esm/handler/imap-parser.js
 async function parser(command2, options) {
   options = options || {};
   let nullBytesRemoved = 0;
@@ -72842,7 +79454,7 @@ async function parser(command2, options) {
   return response;
 }
 
-// ../../../node_modules/.pnpm/imapflow@2.0.0/node_modules/imapflow/dist/esm/handler/imap-compiler.js
+// ../../../node_modules/.pnpm/imapflow@2.0.5/node_modules/imapflow/dist/esm/handler/imap-compiler.js
 var SEQ_RANGE = /^(\d+|\*)(:(\d+|\*))?$/;
 var isValidSequenceSet = (value) => value === "$" || value.split(",").every((part) => SEQ_RANGE.test(part));
 var safeNumber = (value) => {
@@ -73025,16 +79637,16 @@ async function compiler(response, options) {
 }
 var imap_compiler_default = compiler;
 
-// ../../../node_modules/.pnpm/imapflow@2.0.0/node_modules/imapflow/dist/esm/proxy-connection.js
+// ../../../node_modules/.pnpm/imapflow@2.0.5/node_modules/imapflow/dist/esm/proxy-connection.js
 var import_socks = __toESM(require_build(), 1);
 import dns from "node:dns";
 import net from "node:net";
 import tls from "node:tls";
 
-// ../../../node_modules/.pnpm/imapflow@2.0.0/node_modules/imapflow/dist/esm/tools.js
+// ../../../node_modules/.pnpm/imapflow@2.0.5/node_modules/imapflow/dist/esm/tools.js
 var import_libmime = __toESM(require_libmime(), 1);
 
-// ../../../node_modules/.pnpm/imapflow@2.0.0/node_modules/imapflow/dist/esm/charsets.js
+// ../../../node_modules/.pnpm/imapflow@2.0.5/node_modules/imapflow/dist/esm/charsets.js
 var CHARACTER_SETS = [
   "US-ASCII",
   "ISO-8859-1",
@@ -73308,10 +79920,10 @@ var resolveCharset = (charset) => {
   return CHARSET_MAP.get(key) ?? null;
 };
 
-// ../../../node_modules/.pnpm/imapflow@2.0.0/node_modules/imapflow/dist/esm/tools.js
+// ../../../node_modules/.pnpm/imapflow@2.0.5/node_modules/imapflow/dist/esm/tools.js
 import { createHash } from "node:crypto";
 
-// ../../../node_modules/.pnpm/imapflow@2.0.0/node_modules/imapflow/dist/esm/jp-decoder.js
+// ../../../node_modules/.pnpm/imapflow@2.0.5/node_modules/imapflow/dist/esm/jp-decoder.js
 var import_encoding_japanese = __toESM(require_src(), 1);
 import { Transform as Transform3 } from "node:stream";
 var JPDecoder = class extends Transform3 {
@@ -73370,10 +79982,10 @@ var JPDecoder = class extends Transform3 {
   }
 };
 
-// ../../../node_modules/.pnpm/imapflow@2.0.0/node_modules/imapflow/dist/esm/tools.js
+// ../../../node_modules/.pnpm/imapflow@2.0.5/node_modules/imapflow/dist/esm/tools.js
 var import_iconv_lite = __toESM(require_lib(), 1);
 
-// ../../../node_modules/.pnpm/imapflow@2.0.0/node_modules/imapflow/dist/esm/errors.js
+// ../../../node_modules/.pnpm/imapflow@2.0.5/node_modules/imapflow/dist/esm/errors.js
 var AuthenticationFailure = class extends Error {
   constructor() {
     super(...arguments);
@@ -73381,7 +79993,7 @@ var AuthenticationFailure = class extends Error {
   }
 };
 
-// ../../../node_modules/.pnpm/imapflow@2.0.0/node_modules/imapflow/dist/esm/tools.js
+// ../../../node_modules/.pnpm/imapflow@2.0.5/node_modules/imapflow/dist/esm/tools.js
 var FLAG_COLORS = ["red", "orange", "yellow", "green", "blue", "purple", "grey"];
 var CONNECTION_GONE_CODES = /* @__PURE__ */ new Set(["NoConnection", "EConnectionClosed", "StateLogout"]);
 var EXPANDED_RANGE_LIMIT = 16777216;
@@ -74221,7 +80833,7 @@ function packMessageRange(list2) {
   return parts.join(",");
 }
 
-// ../../../node_modules/.pnpm/imapflow@2.0.0/node_modules/imapflow/dist/esm/connection-deadline.js
+// ../../../node_modules/.pnpm/imapflow@2.0.5/node_modules/imapflow/dist/esm/connection-deadline.js
 var CONNECT_TIMEOUT = 90 * 1e3;
 var ConnectionDeadline = class {
   /**
@@ -74298,13 +80910,13 @@ var ConnectionDeadline = class {
   }
 };
 
-// ../../../node_modules/.pnpm/imapflow@2.0.0/node_modules/imapflow/dist/esm/proxy-connection.js
+// ../../../node_modules/.pnpm/imapflow@2.0.5/node_modules/imapflow/dist/esm/proxy-connection.js
 var MAX_RESPONSE_HEADER_BYTES = 64 * 1024;
 var DEFAULT_SOCKS_PORT = 1080;
 var unbracketAddress = (host) => typeof host === "string" && host.startsWith("[") && host.endsWith("]") ? host.slice(1, -1) : host;
 var formatAuthority = (host, port) => {
-  let address = unbracketAddress(host);
-  return net.isIPv6(address) ? `[${address}]:${port}` : `${address}:${port}`;
+  let address2 = unbracketAddress(host);
+  return net.isIPv6(address2) ? `[${address2}]:${port}` : `${address2}:${port}`;
 };
 var redactUrl = (proxyUrl) => {
   let redacted = new URL(proxyUrl.href);
@@ -74459,11 +81071,11 @@ var httpConnect = async ({ logger: logger2, proxyUrl, secureProxy, proxyHost, pr
   });
 };
 var resolveIPv4 = async (hostname3, deadline) => {
-  let addresses = await deadline.race(dns.promises.resolve4(hostname3));
-  if (!addresses || !addresses.length) {
+  let addresses2 = await deadline.race(dns.promises.resolve4(hostname3));
+  if (!addresses2 || !addresses2.length) {
     throw proxyError(`Could not resolve an IPv4 address for ${hostname3}`, "EPROXY");
   }
-  return addresses[0];
+  return addresses2[0];
 };
 var socksConnect = async ({ logger: logger2, proxyUrl, protocol, proxyHost, proxyPort, host, port, deadline }) => {
   let proxyType = protocol === "socks4" || protocol === "socks4a" ? 4 : 5;
@@ -74571,7 +81183,7 @@ var proxyConnection = async (logger2, connectionUrl, host, port, options) => {
   return void 0;
 };
 
-// ../../../node_modules/.pnpm/imapflow@2.0.0/node_modules/imapflow/dist/esm/commands/id.js
+// ../../../node_modules/.pnpm/imapflow@2.0.5/node_modules/imapflow/dist/esm/commands/id.js
 async function id(connection, clientInfo) {
   if (!connection.capabilities.has("ID")) {
     return;
@@ -74617,7 +81229,7 @@ function formatValue(key, value) {
   }
 }
 
-// ../../../node_modules/.pnpm/imapflow@2.0.0/node_modules/imapflow/dist/esm/commands/capability.js
+// ../../../node_modules/.pnpm/imapflow@2.0.5/node_modules/imapflow/dist/esm/commands/capability.js
 async function capability(connection) {
   if (connection.capabilities.size && !connection.expectCapabilityUpdate) {
     return connection.capabilities;
@@ -74633,7 +81245,7 @@ async function capability(connection) {
   }
 }
 
-// ../../../node_modules/.pnpm/imapflow@2.0.0/node_modules/imapflow/dist/esm/commands/namespace.js
+// ../../../node_modules/.pnpm/imapflow@2.0.5/node_modules/imapflow/dist/esm/commands/namespace.js
 async function namespace(connection) {
   if (![connection.states.AUTHENTICATED, connection.states.SELECTED].includes(connection.state)) {
     return;
@@ -74733,7 +81345,7 @@ function getNamsepaceInfo(attribute) {
   });
 }
 
-// ../../../node_modules/.pnpm/imapflow@2.0.0/node_modules/imapflow/dist/esm/commands/login.js
+// ../../../node_modules/.pnpm/imapflow@2.0.5/node_modules/imapflow/dist/esm/commands/login.js
 async function login(connection, username, password) {
   if (connection.state !== connection.states.NOT_AUTHENTICATED) {
     return;
@@ -74758,7 +81370,7 @@ async function login(connection, username, password) {
   }
 }
 
-// ../../../node_modules/.pnpm/imapflow@2.0.0/node_modules/imapflow/dist/esm/commands/logout.js
+// ../../../node_modules/.pnpm/imapflow@2.0.5/node_modules/imapflow/dist/esm/commands/logout.js
 async function logout(connection) {
   if (connection.state === connection.states.LOGOUT) {
     return false;
@@ -74787,7 +81399,7 @@ async function logout(connection) {
   }
 }
 
-// ../../../node_modules/.pnpm/imapflow@2.0.0/node_modules/imapflow/dist/esm/commands/starttls.js
+// ../../../node_modules/.pnpm/imapflow@2.0.5/node_modules/imapflow/dist/esm/commands/starttls.js
 async function starttls(connection) {
   if (!connection.capabilities.has("STARTTLS") || connection.secureConnection) {
     return false;
@@ -74804,7 +81416,7 @@ async function starttls(connection) {
   }
 }
 
-// ../../../node_modules/.pnpm/imapflow@2.0.0/node_modules/imapflow/dist/esm/commands/status-fields.js
+// ../../../node_modules/.pnpm/imapflow@2.0.5/node_modules/imapflow/dist/esm/commands/status-fields.js
 var uint322 = (value) => parseUintValue(value, MAX_UINT32_DIGITS);
 var STATUS_FIELDS = {
   MESSAGES: { key: "messages", parser: uint322 },
@@ -74842,7 +81454,7 @@ var parseStatusList = (list2, onField) => {
   });
 };
 
-// ../../../node_modules/.pnpm/imapflow@2.0.0/node_modules/imapflow/dist/esm/special-use.js
+// ../../../node_modules/.pnpm/imapflow@2.0.5/node_modules/imapflow/dist/esm/special-use.js
 var GENERIC_TOKENS = new Set([
   // English. "e" is here because TOKEN_SPLIT breaks on the hyphen, so the
   // "e-mail" / "e-posta" / "e-kirjad" family arrives as a bare "e" token.
@@ -75712,7 +82324,7 @@ var specialUse = (hasSpecialUseExtension, folder) => {
   return { flag: null };
 };
 
-// ../../../node_modules/.pnpm/imapflow@2.0.0/node_modules/imapflow/dist/esm/commands/list.js
+// ../../../node_modules/.pnpm/imapflow@2.0.5/node_modules/imapflow/dist/esm/commands/list.js
 async function list(connection, reference, mailbox, options) {
   options = options || {};
   const FLAG_SORT_ORDER = ["\\Inbox", "\\Flagged", "\\Sent", "\\Drafts", "\\All", "\\Archive", "\\Junk", "\\Trash"];
@@ -75725,7 +82337,7 @@ async function list(connection, reference, mailbox, options) {
     let statusMap = /* @__PURE__ */ new Map();
     let specialUseMatches = {};
     let statusQueryAttributes = buildStatusQueryAttributes(connection, options.statusQuery);
-    let supportsExtendedList = connection.capabilities.has("LIST-EXTENDED") || connection.capabilities.has("IMAP4rev2");
+    let supportsExtendedList = connection.capabilities.has("LIST-EXTENDED") || connection.capabilities.has("IMAP4rev2") && !connection.skipRev2;
     let canRequestStatus = listCommand === "LIST" && !connection.skipListStatusArgs && hasCapability(connection, "LIST-STATUS") && !!statusQueryAttributes.length;
     let canRequestSubscribed = listCommand === "LIST" && !options.listOnly && !connection.skipListSubscribedArg && supportsExtendedList;
     let auxArgsAvailable = hasCapability(connection, "SPECIAL-USE") || connection.capabilities.has("CHILDREN") || supportsExtendedList;
@@ -76039,7 +82651,7 @@ async function list(connection, reference, mailbox, options) {
   }
 }
 
-// ../../../node_modules/.pnpm/imapflow@2.0.0/node_modules/imapflow/dist/esm/commands/enable.js
+// ../../../node_modules/.pnpm/imapflow@2.0.5/node_modules/imapflow/dist/esm/commands/enable.js
 async function enable(connection, extensionList) {
   if (!hasCapability(connection, "ENABLE") || connection.state !== connection.states.AUTHENTICATED) {
     return;
@@ -76079,7 +82691,7 @@ async function enable(connection, extensionList) {
   }
 }
 
-// ../../../node_modules/.pnpm/imapflow@2.0.0/node_modules/imapflow/dist/esm/commands/select.js
+// ../../../node_modules/.pnpm/imapflow@2.0.5/node_modules/imapflow/dist/esm/commands/select.js
 var VALUED_RESPONSE_CODES = Object.assign(/* @__PURE__ */ Object.create(null), {
   // CONDSTORE (RFC 7162): highest mod-sequence value for the mailbox, used for incremental
   // sync. Stored as a BigInt since modseq values can exceed Number.MAX_SAFE_INTEGER.
@@ -76258,7 +82870,7 @@ async function select(connection, pathInput, options) {
   }
 }
 
-// ../../../node_modules/.pnpm/imapflow@2.0.0/node_modules/imapflow/dist/esm/commands/fetch.js
+// ../../../node_modules/.pnpm/imapflow@2.0.5/node_modules/imapflow/dist/esm/commands/fetch.js
 async function fetch2(connection, range, query, options) {
   if (connection.state !== connection.states.SELECTED || !range) {
     return;
@@ -76441,7 +83053,7 @@ async function fetch2(connection, range, query, options) {
   }
 }
 
-// ../../../node_modules/.pnpm/imapflow@2.0.0/node_modules/imapflow/dist/esm/commands/create.js
+// ../../../node_modules/.pnpm/imapflow@2.0.5/node_modules/imapflow/dist/esm/commands/create.js
 async function create(connection, path2) {
   if (![connection.states.AUTHENTICATED, connection.states.SELECTED].includes(connection.state)) {
     return;
@@ -76494,7 +83106,7 @@ async function create(connection, path2) {
   }
 }
 
-// ../../../node_modules/.pnpm/imapflow@2.0.0/node_modules/imapflow/dist/esm/commands/delete.js
+// ../../../node_modules/.pnpm/imapflow@2.0.5/node_modules/imapflow/dist/esm/commands/delete.js
 async function deleteMailbox(connection, path2) {
   if (![connection.states.AUTHENTICATED, connection.states.SELECTED].includes(connection.state)) {
     return;
@@ -76518,7 +83130,7 @@ async function deleteMailbox(connection, path2) {
   }
 }
 
-// ../../../node_modules/.pnpm/imapflow@2.0.0/node_modules/imapflow/dist/esm/commands/rename.js
+// ../../../node_modules/.pnpm/imapflow@2.0.5/node_modules/imapflow/dist/esm/commands/rename.js
 async function rename(connection, path2, newPath) {
   if (![connection.states.AUTHENTICATED, connection.states.SELECTED].includes(connection.state)) {
     return;
@@ -76547,7 +83159,7 @@ async function rename(connection, path2, newPath) {
   }
 }
 
-// ../../../node_modules/.pnpm/imapflow@2.0.0/node_modules/imapflow/dist/esm/commands/close.js
+// ../../../node_modules/.pnpm/imapflow@2.0.5/node_modules/imapflow/dist/esm/commands/close.js
 async function close(connection) {
   if (connection.state !== connection.states.SELECTED) {
     return;
@@ -76570,7 +83182,7 @@ async function close(connection) {
   }
 }
 
-// ../../../node_modules/.pnpm/imapflow@2.0.0/node_modules/imapflow/dist/esm/commands/subscribe.js
+// ../../../node_modules/.pnpm/imapflow@2.0.5/node_modules/imapflow/dist/esm/commands/subscribe.js
 async function subscribe(connection, path2) {
   if (![connection.states.AUTHENTICATED, connection.states.SELECTED].includes(connection.state)) {
     return;
@@ -76588,7 +83200,7 @@ async function subscribe(connection, path2) {
   }
 }
 
-// ../../../node_modules/.pnpm/imapflow@2.0.0/node_modules/imapflow/dist/esm/commands/unsubscribe.js
+// ../../../node_modules/.pnpm/imapflow@2.0.5/node_modules/imapflow/dist/esm/commands/unsubscribe.js
 async function unsubscribe(connection, path2) {
   if (![connection.states.AUTHENTICATED, connection.states.SELECTED].includes(connection.state)) {
     return;
@@ -76606,7 +83218,7 @@ async function unsubscribe(connection, path2) {
   }
 }
 
-// ../../../node_modules/.pnpm/imapflow@2.0.0/node_modules/imapflow/dist/esm/commands/store.js
+// ../../../node_modules/.pnpm/imapflow@2.0.5/node_modules/imapflow/dist/esm/commands/store.js
 async function store(connection, range, flags2, options) {
   if (connection.state !== connection.states.SELECTED || !range || options.useLabels && !connection.capabilities.has("X-GM-EXT-1")) {
     return false;
@@ -76668,7 +83280,7 @@ async function store(connection, range, flags2, options) {
   }
 }
 
-// ../../../node_modules/.pnpm/imapflow@2.0.0/node_modules/imapflow/dist/esm/search-compiler.js
+// ../../../node_modules/.pnpm/imapflow@2.0.5/node_modules/imapflow/dist/esm/search-compiler.js
 var setBoolOpt = (attributes, term, value) => {
   if (!value) {
     if (/^un/i.test(term)) {
@@ -76835,8 +83447,8 @@ var searchCompiler = (connection, query) => {
             break;
           }
           let formatLabel = (name2) => {
-            let label = (name2 || "").toString().replace(/[\s"]+/g, " ").trim();
-            return label.indexOf(" ") >= 0 ? `"${label}"` : label;
+            let label2 = (name2 || "").toString().replace(/[\s"]+/g, " ").trim();
+            return label2.indexOf(" ") >= 0 ? `"${label2}"` : label2;
           };
           let rawParts = [];
           for (let name2 of [].concat(labelQuery.has || [])) {
@@ -76996,7 +83608,7 @@ var searchCompiler = (connection, query) => {
   return attributes;
 };
 
-// ../../../node_modules/.pnpm/imapflow@2.0.0/node_modules/imapflow/dist/esm/commands/esearch-parser.js
+// ../../../node_modules/.pnpm/imapflow@2.0.5/node_modules/imapflow/dist/esm/commands/esearch-parser.js
 function parseEsearchResponse(attrs) {
   const result = {};
   let i = 0;
@@ -77065,7 +83677,7 @@ function parseEsearchResponse(attrs) {
   return result;
 }
 
-// ../../../node_modules/.pnpm/imapflow@2.0.0/node_modules/imapflow/dist/esm/commands/search.js
+// ../../../node_modules/.pnpm/imapflow@2.0.5/node_modules/imapflow/dist/esm/commands/search.js
 var stripEsearchPrefix = (attrs) => {
   let start = 0;
   if (attrs[start] && Array.isArray(attrs[start]))
@@ -77217,7 +83829,7 @@ async function search(connection, query, options) {
   }
 }
 
-// ../../../node_modules/.pnpm/imapflow@2.0.0/node_modules/imapflow/dist/esm/commands/noop.js
+// ../../../node_modules/.pnpm/imapflow@2.0.5/node_modules/imapflow/dist/esm/commands/noop.js
 async function noop2(connection) {
   try {
     let response = await connection.exec("NOOP", false, { comment: "Requested by command" });
@@ -77229,7 +83841,7 @@ async function noop2(connection) {
   }
 }
 
-// ../../../node_modules/.pnpm/imapflow@2.0.0/node_modules/imapflow/dist/esm/commands/expunge.js
+// ../../../node_modules/.pnpm/imapflow@2.0.5/node_modules/imapflow/dist/esm/commands/expunge.js
 async function expunge(connection, range, options) {
   if (connection.state !== connection.states.SELECTED || !range) {
     return;
@@ -77261,7 +83873,7 @@ async function expunge(connection, range, options) {
   }
 }
 
-// ../../../node_modules/.pnpm/imapflow@2.0.0/node_modules/imapflow/dist/esm/commands/append.js
+// ../../../node_modules/.pnpm/imapflow@2.0.5/node_modules/imapflow/dist/esm/commands/append.js
 async function append(connection, destination, content, flags2, idate) {
   if (![connection.states.AUTHENTICATED, connection.states.SELECTED].includes(connection.state) || !destination) {
     return;
@@ -77363,7 +83975,7 @@ async function append(connection, destination, content, flags2, idate) {
   }
 }
 
-// ../../../node_modules/.pnpm/imapflow@2.0.0/node_modules/imapflow/dist/esm/commands/status.js
+// ../../../node_modules/.pnpm/imapflow@2.0.5/node_modules/imapflow/dist/esm/commands/status.js
 var MAILBOX_UPDATERS = {
   messages: (value, connection, path2) => {
     let mailbox = connection.mailbox;
@@ -77436,7 +84048,7 @@ async function status(connection, path2, query) {
   }
 }
 
-// ../../../node_modules/.pnpm/imapflow@2.0.0/node_modules/imapflow/dist/esm/commands/copyuid-parser.js
+// ../../../node_modules/.pnpm/imapflow@2.0.5/node_modules/imapflow/dist/esm/commands/copyuid-parser.js
 function parseCopyUid(response, map2) {
   let section = response.attributes && response.attributes[0] && response.attributes[0].section;
   let responseCode = section && section.length && section[0] && typeof section[0].value === "string" ? section[0].value : "";
@@ -77455,7 +84067,7 @@ function parseCopyUid(response, map2) {
   }
 }
 
-// ../../../node_modules/.pnpm/imapflow@2.0.0/node_modules/imapflow/dist/esm/commands/copy.js
+// ../../../node_modules/.pnpm/imapflow@2.0.5/node_modules/imapflow/dist/esm/commands/copy.js
 async function copy(connection, range, destination, options) {
   if (connection.state !== connection.states.SELECTED || !range || !destination) {
     return;
@@ -77480,7 +84092,7 @@ async function copy(connection, range, destination, options) {
   }
 }
 
-// ../../../node_modules/.pnpm/imapflow@2.0.0/node_modules/imapflow/dist/esm/commands/move.js
+// ../../../node_modules/.pnpm/imapflow@2.0.5/node_modules/imapflow/dist/esm/commands/move.js
 async function move(connection, range, destination, options) {
   if (connection.state !== connection.states.SELECTED || !range || !destination) {
     return;
@@ -77516,7 +84128,7 @@ async function move(connection, range, destination, options) {
   }
 }
 
-// ../../../node_modules/.pnpm/imapflow@2.0.0/node_modules/imapflow/dist/esm/commands/compress.js
+// ../../../node_modules/.pnpm/imapflow@2.0.5/node_modules/imapflow/dist/esm/commands/compress.js
 async function compress(connection) {
   if (!connection.capabilities.has("COMPRESS=DEFLATE") || connection._inflate) {
     return false;
@@ -77540,7 +84152,7 @@ async function compress(connection) {
   return true;
 }
 
-// ../../../node_modules/.pnpm/imapflow@2.0.0/node_modules/imapflow/dist/esm/commands/quota.js
+// ../../../node_modules/.pnpm/imapflow@2.0.5/node_modules/imapflow/dist/esm/commands/quota.js
 async function quota(connection, path2) {
   if (![connection.states.AUTHENTICATED, connection.states.SELECTED].includes(connection.state) || !path2) {
     return;
@@ -77625,7 +84237,7 @@ async function quota(connection, path2) {
   }
 }
 
-// ../../../node_modules/.pnpm/imapflow@2.0.0/node_modules/imapflow/dist/esm/commands/idle.js
+// ../../../node_modules/.pnpm/imapflow@2.0.5/node_modules/imapflow/dist/esm/commands/idle.js
 var NOOP_INTERVAL = 2 * 60 * 1e3;
 function claimIdling(connection) {
   let token = {};
@@ -77865,7 +84477,7 @@ async function idle(connection, maxIdleTime) {
   return runPollingFallback(connection, maxIdleTime);
 }
 
-// ../../../node_modules/.pnpm/imapflow@2.0.0/node_modules/imapflow/dist/esm/commands/authenticate.js
+// ../../../node_modules/.pnpm/imapflow@2.0.5/node_modules/imapflow/dist/esm/commands/authenticate.js
 async function handleAuthError(err, errorResponse) {
   let errorCode = getStatusCode(err.response);
   if (errorCode) {
@@ -78001,7 +84613,7 @@ async function authenticate(connection, username, { accessToken, password, login
   throw new Error("Unsupported authentication mechanism");
 }
 
-// ../../../node_modules/.pnpm/imapflow@2.0.0/node_modules/imapflow/dist/esm/imap-commands.js
+// ../../../node_modules/.pnpm/imapflow@2.0.5/node_modules/imapflow/dist/esm/imap-commands.js
 var imapCommands = /* @__PURE__ */ new Map([
   ["ID", id],
   ["CAPABILITY", capability],
@@ -78034,7 +84646,7 @@ var imapCommands = /* @__PURE__ */ new Map([
 ]);
 var imap_commands_default = imapCommands;
 
-// ../../../node_modules/.pnpm/imapflow@2.0.0/node_modules/imapflow/dist/esm/imap-flow.js
+// ../../../node_modules/.pnpm/imapflow@2.0.5/node_modules/imapflow/dist/esm/imap-flow.js
 var GREETING_TIMEOUT = 16 * 1e3;
 var UPGRADE_TIMEOUT = 10 * 1e3;
 var SOCKET_TIMEOUT = 5 * 60 * 1e3;
@@ -78189,6 +84801,7 @@ var ImapFlow = class extends EventEmitter {
     this.skipListStatusArgs = false;
     this.skipListAuxArgs = false;
     this.skipLsub = false;
+    this.skipRev2 = !!this.options.disableIMAP4rev2;
     this._streamerErrorHandler = (err) => {
       if (["Z_BUF_ERROR", "ECONNRESET", "EPIPE", "ETIMEDOUT", "EHOSTUNREACH"].includes(err.code)) {
         this.closeAfter();
@@ -78881,9 +85494,13 @@ var ImapFlow = class extends EventEmitter {
   // ENABLE call is used so the enabled set is built in one round trip.
   /** @internal */
   async autoEnable() {
-    let enableList = ["CONDSTORE", "UTF8=ACCEPT"].concat(this.options.qresync ? "QRESYNC" : []).concat(this.options.disableIMAP4rev2 ? [] : "IMAP4rev2");
+    let enableList = ["CONDSTORE", "UTF8=ACCEPT"].concat(this.options.qresync ? "QRESYNC" : []).concat(this.skipRev2 ? [] : "IMAP4rev2");
     let enableResult = await this.run("ENABLE", enableList);
     if (enableResult === false && enableList.includes("IMAP4rev2")) {
+      if (this.capabilities.has("IMAP4rev2") && !isRev2Active(this)) {
+        this.skipRev2 = true;
+        this.skipLsub = true;
+      }
       await this.run("ENABLE", enableList.filter((extension) => extension !== "IMAP4rev2"));
     }
   }
@@ -80439,7 +87056,16 @@ var ImapFlow = class extends EventEmitter {
         return {};
       }
       processed += chunk2.length;
-      hasMore = chunk2.length >= chunkSize;
+      hasMore = chunk2.length === chunkSize;
+      if (chunk2.length > chunkSize) {
+        this.log.warn({
+          msg: "Server returned more than the requested window, treating the part as complete",
+          chunkSize,
+          received: chunk2.length,
+          processed,
+          cid: this.id
+        });
+      }
       let result = { chunk: chunk2 };
       if (query.size) {
         result.response = response2;
@@ -80558,8 +87184,16 @@ var ImapFlow = class extends EventEmitter {
       }
       return stream.write(chunk2);
     };
+    let maxTotalBytes = normalizeByteLimit(meta3.expectedSize ? meta3.expectedSize * 2 + chunkSize : 0);
     let fetchAllParts = async () => {
       while (hasMore && !isLimited() && !fetchAborted) {
+        if (processed >= maxTotalBytes) {
+          let err = new Error("Download exceeded the expected message size");
+          err.code = "DownloadOverflow";
+          err.maxSize = maxTotalBytes;
+          err.cid = this.id;
+          throw err;
+        }
         let { chunk: chunk2 } = await getNextPart();
         if (!chunk2 || fetchAborted) {
           break;
@@ -81193,9 +87827,9 @@ function renderInline(text) {
     return `${SENTINEL}C${codeSpans.length - 1}${SENTINEL}`;
   });
   work = escapeHtml(work);
-  work = work.replace(/\[([^\]]*)\]\(([^)\s]+)\)/g, (_full, label, href) => {
-    if (!SAFE_LINK_SCHEME.test(href)) return label;
-    return `<a href="${href}" style="color:#2563eb;">${label}</a>`;
+  work = work.replace(/\[([^\]]*)\]\(([^)\s]+)\)/g, (_full, label2, href) => {
+    if (!SAFE_LINK_SCHEME.test(href)) return label2;
+    return `<a href="${href}" style="color:#2563eb;">${label2}</a>`;
   });
   work = work.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
   work = work.replace(/__([^_]+)__/g, "<strong>$1</strong>");
