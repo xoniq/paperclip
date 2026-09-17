@@ -30,6 +30,10 @@ function registerModuleMocks() {
   vi.doMock("../services/index.js", () => ({
     heartbeatService: () => mockHeartbeatService,
     instanceSettingsService: () => mockInstanceSettingsService,
+    themeService: () => ({
+      listThemes: vi.fn().mockResolvedValue([]),
+      getThemeCss: vi.fn().mockResolvedValue(null),
+    }),
     logActivity: mockLogActivity,
     publishActivity: mockPublishActivity,
   }));

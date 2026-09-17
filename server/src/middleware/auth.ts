@@ -78,7 +78,7 @@ function normalizeOptionalString(value: string | null | undefined) {
  * route answers with its own, accurate diagnosis.
  */
 const SELF_AUTHENTICATING_ROUTES: RegExp[] = [
-  /^\/mcp\/gateways\/[^/]+\/?$/,
+  /^\/mcp\/gateways\/gw_[a-f0-9]{32}\/?$/i,
   /^\/api\/tool-gateway\/gateways\/[^/]+\/mcp\/?$/,
   /^\/api\/routine-triggers\/public\/[^/]+\/fire\/?$/,
 ];
@@ -330,7 +330,10 @@ export function actorMiddleware(db: Db, opts: ActorMiddlewareOptions): RequestHa
     // gateway can answer, and so a gateway token can never inherit the
     // implicit local-board actor that `local_trusted` seeds above. The same
     // holds for any bearer aimed at a self-authenticating route.
-    if (isToolGatewayBearerToken(token) || isSelfAuthenticatingRoute(req.path)) {
+    if (
+      (isToolGatewayBearerToken(token) && !req.path.startsWith("/mcp/gateways/")) ||
+      isSelfAuthenticatingRoute(req.path)
+    ) {
       req.actor = { type: "none", source: "none" };
       if (runIdHeader) req.actor.runId = runIdHeader;
       next();
