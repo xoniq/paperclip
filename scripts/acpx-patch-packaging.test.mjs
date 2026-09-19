@@ -320,7 +320,7 @@ mkdir -p "$destination/node_modules/.pnpm"
     `#!/usr/bin/env bash
 set -euo pipefail
 printf 'npm %s\\n' "$*" >> "$FAKE_CALL_LOG"
-[ "$*" = "install --omit=dev --ignore-scripts --no-audit --no-fund" ]
+[ "$*" = "install --omit=dev --no-package-lock --legacy-peer-deps --ignore-scripts --no-audit --no-fund" ]
 node -e 'const fs = require("node:fs"); const pkg = require("./package.json"); if ("devDependencies" in pkg) process.exit(1); for (const [name, version] of Object.entries(pkg.dependencies)) { const dir = "node_modules/" + name; fs.mkdirSync(dir + "/dist", { recursive: true }); fs.writeFileSync(dir + "/package.json", JSON.stringify({ name, version })); }'
 mkdir -p node_modules/acpx/dist
 printf 'unpatched runtime\\n' > node_modules/acpx/dist/runtime.js

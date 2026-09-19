@@ -145,10 +145,47 @@ export function prepareBundledPackage(sourceDir, destinationDir, { sourceRoot = 
     throw new Error(`${sourcePackage.name} does not declare bundled dependencies`);
   }
 
+  if (sourcePackage.name === "@paperclipai/server") {
+    const files = sourcePackage.files ?? [];
+    const uiDistPath = resolve(sourceDir, "ui-dist");
+    if (files.includes("ui-dist") && !existsSync(uiDistPath)) {
+      const rootUiDist = resolve(sourceRoot, "ui", "dist");
+      if (existsSync(resolve(rootUiDist, "index.html"))) {
+        cpSync(rootUiDist, uiDistPath, { recursive: true });
+      } else {
+        const prepareUiDistScript = resolve(sourceRoot, "scripts", "prepare-server-ui-dist.sh");
+        if (existsSync(prepareUiDistScript)) {
+          try {
+            execFileSync("bash", [prepareUiDistScript], { cwd: sourceRoot, stdio: "inherit" });
+          } catch (error) {
+            console.warn(`[prepare-bundled-package] Warning: failed to prepare ui-dist: ${error.message}`);
+          }
+        }
+      }
+    }
+    const skillsPath = resolve(sourceDir, "skills");
+    if (files.includes("skills") && !existsSync(skillsPath)) {
+      const rootSkills = resolve(sourceRoot, "skills");
+      if (existsSync(rootSkills)) {
+        cpSync(rootSkills, skillsPath, { recursive: true });
+      }
+    }
+    const themesPath = resolve(sourceDir, "themes");
+    if (files.includes("themes") && !existsSync(themesPath)) {
+      const rootThemes = resolve(sourceRoot, "themes");
+      if (existsSync(rootThemes)) {
+        cpSync(rootThemes, themesPath, { recursive: true });
+      }
+    }
+  }
+
   rmSync(destinationDir, { recursive: true, force: true });
   mkdirSync(destinationDir, { recursive: true });
   for (const entry of sourcePackage.files ?? []) {
-    cpSync(resolve(sourceDir, entry), resolve(destinationDir, entry), { recursive: true });
+    const sourcePath = resolve(sourceDir, entry);
+    if (existsSync(sourcePath)) {
+      cpSync(sourcePath, resolve(destinationDir, entry), { recursive: true });
+    }
   }
   for (const entry of ["README.md", "LICENSE", "LICENSE.md"]) {
     const sourcePath = resolve(sourceDir, entry);
