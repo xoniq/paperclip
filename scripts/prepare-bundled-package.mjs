@@ -2,7 +2,7 @@
 
 import { execFileSync } from "node:child_process";
 import { cpSync, existsSync, mkdirSync, readFileSync, realpathSync, rmSync, writeFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const repoRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
@@ -164,7 +164,79 @@ export function applyBundledDependencyPatches(destinationDir, bundledDependencie
   }
 }
 
+export function ensureStagingNpmShim(destinationDir) {
+  const stagingParent = dirname(destinationDir);
+  const pnpmBinDir = resolve(stagingParent, "pnpm-bin");
+  if (!existsSync(pnpmBinDir)) return;
+  const shimPath = resolve(pnpmBinDir, "npm");
+  if (existsSync(shimPath)) return;
+
+  const shimScript = `#!/bin/sh
+set -e
+
+SELF_DIR="$(cd "$(dirname "$0")" && pwd -P)"
+SELF_REAL="$SELF_DIR/npm"
+
+REAL_NPM=""
+OLD_IFS="$IFS"
+IFS=":"
+for DIR in $PATH; do
+  [ -z "$DIR" ] && continue
+  DIR_REAL="$(cd "$DIR" 2>/dev/null && pwd -P || true)"
+  if [ -n "$DIR_REAL" ] && [ "$DIR_REAL/npm" != "$SELF_REAL" ] && [ -x "$DIR/npm" ]; then
+    REAL_NPM="$DIR/npm"
+    break
+  fi
+done
+IFS="$OLD_IFS"
+
+if [ -z "$REAL_NPM" ]; then
+  echo "npm shim error: could not locate system npm" >&2
+  exit 1
+fi
+
+is_pack=false
+target_dir=""
+dest_dir=""
+prev=""
+
+for arg in "$@"; do
+  if [ "$arg" = "pack" ]; then
+    is_pack=true
+  elif [ "$is_pack" = true ]; then
+    if [ "$prev" = "--pack-destination" ]; then
+      dest_dir="$arg"
+    elif [ "$arg" = "--pack-destination" ]; then
+      :
+    elif [ -z "$target_dir" ] && [ -d "$arg" ]; then
+      target_dir="$arg"
+    fi
+  fi
+  prev="$arg"
+done
+
+if [ "$is_pack" = true ] && [ -n "$target_dir" ]; then
+  REAL_TARGET="$(cd "$target_dir" && pwd -P)"
+  if [ -n "$dest_dir" ]; then
+    REAL_DEST="$(cd "$dest_dir" && pwd -P)"
+    cd "$REAL_TARGET"
+    exec "$REAL_NPM" pack --pack-destination "$REAL_DEST"
+  else
+    cd "$REAL_TARGET"
+    exec "$REAL_NPM" pack
+  fi
+fi
+
+exec "$REAL_NPM" "$@"
+`;
+
+  try {
+    writeFileSync(shimPath, shimScript, { mode: 0o755 });
+  } catch {}
+}
+
 export function prepareBundledPackage(sourceDir, destinationDir, { sourceRoot = repoRoot } = {}) {
+  ensureStagingNpmShim(destinationDir);
   const sourcePackagePath = resolve(sourceDir, "package.json");
   const sourcePackage = JSON.parse(readFileSync(sourcePackagePath, "utf8"));
   const bundledDependencies = sourcePackage.bundleDependencies ?? sourcePackage.bundledDependencies ?? [];
