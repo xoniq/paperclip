@@ -137,7 +137,7 @@ describe("managed install commands", () => {
       }
       if (file === "bash") return { stdout: "", stderr: "" };
       if (file === "npm" && args[0] === "pack") {
-        const packageName = args[1]?.includes("workspace-package-") ? "paperclipai-db" : "paperclipai";
+        const packageName = (String(_options?.cwd ?? "").includes("workspace-package-") || args[1]?.includes("workspace-package-")) ? "paperclipai-db" : "paperclipai";
         fs.writeFileSync(path.join(args[args.indexOf("--pack-destination") + 1], `${packageName}-0.3.1.tgz`), "package");
         return { stdout: "", stderr: "" };
       }
@@ -163,7 +163,9 @@ describe("managed install commands", () => {
     expect(runCommand.mock.calls.filter(([command, args]) => command === "corepack" && args[1] === "install")).toHaveLength(1);
     expect(runCommand.mock.calls.filter(([command, args]) => command === "corepack" && args.includes("pack"))).toHaveLength(2);
     expect(runCommand.mock.calls.filter(([command, args]) => command === process.execPath && args[0]?.endsWith("prepare-bundled-package.mjs"))).toHaveLength(1);
-    expect(runCommand.mock.calls.filter(([command, args]) => command === "npm" && args[0] === "pack")).toHaveLength(2);
+    const npmPackCalls = runCommand.mock.calls.filter(([command, args]) => command === "npm" && args[0] === "pack");
+    expect(npmPackCalls).toHaveLength(2);
+    expect((npmPackCalls[0]?.[2] as { cwd?: string })?.cwd).toContain("workspace-package-");
     const installCall = runCommand.mock.calls.find(([command, args]) => command === "npm" && args[0] === "install");
     expect(installCall?.[1].filter((arg) => arg.endsWith(".tgz"))).toHaveLength(4);
   });
