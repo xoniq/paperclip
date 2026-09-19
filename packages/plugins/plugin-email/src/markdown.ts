@@ -171,11 +171,11 @@ export function markdownToHtml(source: string): string {
     if (/^\s*>\s?/.test(line)) {
       const body: string[] = [];
       while (index < lines.length && /^\s*>\s?/.test(lines[index] ?? "")) {
-        body.push((lines[index] ?? "").replace(/^\s*>\s?/, ""));
+        body.push((lines[index] ?? "").replace(/^\s*>\s?/, "").trim());
         index += 1;
       }
       out.push(
-        `<blockquote style="margin:12px 0;padding-left:12px;border-left:3px solid #e4e4e7;color:#52525b;">${renderInline(body.join(" "))}</blockquote>`,
+        `<blockquote style="margin:16px 0;padding-left:12px;border-left:3px solid #d4d4d8;color:#52525b;">${body.map((item) => renderInline(item)).join("<br />\n")}</blockquote>`,
       );
       continue;
     }
@@ -189,7 +189,7 @@ export function markdownToHtml(source: string): string {
         items.push(`<li style="margin:2px 0;">${renderInline(item[1]!)}</li>`);
         index += 1;
       }
-      out.push(`<ul style="margin:8px 0;padding-left:22px;">${items.join("")}</ul>`);
+      out.push(`<ul style="margin:8px 0 16px;padding-left:22px;">${items.join("")}</ul>`);
       continue;
     }
 
@@ -202,22 +202,27 @@ export function markdownToHtml(source: string): string {
         items.push(`<li style="margin:2px 0;">${renderInline(item[1]!)}</li>`);
         index += 1;
       }
-      out.push(`<ol style="margin:8px 0;padding-left:22px;">${items.join("")}</ol>`);
+      out.push(`<ol style="margin:8px 0 16px;padding-left:22px;">${items.join("")}</ol>`);
       continue;
     }
 
     // Paragraph: consume until a blank line or the start of another block.
-    const paragraph: string[] = [];
+    const paragraphLines: string[] = [];
     while (index < lines.length) {
       const current = lines[index] ?? "";
       if (current.trim().length === 0) break;
       if (/^\s*(```|#{1,6}\s|>\s?|[-*+]\s|\d+\.\s)/.test(current)) break;
       if (/^\s*(-{3,}|\*{3,}|_{3,})\s*$/.test(current)) break;
-      paragraph.push(current.trim());
+      paragraphLines.push(current);
       index += 1;
     }
-    if (paragraph.length > 0) {
-      out.push(`<p style="margin:10px 0;">${renderInline(paragraph.join(" "))}</p>`);
+    if (paragraphLines.length > 0) {
+      const renderedLines = paragraphLines.map((entry) => {
+        // Strip trailing backslash if used as a CommonMark hard line break
+        const clean = entry.replace(/\\$/, "").trim();
+        return renderInline(clean);
+      });
+      out.push(`<p style="margin:0 0 16px 0;margin-bottom:16px;line-height:1.6;">${renderedLines.join("<br />\n")}</p>`);
     }
   }
 
@@ -260,6 +265,15 @@ export function wrapEmailHtml(
   return [
     '<!doctype html><html><head><meta charset="utf-8" />',
     '<meta name="viewport" content="width=device-width, initial-scale=1" />',
+    "<style>",
+    "body, table, td, p, a, li, blockquote { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }",
+    "p { margin: 0 0 16px 0; margin-bottom: 16px; }",
+    "h1, h2, h3, h4 { margin: 20px 0 8px; }",
+    "ul, ol { margin: 8px 0 16px; padding-left: 24px; }",
+    "li { margin: 4px 0; }",
+    "hr { border: none; border-top: 1px solid #d4d4d8; margin: 24px 0; }",
+    "blockquote { margin: 16px 0; padding-left: 12px; border-left: 3px solid #d4d4d8; color: #52525b; }",
+    "</style>",
     "</head>",
     '<body style="margin:0;padding:0;background:#ffffff;">',
     '<div style="max-width:640px;margin:0 auto;padding:24px;font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,Helvetica,Arial,sans-serif;font-size:14px;line-height:1.6;color:#18181b;">',

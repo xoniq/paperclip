@@ -8,6 +8,7 @@ import {
 } from "@paperclipai/plugin-sdk/ui";
 
 // src/manifest.ts
+var PLUGIN_VERSION = "0.3.0";
 var DATA_OVERVIEW = "overview";
 var ACTION_SEND_TEST = "sendTest";
 
@@ -63,6 +64,9 @@ function EmailCompanySettingsPage({ context }) {
   const sendTest = usePluginAction(ACTION_SEND_TEST);
   const toast = usePluginToast();
   const [recipient, setRecipient] = useState("");
+  const [testSubject, setTestSubject] = useState("");
+  const [testBody, setTestBody] = useState("");
+  const [showCustomMarkdown, setShowCustomMarkdown] = useState(false);
   const [sending, setSending] = useState(false);
   const allowlist = useMemo(() => data?.config?.allowedRecipients ?? [], [data]);
   const exactAddresses = useMemo(
@@ -77,7 +81,12 @@ function EmailCompanySettingsPage({ context }) {
     }
     setSending(true);
     try {
-      const result = await sendTest({ companyId, to: target });
+      const result = await sendTest({
+        companyId,
+        to: target,
+        subject: testSubject.trim() || void 0,
+        body: testBody.trim() || void 0
+      });
       if (result?.ok) {
         if (result.draft) {
           toast({
@@ -130,6 +139,7 @@ function EmailCompanySettingsPage({ context }) {
       /* @__PURE__ */ jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center" }, children: [
         /* @__PURE__ */ jsx("strong", { children: "Email Server" }),
         /* @__PURE__ */ jsxs("div", { style: { display: "flex", gap: "6px" }, children: [
+          /* @__PURE__ */ jsx(StatusBadge, { label: `v${PLUGIN_VERSION}`, status: "info" }),
           /* @__PURE__ */ jsx(
             StatusBadge,
             {
@@ -210,8 +220,48 @@ function EmailCompanySettingsPage({ context }) {
       /* @__PURE__ */ jsx("p", { style: muted, children: "Failed attempts count too \u2014 the limit exists to stop a retry loop, not just a chatty one." })
     ] }) : null,
     /* @__PURE__ */ jsxs("div", { style: card, children: [
-      /* @__PURE__ */ jsx("strong", { children: config.deliveryMode === "draft" ? "Save a test draft" : "Send a test" }),
+      /* @__PURE__ */ jsxs("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center" }, children: [
+        /* @__PURE__ */ jsx("strong", { children: config.deliveryMode === "draft" ? "Save a test draft" : "Send a test" }),
+        /* @__PURE__ */ jsx(
+          "button",
+          {
+            type: "button",
+            onClick: () => setShowCustomMarkdown((prev) => !prev),
+            style: {
+              background: "transparent",
+              border: "1px solid var(--border, #e4e4e7)",
+              borderRadius: "4px",
+              padding: "3px 8px",
+              fontSize: "12px",
+              cursor: "pointer"
+            },
+            children: showCustomMarkdown ? "Hide custom Markdown" : "Test custom Markdown"
+          }
+        )
+      ] }),
       /* @__PURE__ */ jsx("p", { style: muted, children: config.deliveryMode === "draft" ? "Appends a test message to your IMAP Drafts mailbox through the same allowlist, rate limit, and logging pipeline as agents." : "Goes through the same allowlist, rate limit, and logging as an agent send." }),
+      showCustomMarkdown ? /* @__PURE__ */ jsxs("div", { style: { display: "grid", gap: "8px" }, children: [
+        /* @__PURE__ */ jsx(
+          "input",
+          {
+            type: "text",
+            value: testSubject,
+            placeholder: "Test subject (optional, leave empty for default)",
+            onChange: (e) => setTestSubject(e.target.value),
+            style: { ...mono, fontSize: "13px", padding: "6px 8px", width: "100%", boxSizing: "border-box" }
+          }
+        ),
+        /* @__PURE__ */ jsx(
+          "textarea",
+          {
+            rows: 6,
+            value: testBody,
+            placeholder: "Enter raw Markdown to test formatting (optional, leave empty for default)...",
+            onChange: (e) => setTestBody(e.target.value),
+            style: { ...mono, fontSize: "13px", padding: "6px 8px", width: "100%", boxSizing: "border-box", resize: "vertical" }
+          }
+        )
+      ] }) : null,
       /* @__PURE__ */ jsxs("div", { style: { display: "flex", gap: "8px", flexWrap: "wrap" }, children: [
         exactAddresses.length > 0 ? /* @__PURE__ */ jsxs(
           "select",
@@ -267,7 +317,29 @@ function EmailCompanySettingsPage({ context }) {
               entry.source,
               entry.draft ? ` \xB7 draft (${entry.draftFolder ?? "Drafts"})` : ""
             ] }),
-            entry.error ? /* @__PURE__ */ jsx("div", { style: { color: "#dc2626", fontSize: "12px" }, children: entry.error }) : null
+            entry.error ? /* @__PURE__ */ jsx("div", { style: { color: "#dc2626", fontSize: "12px" }, children: entry.error }) : null,
+            entry.body ? /* @__PURE__ */ jsxs("details", { style: { marginTop: "4px" }, children: [
+              /* @__PURE__ */ jsx("summary", { style: { ...muted, cursor: "pointer", fontSize: "12px", userSelect: "none" }, children: "Raw Markdown / Ruwe invoer" }),
+              /* @__PURE__ */ jsx(
+                "pre",
+                {
+                  style: {
+                    ...mono,
+                    fontSize: "11px",
+                    background: "var(--muted, #f4f4f5)",
+                    color: "var(--foreground, #18181b)",
+                    padding: "8px",
+                    borderRadius: "4px",
+                    overflowX: "auto",
+                    whiteSpace: "pre-wrap",
+                    wordBreak: "break-word",
+                    marginTop: "4px",
+                    maxHeight: "200px"
+                  },
+                  children: entry.body
+                }
+              )
+            ] }) : null
           ]
         },
         `${entry.at}-${entry.subject}`

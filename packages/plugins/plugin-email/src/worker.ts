@@ -162,6 +162,35 @@ const plugin = definePlugin({
       }
 
       const isDraft = config.deliveryMode === "draft";
+      const subject = typeof params?.subject === "string" && params.subject.trim().length > 0
+        ? params.subject.trim()
+        : isDraft ? "Paperclip test draft message" : "Paperclip test message";
+
+      const defaultBody = isDraft
+        ? [
+            "This is a test draft message from the Paperclip email plugin.",
+            "",
+            `- Mode: Save as draft (IMAP)`,
+            `- Server: \`${config.imapHost || config.host}:${config.imapPort}\``,
+            `- From: ${config.fromAddress}`,
+            `- Reply-to: ${config.replyToAddress}`,
+            `- Mailbox folder: ${config.draftsFolder || "Auto-detected Drafts"}`,
+            "",
+            "If this appeared in your Drafts folder, agents can save email drafts for your review.",
+          ].join("\n")
+        : [
+            "This is a test message from the Paperclip email plugin.",
+            "",
+            `- Server: \`${config.host}:${config.port}\``,
+            `- From: ${config.fromAddress}`,
+            `- Reply-to: ${config.replyToAddress}`,
+            "",
+            "If this arrived, agents on this company can send email.",
+          ].join("\n");
+
+      const body = typeof params?.body === "string" && params.body.trim().length > 0
+        ? params.body
+        : defaultBody;
 
       // The test send goes through the same pipeline as an agent send — same
       // allowlist, same rate limit, same logging. A test that took a shortcut
@@ -173,28 +202,8 @@ const plugin = definePlugin({
         source: "test",
         request: {
           to: [to],
-          subject: isDraft ? "Paperclip test draft message" : "Paperclip test message",
-          body: isDraft
-            ? [
-                "This is a test draft message from the Paperclip email plugin.",
-                "",
-                `- Mode: Save as draft (IMAP)`,
-                `- Server: \`${config.imapHost || config.host}:${config.imapPort}\``,
-                `- From: ${config.fromAddress}`,
-                `- Reply-to: ${config.replyToAddress}`,
-                `- Mailbox folder: ${config.draftsFolder || "Auto-detected Drafts"}`,
-                "",
-                "If this appeared in your Drafts folder, agents can save email drafts for your review.",
-              ].join("\n")
-            : [
-                "This is a test message from the Paperclip email plugin.",
-                "",
-                `- Server: \`${config.host}:${config.port}\``,
-                `- From: ${config.fromAddress}`,
-                `- Reply-to: ${config.replyToAddress}`,
-                "",
-                "If this arrived, agents on this company can send email.",
-              ].join("\n"),
+          subject,
+          body,
         },
       });
 

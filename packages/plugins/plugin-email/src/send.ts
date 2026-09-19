@@ -365,6 +365,7 @@ export async function sendEmail(input: SendEmailInput): Promise<SendEmailOutcome
       runId: input.runId,
       draft: isDraft,
       draftFolder: outcome.draftFolder,
+      body: typeof request.body === "string" ? request.body : undefined,
     },
     now,
   );
@@ -390,6 +391,7 @@ export async function sendEmail(input: SendEmailInput): Promise<SendEmailOutcome
       error: outcome.error ?? null,
       draft: isDraft,
       draftFolder: outcome.draftFolder ?? null,
+      body: typeof request.body === "string" ? request.body : null,
     },
   });
 

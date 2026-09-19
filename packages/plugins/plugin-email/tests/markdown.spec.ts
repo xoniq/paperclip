@@ -93,6 +93,36 @@ describe("markdownToHtml", () => {
     expect(markdownToHtml("> quoted")).toContain("<blockquote");
     expect(markdownToHtml("---")).toContain("<hr");
   });
+
+  it("preserves line breaks in multi-line address blocks and signatures with <br />", () => {
+    const address = [
+      "Verzendadres:",
+      "GamerBase, t.a.v. Jelle Posthuma",
+      "Grettingalaan 42",
+      "8862 ZD Harlingen",
+    ].join("\n");
+
+    const html = markdownToHtml(address);
+    expect(html).toContain("Verzendadres:<br />");
+    expect(html).toContain("GamerBase, t.a.v. Jelle Posthuma<br />");
+    expect(html).toContain("Grettingalaan 42<br />");
+    expect(html).toContain("8862 ZD Harlingen");
+    expect(html).toContain('style="margin:0 0 16px 0;margin-bottom:16px;line-height:1.6;"');
+  });
+
+  it("supports CommonMark trailing backslash hard line break", () => {
+    const html = markdownToHtml("Line one\\\nLine two");
+    expect(html).toContain("Line one<br />");
+    expect(html).toContain("Line two");
+    expect(html).not.toContain("Line one\\");
+  });
+
+  it("applies email-safe paragraph spacing across multiple paragraphs", () => {
+    const markdown = ["Alinea 1", "", "Alinea 2"].join("\n");
+    const html = markdownToHtml(markdown);
+    expect(html).toContain('<p style="margin:0 0 16px 0;margin-bottom:16px;line-height:1.6;">Alinea 1</p>');
+    expect(html).toContain('<p style="margin:0 0 16px 0;margin-bottom:16px;line-height:1.6;">Alinea 2</p>');
+  });
 });
 
 describe("wrapEmailHtml", () => {

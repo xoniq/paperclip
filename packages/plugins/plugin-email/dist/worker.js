@@ -77900,7 +77900,7 @@ async function resolvePassword(ctx, config2, companyId) {
 
 // src/manifest.ts
 var PLUGIN_ID = "paperclip.email";
-var PLUGIN_VERSION = "0.2.1";
+var PLUGIN_VERSION = "0.3.0";
 var TOOL_SEND_EMAIL = "send_email";
 var SLOT_COMPANY_SETTINGS = "email-company-settings";
 var EXPORT_COMPANY_SETTINGS = "EmailCompanySettingsPage";
@@ -87912,11 +87912,11 @@ function markdownToHtml(source) {
     if (/^\s*>\s?/.test(line)) {
       const body = [];
       while (index < lines.length && /^\s*>\s?/.test(lines[index] ?? "")) {
-        body.push((lines[index] ?? "").replace(/^\s*>\s?/, ""));
+        body.push((lines[index] ?? "").replace(/^\s*>\s?/, "").trim());
         index += 1;
       }
       out.push(
-        `<blockquote style="margin:12px 0;padding-left:12px;border-left:3px solid #e4e4e7;color:#52525b;">${renderInline(body.join(" "))}</blockquote>`
+        `<blockquote style="margin:16px 0;padding-left:12px;border-left:3px solid #d4d4d8;color:#52525b;">${body.map((item) => renderInline(item)).join("<br />\n")}</blockquote>`
       );
       continue;
     }
@@ -87929,7 +87929,7 @@ function markdownToHtml(source) {
         items.push(`<li style="margin:2px 0;">${renderInline(item[1])}</li>`);
         index += 1;
       }
-      out.push(`<ul style="margin:8px 0;padding-left:22px;">${items.join("")}</ul>`);
+      out.push(`<ul style="margin:8px 0 16px;padding-left:22px;">${items.join("")}</ul>`);
       continue;
     }
     const orderedMatch = line.match(/^\s*\d+\.\s+(.*)$/);
@@ -87941,20 +87941,24 @@ function markdownToHtml(source) {
         items.push(`<li style="margin:2px 0;">${renderInline(item[1])}</li>`);
         index += 1;
       }
-      out.push(`<ol style="margin:8px 0;padding-left:22px;">${items.join("")}</ol>`);
+      out.push(`<ol style="margin:8px 0 16px;padding-left:22px;">${items.join("")}</ol>`);
       continue;
     }
-    const paragraph = [];
+    const paragraphLines = [];
     while (index < lines.length) {
       const current = lines[index] ?? "";
       if (current.trim().length === 0) break;
       if (/^\s*(```|#{1,6}\s|>\s?|[-*+]\s|\d+\.\s)/.test(current)) break;
       if (/^\s*(-{3,}|\*{3,}|_{3,})\s*$/.test(current)) break;
-      paragraph.push(current.trim());
+      paragraphLines.push(current);
       index += 1;
     }
-    if (paragraph.length > 0) {
-      out.push(`<p style="margin:10px 0;">${renderInline(paragraph.join(" "))}</p>`);
+    if (paragraphLines.length > 0) {
+      const renderedLines = paragraphLines.map((entry) => {
+        const clean = entry.replace(/\\$/, "").trim();
+        return renderInline(clean);
+      });
+      out.push(`<p style="margin:0 0 16px 0;margin-bottom:16px;line-height:1.6;">${renderedLines.join("<br />\n")}</p>`);
     }
   }
   return out.join("\n");
@@ -87969,6 +87973,15 @@ function wrapEmailHtml(fragment, footer, customTemplate, subject) {
   return [
     '<!doctype html><html><head><meta charset="utf-8" />',
     '<meta name="viewport" content="width=device-width, initial-scale=1" />',
+    "<style>",
+    "body, table, td, p, a, li, blockquote { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }",
+    "p { margin: 0 0 16px 0; margin-bottom: 16px; }",
+    "h1, h2, h3, h4 { margin: 20px 0 8px; }",
+    "ul, ol { margin: 8px 0 16px; padding-left: 24px; }",
+    "li { margin: 4px 0; }",
+    "hr { border: none; border-top: 1px solid #d4d4d8; margin: 24px 0; }",
+    "blockquote { margin: 16px 0; padding-left: 12px; border-left: 3px solid #d4d4d8; color: #52525b; }",
+    "</style>",
     "</head>",
     '<body style="margin:0;padding:0;background:#ffffff;">',
     `<div style="max-width:640px;margin:0 auto;padding:24px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:14px;line-height:1.6;color:#18181b;">`,
@@ -88308,7 +88321,8 @@ async function sendEmail(input) {
       agentId: input.agentId,
       runId: input.runId,
       draft: isDraft,
-      draftFolder: outcome.draftFolder
+      draftFolder: outcome.draftFolder,
+      body: typeof request.body === "string" ? request.body : void 0
     },
     now
   );
@@ -88329,7 +88343,8 @@ async function sendEmail(input) {
       attachmentCount: attachmentResult.attachments.length,
       error: outcome.error ?? null,
       draft: isDraft,
-      draftFolder: outcome.draftFolder ?? null
+      draftFolder: outcome.draftFolder ?? null,
+      body: typeof request.body === "string" ? request.body : null
     }
   });
   return outcome;
@@ -88449,6 +88464,27 @@ var plugin = definePlugin({
         return { ok: false, error: "Pick a recipient to send the test to." };
       }
       const isDraft = config2.deliveryMode === "draft";
+      const subject = typeof params?.subject === "string" && params.subject.trim().length > 0 ? params.subject.trim() : isDraft ? "Paperclip test draft message" : "Paperclip test message";
+      const defaultBody = isDraft ? [
+        "This is a test draft message from the Paperclip email plugin.",
+        "",
+        `- Mode: Save as draft (IMAP)`,
+        `- Server: \`${config2.imapHost || config2.host}:${config2.imapPort}\``,
+        `- From: ${config2.fromAddress}`,
+        `- Reply-to: ${config2.replyToAddress}`,
+        `- Mailbox folder: ${config2.draftsFolder || "Auto-detected Drafts"}`,
+        "",
+        "If this appeared in your Drafts folder, agents can save email drafts for your review."
+      ].join("\n") : [
+        "This is a test message from the Paperclip email plugin.",
+        "",
+        `- Server: \`${config2.host}:${config2.port}\``,
+        `- From: ${config2.fromAddress}`,
+        `- Reply-to: ${config2.replyToAddress}`,
+        "",
+        "If this arrived, agents on this company can send email."
+      ].join("\n");
+      const body = typeof params?.body === "string" && params.body.trim().length > 0 ? params.body : defaultBody;
       const outcome = await sendEmail({
         ctx,
         companyId,
@@ -88456,26 +88492,8 @@ var plugin = definePlugin({
         source: "test",
         request: {
           to: [to],
-          subject: isDraft ? "Paperclip test draft message" : "Paperclip test message",
-          body: isDraft ? [
-            "This is a test draft message from the Paperclip email plugin.",
-            "",
-            `- Mode: Save as draft (IMAP)`,
-            `- Server: \`${config2.imapHost || config2.host}:${config2.imapPort}\``,
-            `- From: ${config2.fromAddress}`,
-            `- Reply-to: ${config2.replyToAddress}`,
-            `- Mailbox folder: ${config2.draftsFolder || "Auto-detected Drafts"}`,
-            "",
-            "If this appeared in your Drafts folder, agents can save email drafts for your review."
-          ].join("\n") : [
-            "This is a test message from the Paperclip email plugin.",
-            "",
-            `- Server: \`${config2.host}:${config2.port}\``,
-            `- From: ${config2.fromAddress}`,
-            `- Reply-to: ${config2.replyToAddress}`,
-            "",
-            "If this arrived, agents on this company can send email."
-          ].join("\n")
+          subject,
+          body
         }
       });
       return outcome.ok ? {

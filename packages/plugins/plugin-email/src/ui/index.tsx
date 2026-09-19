@@ -6,7 +6,7 @@ import {
   usePluginToast,
   type PluginCompanySettingsPageProps,
 } from "@paperclipai/plugin-sdk/ui";
-import { ACTION_SEND_TEST, DATA_OVERVIEW } from "../manifest.js";
+import { ACTION_SEND_TEST, DATA_OVERVIEW, PLUGIN_VERSION } from "../manifest.js";
 
 interface ConfigSummary {
   host: string;
@@ -46,6 +46,7 @@ interface SendEntry {
   source: "agent" | "test";
   draft?: boolean;
   draftFolder?: string;
+  body?: string;
 }
 
 interface Overview {
@@ -112,6 +113,9 @@ export function EmailCompanySettingsPage({ context }: PluginCompanySettingsPageP
   const toast = usePluginToast();
 
   const [recipient, setRecipient] = useState("");
+  const [testSubject, setTestSubject] = useState("");
+  const [testBody, setTestBody] = useState("");
+  const [showCustomMarkdown, setShowCustomMarkdown] = useState(false);
   const [sending, setSending] = useState(false);
 
   const allowlist = useMemo(() => data?.config?.allowedRecipients ?? [], [data]);
@@ -131,7 +135,12 @@ export function EmailCompanySettingsPage({ context }: PluginCompanySettingsPageP
     }
     setSending(true);
     try {
-      const result = (await sendTest({ companyId, to: target })) as {
+      const result = (await sendTest({
+        companyId,
+        to: target,
+        subject: testSubject.trim() || undefined,
+        body: testBody.trim() || undefined,
+      })) as {
         ok?: boolean;
         error?: string;
         draft?: boolean;
@@ -194,6 +203,7 @@ export function EmailCompanySettingsPage({ context }: PluginCompanySettingsPageP
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <strong>Email Server</strong>
           <div style={{ display: "flex", gap: "6px" }}>
+            <StatusBadge label={`v${PLUGIN_VERSION}`} status="info" />
             <StatusBadge
               label={config.deliveryMode === "draft" ? "Draft mode (IMAP)" : "Live sending (SMTP)"}
               status={config.deliveryMode === "draft" ? "warning" : "ok"}
@@ -280,12 +290,48 @@ export function EmailCompanySettingsPage({ context }: PluginCompanySettingsPageP
       ) : null}
 
       <div style={card}>
-        <strong>{config.deliveryMode === "draft" ? "Save a test draft" : "Send a test"}</strong>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <strong>{config.deliveryMode === "draft" ? "Save a test draft" : "Send a test"}</strong>
+          <button
+            type="button"
+            onClick={() => setShowCustomMarkdown((prev) => !prev)}
+            style={{
+              background: "transparent",
+              border: "1px solid var(--border, #e4e4e7)",
+              borderRadius: "4px",
+              padding: "3px 8px",
+              fontSize: "12px",
+              cursor: "pointer",
+            }}
+          >
+            {showCustomMarkdown ? "Hide custom Markdown" : "Test custom Markdown"}
+          </button>
+        </div>
         <p style={muted}>
           {config.deliveryMode === "draft"
             ? "Appends a test message to your IMAP Drafts mailbox through the same allowlist, rate limit, and logging pipeline as agents."
             : "Goes through the same allowlist, rate limit, and logging as an agent send."}
         </p>
+
+        {showCustomMarkdown ? (
+          <div style={{ display: "grid", gap: "8px" }}>
+            <input
+              type="text"
+              value={testSubject}
+              placeholder="Test subject (optional, leave empty for default)"
+              onChange={(e) => setTestSubject(e.target.value)}
+              style={{ ...mono, fontSize: "13px", padding: "6px 8px", width: "100%", boxSizing: "border-box" }}
+            />
+            <textarea
+              rows={6}
+              value={testBody}
+              placeholder="Enter raw Markdown to test formatting (optional, leave empty for default)..."
+              onChange={(e) => setTestBody(e.target.value)}
+              style={{ ...mono, fontSize: "13px", padding: "6px 8px", width: "100%", boxSizing: "border-box", resize: "vertical" }}
+            />
+          </div>
+        ) : null}
+
         <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
           {exactAddresses.length > 0 ? (
             <select
@@ -346,6 +392,30 @@ export function EmailCompanySettingsPage({ context }: PluginCompanySettingsPageP
                 </div>
                 {entry.error ? (
                   <div style={{ color: "#dc2626", fontSize: "12px" }}>{entry.error}</div>
+                ) : null}
+                {entry.body ? (
+                  <details style={{ marginTop: "4px" }}>
+                    <summary style={{ ...muted, cursor: "pointer", fontSize: "12px", userSelect: "none" }}>
+                      Raw Markdown / Ruwe invoer
+                    </summary>
+                    <pre
+                      style={{
+                        ...mono,
+                        fontSize: "11px",
+                        background: "var(--muted, #f4f4f5)",
+                        color: "var(--foreground, #18181b)",
+                        padding: "8px",
+                        borderRadius: "4px",
+                        overflowX: "auto",
+                        whiteSpace: "pre-wrap",
+                        wordBreak: "break-word",
+                        marginTop: "4px",
+                        maxHeight: "200px",
+                      }}
+                    >
+                      {entry.body}
+                    </pre>
+                  </details>
                 ) : null}
               </div>
             ))}

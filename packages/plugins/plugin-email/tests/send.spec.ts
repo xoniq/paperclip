@@ -538,12 +538,14 @@ describe("sendEmail", () => {
       draft: true,
       draftFolder: "Drafts",
       recipients: ["jelle@example.com"],
+      body: "Please verify before sending.",
     });
 
-    // Send log has draft flag
+    // Send log has draft flag and raw markdown body
     const log = await readSendLog(harness.ctx, COMPANY_ID);
     expect(log[0]?.draft).toBe(true);
     expect(log[0]?.draftFolder).toBe("Drafts");
+    expect(log[0]?.body).toBe("Please verify before sending.");
   });
 
   it("saves to IMAP drafts when request.draft is true, even when deliveryMode is send", async () => {

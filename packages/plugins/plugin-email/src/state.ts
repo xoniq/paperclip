@@ -36,6 +36,8 @@ export interface SendLogEntry {
   draft?: boolean;
   /** Mailbox folder the draft was appended to, if applicable. */
   draftFolder?: string;
+  /** Raw markdown body provided in the send request. */
+  body?: string;
 }
 
 function scopeKey(companyId: string) {
