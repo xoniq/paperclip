@@ -7,7 +7,25 @@ import { fileURLToPath } from "node:url";
 
 const repoRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 
-export function materializePublishManifest(pkg) {
+function resolveWorkspacePackageVersion(name, sourceRoot, fallbackVersion) {
+  const manifestPath = resolve(sourceRoot, "scripts", "release-package-manifest.json");
+  if (existsSync(manifestPath)) {
+    try {
+      const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+      const match = manifest.find((entry) => entry.name === name);
+      if (match) {
+        const pkgJsonPath = resolve(sourceRoot, match.dir, "package.json");
+        if (existsSync(pkgJsonPath)) {
+          const workspacePkg = JSON.parse(readFileSync(pkgJsonPath, "utf8"));
+          if (workspacePkg.version) return workspacePkg.version;
+        }
+      }
+    } catch {}
+  }
+  return fallbackVersion;
+}
+
+export function materializePublishManifest(pkg, { sourceRoot = repoRoot } = {}) {
   const publishConfig = pkg.publishConfig ?? {};
   const publishManifest = { ...pkg };
 
@@ -22,7 +40,8 @@ export function materializePublishManifest(pkg) {
         if (typeof specifier !== "string" || !specifier.startsWith("workspace:")) return [name, specifier];
         const range = specifier.slice("workspace:".length);
         const prefix = range === "^" || range === "~" ? range : "";
-        return [name, `${prefix}${pkg.version}`];
+        const version = resolveWorkspacePackageVersion(name, sourceRoot, pkg.version);
+        return [name, `${prefix}${version}`];
       }),
     );
   }
@@ -202,7 +221,7 @@ export function prepareBundledPackage(sourceDir, destinationDir, { sourceRoot = 
   }
 
   const deployedPackagePath = resolve(destinationDir, "package.json");
-  const publishManifest = materializePublishManifest(sourcePackage);
+  const publishManifest = materializePublishManifest(sourcePackage, { sourceRoot });
   const installManifest = createBundledInstallManifest(publishManifest, bundledDependencies);
   writeFileSync(deployedPackagePath, `${JSON.stringify(installManifest, null, 2)}\n`);
 
