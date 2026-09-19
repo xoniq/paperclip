@@ -159,4 +159,70 @@ describe("boardMutationGuard", () => {
     expect(next).toHaveBeenCalledOnce();
     expect(res.status).not.toHaveBeenCalled();
   });
+
+  it("allows board mutations when origin matches options.publicUrl", async () => {
+    const app = express();
+    app.use(express.json());
+    app.use((req, _res, next) => {
+      req.actor = { type: "board", userId: "board", source: "session" };
+      next();
+    });
+    app.use(boardMutationGuard({ publicUrl: "https://my-board.example.com" }));
+    app.post("/mutate", (_req, res) => res.status(204).end());
+
+    const res = await request(app)
+      .post("/mutate")
+      .set("Origin", "https://my-board.example.com")
+      .send({ ok: true });
+    expect([200, 204]).toContain(res.status);
+  });
+
+  it("allows board mutations when origin matches options.trustedOrigins", async () => {
+    const app = express();
+    app.use(express.json());
+    app.use((req, _res, next) => {
+      req.actor = { type: "board", userId: "board", source: "session" };
+      next();
+    });
+    app.use(
+      boardMutationGuard({
+        trustedOrigins: ["https://internal-domain.local:3100"],
+      }),
+    );
+    app.post("/mutate", (_req, res) => res.status(204).end());
+
+    const res = await request(app)
+      .post("/mutate")
+      .set("Origin", "https://internal-domain.local:3100")
+      .send({ ok: true });
+    expect([200, 204]).toContain(res.status);
+  });
+
+  it("allows board mutations when origin matches BETTER_AUTH_URL env var", async () => {
+    const prev = process.env.BETTER_AUTH_URL;
+    process.env.BETTER_AUTH_URL = "https://auth-domain.example.com";
+    try {
+      const app = express();
+      app.use(express.json());
+      app.use((req, _res, next) => {
+        req.actor = { type: "board", userId: "board", source: "session" };
+        next();
+      });
+      app.use(boardMutationGuard());
+      app.post("/mutate", (_req, res) => res.status(204).end());
+
+      const res = await request(app)
+        .post("/mutate")
+        .set("Origin", "https://auth-domain.example.com")
+        .send({ ok: true });
+      expect([200, 204]).toContain(res.status);
+    } finally {
+      if (prev !== undefined) {
+        process.env.BETTER_AUTH_URL = prev;
+      } else {
+        delete process.env.BETTER_AUTH_URL;
+      }
+    }
+  });
 });
+

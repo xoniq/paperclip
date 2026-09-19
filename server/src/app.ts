@@ -626,7 +626,26 @@ export async function createApp(
 
   // Mount API routes
   const api = Router();
-  api.use(boardMutationGuard());
+  const boardMutationTrustedOrigins = new Set<string>();
+  if (opts.authPublicBaseUrl) {
+    boardMutationTrustedOrigins.add(opts.authPublicBaseUrl);
+  }
+  for (const hostname of opts.allowedHostnames ?? []) {
+    const trimmed = hostname.trim().toLowerCase();
+    if (!trimmed) continue;
+    boardMutationTrustedOrigins.add(`https://${trimmed}`);
+    boardMutationTrustedOrigins.add(`http://${trimmed}`);
+    if (opts.serverPort && opts.serverPort !== 80 && opts.serverPort !== 443) {
+      boardMutationTrustedOrigins.add(`https://${trimmed}:${opts.serverPort}`);
+      boardMutationTrustedOrigins.add(`http://${trimmed}:${opts.serverPort}`);
+    }
+  }
+  api.use(
+    boardMutationGuard({
+      publicUrl: opts.authPublicBaseUrl,
+      trustedOrigins: boardMutationTrustedOrigins,
+    }),
+  );
   api.use(
     "/health",
     healthRoutes(db, {

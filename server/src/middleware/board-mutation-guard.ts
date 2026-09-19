@@ -6,7 +6,7 @@ const DEFAULT_DEV_ORIGINS = [
   "http://127.0.0.1:3100",
 ];
 
-function parseOrigin(value: string | undefined) {
+export function parseOrigin(value: string | undefined) {
   if (!value) return null;
   try {
     const url = new URL(value);
@@ -14,6 +14,11 @@ function parseOrigin(value: string | undefined) {
   } catch {
     return null;
   }
+}
+
+export interface BoardMutationGuardOptions {
+  publicUrl?: string | null;
+  trustedOrigins?: Iterable<string>;
 }
 
 /**
@@ -40,7 +45,7 @@ function requestHost(req: Request): string | undefined {
   return host;
 }
 
-function trustedOriginsForRequest(req: Request) {
+function trustedOriginsForRequest(req: Request, options?: BoardMutationGuardOptions) {
   const origins = new Set(DEFAULT_DEV_ORIGINS.map((value) => value.toLowerCase()));
   const host = requestHost(req);
   if (host) {
@@ -50,9 +55,27 @@ function trustedOriginsForRequest(req: Request) {
   // Behind some reverse proxies the Host / X-Forwarded-Host header may
   // not match the public URL (for example when TLS terminates at the
   // edge and the inbound Host is an internal service name). Trust the
-  // explicitly-configured PAPERCLIP_PUBLIC_URL when it's set.
-  const publicUrl = parseOrigin(process.env.PAPERCLIP_PUBLIC_URL?.trim());
-  if (publicUrl) origins.add(publicUrl);
+  // explicitly-configured PAPERCLIP_PUBLIC_URL when it's set, as well as
+  // other common public URL / auth base URL configurations.
+  const envCandidates = [
+    process.env.PAPERCLIP_PUBLIC_URL?.trim(),
+    process.env.PAPERCLIP_AUTH_PUBLIC_BASE_URL?.trim(),
+    process.env.BETTER_AUTH_URL?.trim(),
+    process.env.BETTER_AUTH_BASE_URL?.trim(),
+    options?.publicUrl?.trim(),
+  ];
+  for (const candidate of envCandidates) {
+    const parsed = parseOrigin(candidate);
+    if (parsed) origins.add(parsed);
+  }
+
+  if (options?.trustedOrigins) {
+    for (const raw of options.trustedOrigins) {
+      const parsed = parseOrigin(raw?.trim());
+      if (parsed) origins.add(parsed);
+    }
+  }
+
   return origins;
 }
 
@@ -62,8 +85,11 @@ function trustedOriginsForRequest(req: Request) {
  * evidence, but must still apply any protocol-specific constraints (for
  * example OAuth requiring HTTPS outside loopback).
  */
-export function trustedBoardMutationOrigin(req: Request): string | null {
-  const allowedOrigins = trustedOriginsForRequest(req);
+export function trustedBoardMutationOrigin(
+  req: Request,
+  options?: BoardMutationGuardOptions,
+): string | null {
+  const allowedOrigins = trustedOriginsForRequest(req, options);
   const origin = parseOrigin(req.header("origin"));
   if (origin && allowedOrigins.has(origin)) return origin;
 
@@ -73,7 +99,7 @@ export function trustedBoardMutationOrigin(req: Request): string | null {
   return null;
 }
 
-export function boardMutationGuard(): RequestHandler {
+export function boardMutationGuard(options?: BoardMutationGuardOptions): RequestHandler {
   return (req, res, next) => {
     if (SAFE_METHODS.has(req.method.toUpperCase())) {
       next();
@@ -98,7 +124,7 @@ export function boardMutationGuard(): RequestHandler {
       return;
     }
 
-    if (!trustedBoardMutationOrigin(req)) {
+    if (!trustedBoardMutationOrigin(req, options)) {
       res.status(403).json({ error: "Board mutation requires trusted browser origin" });
       return;
     }
