@@ -77,7 +77,7 @@ describe("markdownToHtml", () => {
   it("does not mistake a paragraph containing a pipe for a table", () => {
     const html = markdownToHtml("use a | b for alternatives\nand carry on");
     expect(html).not.toContain("<table");
-    expect(html).toContain("<p");
+    expect(html).toContain("<div>use a | b for alternatives");
   });
 
   it("cannot be tricked into restoring forged code placeholders", () => {
@@ -106,8 +106,7 @@ describe("markdownToHtml", () => {
     expect(html).toContain("Verzendadres:<br />");
     expect(html).toContain("GamerBase, t.a.v. Jelle Posthuma<br />");
     expect(html).toContain("Grettingalaan 42<br />");
-    expect(html).toContain("8862 ZD Harlingen");
-    expect(html).toContain('style="margin:0 0 16px 0;margin-bottom:16px;line-height:1.6;"');
+    expect(html).toContain("8862 ZD Harlingen</div>");
   });
 
   it("supports CommonMark trailing backslash hard line break", () => {
@@ -117,19 +116,20 @@ describe("markdownToHtml", () => {
     expect(html).not.toContain("Line one\\");
   });
 
-  it("applies email-safe paragraph spacing across multiple paragraphs", () => {
+  it("applies email-safe paragraph spacing across multiple paragraphs in Gmail-compatible format", () => {
     const markdown = ["Alinea 1", "", "Alinea 2"].join("\n");
     const html = markdownToHtml(markdown);
-    expect(html).toContain('<p style="margin:0 0 16px 0;margin-bottom:16px;line-height:1.6;">Alinea 1</p>');
-    expect(html).toContain('<p style="margin:0 0 16px 0;margin-bottom:16px;line-height:1.6;">Alinea 2</p>');
+    expect(html).toContain("<div>Alinea 1</div>");
+    expect(html).toContain("<div><br></div>");
+    expect(html).toContain("<div>Alinea 2</div>");
   });
 });
 
 describe("wrapEmailHtml", () => {
-  it("produces a self-contained document with no remote asset", () => {
-    const html = wrapEmailHtml("<p>hi</p>", "Sent by a Paperclip agent.");
-    expect(html).toContain("<!doctype html>");
-    expect(html).toContain("<p>hi</p>");
+  it("produces a clean Gmail-compatible container with no remote asset", () => {
+    const html = wrapEmailHtml("<div>hi</div>", "Sent by a Paperclip agent.");
+    expect(html).toContain('dir="ltr"');
+    expect(html).toContain("<div>hi</div>");
     expect(html).toContain("Sent by a Paperclip agent.");
     // A remote fetch would leak when and where the report was opened.
     expect(html).not.toMatch(/src="https?:/);
@@ -137,7 +137,7 @@ describe("wrapEmailHtml", () => {
   });
 
   it("escapes the footer", () => {
-    expect(wrapEmailHtml("<p>hi</p>", "<script>x</script>")).toContain("&lt;script&gt;");
+    expect(wrapEmailHtml("<div>hi</div>", "<script>x</script>")).toContain("&lt;script&gt;");
   });
 
   it("interpolates into custom HTML template with {{body}}, {{subject}}, and {{footer}}", () => {
@@ -160,5 +160,36 @@ describe("wrapEmailHtml", () => {
     expect(result).toContain("<h2>Daily News</h2>");
     expect(result).toContain("<div><p>Gamer news</p></div>");
     expect(result).toContain("<small>Automated footer</small>");
+  });
+
+  it("renders a multi-paragraph outreach draft to clean Gmail-compatible HTML", () => {
+    const markdown = [
+      "Alinea 1. Dit is de eerste alinea van de proef.",
+      "",
+      "Alinea 2. Hiervoor staat een gewone witregel in de Markdown.",
+      "Alinea 3, regel A.  ",
+      "Alinea 3, regel B na een harde regelafbreking.",
+      "**Vet**, *cursief* en een [link met tekst](https://gamerbase.nl/press).",
+      "",
+      "- lijstitem A",
+      "- lijstitem B",
+      "",
+      "Slotalinea.",
+      "",
+      "Jelle Posthuma  ",
+      "Editor in chief, GamerBase",
+    ].join("\n");
+
+    const html = wrapEmailHtml(markdownToHtml(markdown), null);
+    expect(html).toContain('<div dir="ltr"');
+    expect(html).toContain("<div>Alinea 1. Dit is de eerste alinea van de proef.</div>");
+    expect(html).toContain("<div><br></div>");
+    expect(html).toContain("<div>Alinea 2. Hiervoor staat een gewone witregel in de Markdown.<br />\nAlinea 3, regel A.<br />");
+    expect(html).toContain("<strong>Vet</strong>, <em>cursief</em> en een <a href=\"https://gamerbase.nl/press\"");
+    expect(html).toContain("<ul style=\"margin:8px 0 16px;padding-left:22px;\">");
+    expect(html).toContain("<div>Slotalinea.</div>");
+    expect(html).toContain("<div>Jelle Posthuma<br />\nEditor in chief, GamerBase</div>");
+    expect(html).not.toContain("<p style=");
+    expect(html).not.toContain("<!doctype html>");
   });
 });

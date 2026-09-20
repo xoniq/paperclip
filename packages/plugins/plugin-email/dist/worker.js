@@ -77900,7 +77900,7 @@ async function resolvePassword(ctx, config2, companyId) {
 
 // src/manifest.ts
 var PLUGIN_ID = "paperclip.email";
-var PLUGIN_VERSION = "0.3.0";
+var PLUGIN_VERSION = "0.3.1";
 var TOOL_SEND_EMAIL = "send_email";
 var SLOT_COMPANY_SETTINGS = "email-company-settings";
 var EXPORT_COMPANY_SETTINGS = "EmailCompanySettingsPage";
@@ -87880,7 +87880,12 @@ function markdownToHtml(source) {
       continue;
     }
     if (line.trim().length === 0) {
-      index += 1;
+      while (index < lines.length && (lines[index] ?? "").trim().length === 0) {
+        index += 1;
+      }
+      if (out.length > 0 && index < lines.length && out[out.length - 1] !== "<div><br></div>") {
+        out.push("<div><br></div>");
+      }
       continue;
     }
     if (/^\s*(-{3,}|\*{3,}|_{3,})\s*$/.test(line)) {
@@ -87958,7 +87963,7 @@ function markdownToHtml(source) {
         const clean = entry.replace(/\\$/, "").trim();
         return renderInline(clean);
       });
-      out.push(`<p style="margin:0 0 16px 0;margin-bottom:16px;line-height:1.6;">${renderedLines.join("<br />\n")}</p>`);
+      out.push(`<div>${renderedLines.join("<br />\n")}</div>`);
     }
   }
   return out.join("\n");
@@ -87969,26 +87974,12 @@ function wrapEmailHtml(fragment, footer, customTemplate, subject) {
     const escapedSubject = subject != null ? escapeHtml(subject) : "";
     return customTemplate.replaceAll("{{body}}", fragment).replaceAll("[body]", fragment).replaceAll("{{footer}}", escapedFooter).replaceAll("[footer]", escapedFooter).replaceAll("{{subject}}", escapedSubject).replaceAll("[subject]", escapedSubject);
   }
-  const footerHtml = footer == null ? "" : `<hr style="border:none;border-top:1px solid #e4e4e7;margin:24px 0 12px;" /><p style="margin:0;font-size:12px;color:#71717a;">${escapeHtml(footer)}</p>`;
-  return [
-    '<!doctype html><html><head><meta charset="utf-8" />',
-    '<meta name="viewport" content="width=device-width, initial-scale=1" />',
-    "<style>",
-    "body, table, td, p, a, li, blockquote { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }",
-    "p { margin: 0 0 16px 0; margin-bottom: 16px; }",
-    "h1, h2, h3, h4 { margin: 20px 0 8px; }",
-    "ul, ol { margin: 8px 0 16px; padding-left: 24px; }",
-    "li { margin: 4px 0; }",
-    "hr { border: none; border-top: 1px solid #d4d4d8; margin: 24px 0; }",
-    "blockquote { margin: 16px 0; padding-left: 12px; border-left: 3px solid #d4d4d8; color: #52525b; }",
-    "</style>",
-    "</head>",
-    '<body style="margin:0;padding:0;background:#ffffff;">',
-    `<div style="max-width:640px;margin:0 auto;padding:24px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:14px;line-height:1.6;color:#18181b;">`,
-    fragment,
-    footerHtml,
-    "</div></body></html>"
-  ].join("");
+  const footerHtml = footer == null ? "" : `
+<div><br></div>
+<div style="font-size:12px;color:#71717a;border-top:1px solid #e4e4e7;padding-top:8px;margin-top:16px;">${escapeHtml(footer)}</div>`;
+  return `<div dir="ltr" style="font-family:verdana,sans-serif;font-size:14px;color:#222222;line-height:1.5;">
+${fragment}${footerHtml}
+</div>`;
 }
 
 // src/smtp.ts

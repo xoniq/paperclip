@@ -8,7 +8,7 @@ import {
 } from "@paperclipai/plugin-sdk/ui";
 
 // src/manifest.ts
-var PLUGIN_VERSION = "0.3.0";
+var PLUGIN_VERSION = "0.3.1";
 var DATA_OVERVIEW = "overview";
 var ACTION_SEND_TEST = "sendTest";
 
